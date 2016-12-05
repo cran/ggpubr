@@ -5,9 +5,9 @@
 \title{Box plot}
 \usage{
 ggboxplot(data, x, y, color = "black", fill = "white", palette = NULL,
-  linetype = "solid", size = 1, width = 1, notch = FALSE,
+  linetype = "solid", size = NULL, width = 1, notch = FALSE,
   select = NULL, order = NULL, add = "none", add.params = list(),
-  error.plot = "pointrange", ggtheme = theme_pubr(), ...)
+  error.plot = "pointrange", ggtheme = theme_classic2(), ...)
 }
 \arguments{
 \item{data}{a data frame}
@@ -24,7 +24,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 
 \item{linetype}{line types.}
 
-\item{size}{change the size of points and outlines.}
+\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
 
 \item{width}{plot width.}
 
@@ -39,7 +39,7 @@ are significantly different.}
 
 \item{add}{character vector for adding another plot element (e.g.: dot plot
 or error bars). Allowed values are one or the combination of: "none",
-"dotplot", "jitter", "boxplot", "mean", "mean_se", "mean_sd", "mean_ci",
+"dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd", "mean_ci",
 "mean_range", "median", "median_iqr", "median_mad", "median_range"; see
 ?desc_statby for more details.}
 

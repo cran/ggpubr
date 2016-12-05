@@ -5,9 +5,9 @@
 \title{Dot plot}
 \usage{
 ggdotplot(data, x, y, color = "black", fill = "lightgray", palette = NULL,
-  size = 1, select = NULL, order = NULL, add = "mean_se",
-  add.params = list(), error.plot = "pointrange", ggtheme = theme_pubr(),
-  ...)
+  size = NULL, select = NULL, order = NULL, add = "mean_se",
+  add.params = list(), error.plot = "pointrange",
+  ggtheme = theme_classic2(), ...)
 }
 \arguments{
 \item{data}{a data frame}
@@ -22,7 +22,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 "red"); and scientific journal palettes from ggsci R package, e.g.: "npg", "aaas", "lancet", "jco",
 "ucscgb", "uchicago", "simpsons" and "rickandmorty".}
 
-\item{size}{change the size of points and outlines.}
+\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
 
 \item{select}{character vector specifying which items to display.}
 
@@ -30,7 +30,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 
 \item{add}{character vector for adding another plot element (e.g.: dot plot
 or error bars). Allowed values are one or the combination of: "none",
-"dotplot", "jitter", "boxplot", "mean", "mean_se", "mean_sd", "mean_ci",
+"dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd", "mean_ci",
 "mean_range", "median", "median_iqr", "median_mad", "median_range"; see
 ?desc_statby for more details.}
 

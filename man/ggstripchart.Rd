@@ -5,9 +5,9 @@
 \title{Stripcharts}
 \usage{
 ggstripchart(data, x, y, color = "black", fill = "white", palette = NULL,
-  shape = 19, size = 2, select = NULL, order = NULL, add = "mean_se",
-  add.params = list(), error.plot = "pointrange",
-  position = position_jitter(0.4), ggtheme = theme_pubr(), ...)
+  shape = 19, size = NULL, select = NULL, order = NULL,
+  add = "mean_se", add.params = list(), error.plot = "pointrange",
+  position = position_jitter(0.4), ggtheme = theme_classic2(), ...)
 }
 \arguments{
 \item{data}{a data frame}
@@ -24,7 +24,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 
 \item{shape}{point shape}
 
-\item{size}{change the size of points and outlines.}
+\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
 
 \item{select}{character vector specifying which items to display.}
 
@@ -32,7 +32,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 
 \item{add}{character vector for adding another plot element (e.g.: dot plot
 or error bars). Allowed values are one or the combination of: "none",
-"dotplot", "jitter", "boxplot", "mean", "mean_se", "mean_sd", "mean_ci",
+"dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd", "mean_ci",
 "mean_range", "median", "median_iqr", "median_mad", "median_range"; see
 ?desc_statby for more details.}
 

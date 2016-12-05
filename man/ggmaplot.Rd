@@ -5,11 +5,11 @@
 \title{MA-plot from means and log fold changes}
 \usage{
 ggmaplot(data, fdr = 0.05, fc = 1.5, genenames = NULL,
-  detection_call = NULL, size = 0.9, font.label = c(12, "plain", "black"),
-  label.rectangle = FALSE, palette = c("#B31B21", "#1465AC", "darkgray"),
-  top = 15, select.top.method = c("padj", "fc"), main = NULL,
+  detection_call = NULL, size = NULL, font.label = c(12, "plain",
+  "black"), label.rectangle = FALSE, palette = c("#B31B21", "#1465AC",
+  "darkgray"), top = 15, select.top.method = c("padj", "fc"), main = NULL,
   xlab = "Log2 mean expression", ylab = "Log2 fold change",
-  ggtheme = theme_pubr(), ...)
+  ggtheme = theme_classic2(), ...)
 }
 \arguments{
 \item{data}{an object of class DESeqResults, get_diff, DE_Results, matrix or
@@ -48,7 +48,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 "red"); and scientific journal palettes from ggsci R package, e.g.: "npg", "aaas", "lancet", "jco",
 "ucscgb", "uchicago", "simpsons" and "rickandmorty".}
 
-\item{top}{the number of top genes to be shown on the plot.}
+\item{top}{the number of top genes to be shown on the plot. Use top = 0 to hide to gene labels.}
 
 \item{select.top.method}{methods to be used for selecting top genes. Allowed
 values include "padj" and "fc" for selecting by adjusted p values or fold
@@ -56,13 +56,11 @@ changes, respectively.}
 
 \item{main}{plot main title.}
 
-\item{xlab}{character vector specifying x and y axis labels,
-respectively. Use xlab = FALSE and ylab = FALSE to hide xlab and ylab,
-respectively.}
+\item{xlab}{character vector specifying x axis labels, respectively. Use xlab
+= FALSE to hide xlab.}
 
-\item{ylab}{character vector specifying x and y axis labels,
-respectively. Use xlab = FALSE and ylab = FALSE to hide xlab and ylab,
-respectively.}
+\item{ylab}{character vector specifying y axis labels. Use ylab = FALSE to
+hide ylab.}
 
 \item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),

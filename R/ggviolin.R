@@ -86,14 +86,21 @@ NULL
 #'@export
 ggviolin <- function(data, x, y,
                       color = "black", fill = "white", palette = NULL,
-                      linetype = "solid", trim = FALSE, size = 1, width = 1,
+                      linetype = "solid", trim = FALSE, size = NULL, width = 1,
                       draw_quantiles = NULL,
                       select = NULL, order = NULL,
                       add = "mean_se", add.params = list(),
                       error.plot = "pointrange",
-                      ggtheme = theme_pubr(),
+                      ggtheme = theme_classic2(),
                      ...)
 {
+
+  # Check data
+  .dd <- .check_data(data, x, y)
+  data <- .dd$data
+  x <- .dd$x
+  y <- .dd$y
+
 
   data[, x] <- factor(data[, x])
   pms <- .violin_params(...)

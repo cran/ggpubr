@@ -5,11 +5,12 @@
 \title{Bar plot}
 \usage{
 ggbarplot(data, x, y, color = "black", fill = "white", palette = NULL,
-  size = 1, width = NULL, label = FALSE, lab.col = "black",
-  lab.size = 5, lab.pos = c("out", "in"), lab.vjust = NULL,
-  select = NULL, order = NULL, add = "none", add.params = list(),
-  error.plot = "errorbar", position = position_stack(),
-  ggtheme = theme_pubr(), ...)
+  size = NULL, width = NULL, label = FALSE, lab.col = "black",
+  lab.size = 4, lab.pos = c("out", "in"), lab.vjust = NULL,
+  lab.hjust = NULL, select = NULL, order = NULL, sort.val = c("none",
+  "desc", "asc"), sort.by.groups = TRUE, top = Inf, add = "none",
+  add.params = list(), error.plot = "errorbar",
+  position = position_stack(), ggtheme = theme_classic2(), ...)
 }
 \arguments{
 \item{data}{a data frame}
@@ -24,7 +25,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 "red"); and scientific journal palettes from ggsci R package, e.g.: "npg", "aaas", "lancet", "jco",
 "ucscgb", "uchicago", "simpsons" and "rickandmorty".}
 
-\item{size}{change the size of points and outlines.}
+\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
 
 \item{width}{plot width.}
 
@@ -43,13 +44,23 @@ NULL.}
 value (e.g.: -0.4) to put labels outside the bars or positive value to put
 labels inside (e.g.: 2).}
 
+\item{lab.hjust}{numeric, horizontal justification of labels.}
+
 \item{select}{character vector specifying which items to display.}
 
 \item{order}{character vector specifying the order of items.}
 
+\item{sort.val}{a string specifying whether the value should be sorted.
+Allowed values are "none" (no sorting), "asc" (for ascending) or "desc" (for descending).}
+
+\item{sort.by.groups}{logical value. If TRUE the data are sorted by groups.
+Used only when sort.val != "none".}
+
+\item{top}{a numeric value specifying the number of top elements to be shown.}
+
 \item{add}{character vector for adding another plot element (e.g.: dot plot
 or error bars). Allowed values are one or the combination of: "none",
-"dotplot", "jitter", "boxplot", "mean", "mean_se", "mean_sd", "mean_ci",
+"dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd", "mean_ci",
 "mean_range", "median", "median_iqr", "median_mad", "median_range"; see
 ?desc_statby for more details.}
 

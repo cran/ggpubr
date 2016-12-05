@@ -9,11 +9,12 @@ ggscatter(data, x, y, color = "black", fill = "lightgray", palette = NULL,
   "reg.line", "loess"), add.params = list(), conf.int = FALSE,
   conf.int.level = 0.95, fullrange = FALSE, ellipse = FALSE,
   ellipse.level = 0.95, ellipse.type = "norm", ellipse.alpha = 0.1,
-  mean.point = FALSE, mean.point.size = 2 * size, label = NULL,
+  mean.point = FALSE, mean.point.size = 2 * size, star.plot = FALSE,
+  star.plot.lty = 1, star.plot.lwd = NULL, label = NULL,
   font.label = c(12, "plain"), label.select = NULL, repel = FALSE,
   label.rectangle = FALSE, cor.coef = FALSE, cor.method = "pearson",
-  cor.coef.coord = c(NULL, NULL), cor.coef.size = 12,
-  ggtheme = theme_pubr(), ...)
+  cor.coef.coord = c(NULL, NULL), cor.coef.size = 12, ggp = NULL,
+  ggtheme = theme_classic2(), ...)
 }
 \arguments{
 \item{data}{a data frame}
@@ -30,7 +31,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 
 \item{shape}{point shape. See \code{\link{show_point_shapes}}.}
 
-\item{size}{change the size of points and outlines.}
+\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
 
 \item{point}{logical value. If TRUE, show points.}
 
@@ -56,7 +57,7 @@ data. Used only when add != "none".}
 probability.}
 
 \item{ellipse.type}{Character specifying frame type. Possible values are
-'convex', 'confidence' or types supporeted by
+'convex', 'confidence' or types supported by
 \code{\link[ggplot2]{stat_ellipse}} including one of c("t", "norm",
 "euclid").}
 
@@ -68,12 +69,19 @@ plot.}
 
 \item{mean.point.size}{numeric value specifying the size of mean points.}
 
-\item{label}{the name of the column containing point labels.}
+\item{star.plot}{logical value. If TRUE, a star plot is generated.}
+
+\item{star.plot.lty, star.plot.lwd}{line type and line width (size) for star
+plot, respectively.}
+
+\item{label}{the name of the column containing point labels. Can be also a
+character vector with length = nrow(data).}
 
 \item{font.label}{a vector of length 3 indicating respectively the size
 (e.g.: 14), the style (e.g.: "plain", "bold", "italic", "bold.italic") and
 the color (e.g.: "red") of point labels. For example \emph{font.label =
-c(14, "bold", "red")}. To specify only the size and the style, use font.label = c(14, "plain").}
+c(14, "bold", "red")}. To specify only the size and the style, use
+font.label = c(14, "plain").}
 
 \item{label.select}{character vector specifying some labels to show.}
 
@@ -93,6 +101,8 @@ values are one of "pearson", "kendall", or "spearman".}
 coordinates of the correlation coefficient. Default values are NULL.}
 
 \item{cor.coef.size}{correlation coefficient text font size.}
+
+\item{ggp}{a ggplot. If not NULL, points are added to an existing plot.}
 
 \item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
@@ -151,11 +161,13 @@ ggscatter(df, x = "wt", y = "mpg", color = "cyl",
 
 
 # Add group ellipses and mean points
+# Add stars
 # +++++++++++++++++++
 ggscatter(df, x = "wt", y = "mpg",
    color = "cyl", shape = "cyl",
    palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-   ellipse = TRUE, mean.point = TRUE)
+   ellipse = TRUE, mean.point = TRUE,
+   star.plot = TRUE)
 
 
 # Textual annotation

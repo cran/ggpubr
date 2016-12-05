@@ -57,14 +57,20 @@ NULL
 #' @export
 ggdensity <- function(data, x, y = "..density..",
                       color = "black", fill = NA, palette = NULL,
-                      size = 1, linetype = "solid", alpha = 0.5,
+                      size = NULL, linetype = "solid", alpha = 0.5,
                       add = c("none", "mean", "median"),
                       add.params = list(linetype = "dashed"),
                       rug = FALSE,
-                      ggtheme = theme_pubr(),
+                      ggtheme = theme_classic2(),
                       ...)
 {
 
+
+  # Check data
+  .dd <- .check_data(data, x, y)
+  data <- .dd$data
+  x <- .dd$x
+  y <- .dd$y
 
   add <- match.arg(add)
   add.params <- .check_add.params(add, add.params, error.plot = "", data, color, fill, ...)

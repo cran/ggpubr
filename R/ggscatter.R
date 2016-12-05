@@ -21,7 +21,7 @@ NULL
 #' @param ellipse.level the size of the concentration ellipse in normal
 #'   probability.
 #' @param ellipse.type Character specifying frame type. Possible values are
-#'   'convex', 'confidence' or types supporeted by
+#'   'convex', 'confidence' or types supported by
 #'   \code{\link[ggplot2]{stat_ellipse}} including one of c("t", "norm",
 #'   "euclid").
 #' @param ellipse.alpha Alpha for ellipse specifying the transparency level of
@@ -29,11 +29,16 @@ NULL
 #' @param mean.point logical value. If TRUE, group mean points are added to the
 #'   plot.
 #' @param mean.point.size numeric value specifying the size of mean points.
-#' @param label the name of the column containing point labels.
+#' @param star.plot logical value. If TRUE, a star plot is generated.
+#' @param star.plot.lty,star.plot.lwd line type and line width (size) for star
+#'   plot, respectively.
+#' @param label the name of the column containing point labels. Can be also a
+#'   character vector with length = nrow(data).
 #' @param font.label a vector of length 3 indicating respectively the size
 #'   (e.g.: 14), the style (e.g.: "plain", "bold", "italic", "bold.italic") and
 #'   the color (e.g.: "red") of point labels. For example \emph{font.label =
-#'   c(14, "bold", "red")}. To specify only the size and the style, use font.label = c(14, "plain").
+#'   c(14, "bold", "red")}. To specify only the size and the style, use
+#'   font.label = c(14, "plain").
 #' @param label.select character vector specifying some labels to show.
 #' @param repel a logical value, whether to use ggrepel to avoid overplotting
 #'   text labels or not.
@@ -44,8 +49,9 @@ NULL
 #' @param cor.method method for computing correlation coefficient. Allowed
 #'   values are one of "pearson", "kendall", or "spearman".
 #' @param cor.coef.coord numeric vector, of length 2, specifying the x and y
-#'  coordinates of the correlation coefficient. Default values are NULL.
+#'   coordinates of the correlation coefficient. Default values are NULL.
 #' @param cor.coef.size correlation coefficient text font size.
+#' @param ggp a ggplot. If not NULL, points are added to an existing plot.
 #' @param ... other arguments to be passed to \code{\link[ggplot2]{geom_point}}
 #'   and \code{\link{ggpar}}.
 #' @details The plot can be easily customized using the function ggpar(). Read
@@ -94,11 +100,13 @@ NULL
 #'
 #'
 #' # Add group ellipses and mean points
+#' # Add stars
 #' # +++++++++++++++++++
 #' ggscatter(df, x = "wt", y = "mpg",
 #'    color = "cyl", shape = "cyl",
 #'    palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-#'    ellipse = TRUE, mean.point = TRUE)
+#'    ellipse = TRUE, mean.point = TRUE,
+#'    star.plot = TRUE)
 #'
 #'
 #' # Textual annotation
@@ -118,27 +126,45 @@ ggscatter <- function(data, x, y,
                       ellipse = FALSE, ellipse.level = 0.95,
                       ellipse.type = "norm", ellipse.alpha = 0.1,
                       mean.point = FALSE, mean.point.size = 2*size,
+                      star.plot = FALSE, star.plot.lty = 1, star.plot.lwd = NULL,
                       label = NULL,  font.label = c(12, "plain"),
                       label.select = NULL, repel = FALSE, label.rectangle = FALSE,
                       cor.coef = FALSE, cor.method = "pearson", cor.coef.coord = c(NULL, NULL), cor.coef.size = 12,
-                      ggtheme = theme_pubr(),
+                      ggp = NULL,
+                      ggtheme = theme_classic2(),
                       ...)
 {
 
   add <- match.arg(add)
   add.params <- .check_add.params(add, add.params, error.plot = "", data, color, fill, ...)
+
+  if(length(label) >1){
+    if(length(label) != nrow(data))
+      stop("The argument label should be a column name or a vector of length = nrow(data). ",
+           "It seems that length(label) != nrow(data)")
+    else data$label.xx <- label
+    label <- "label.xx"
+  }
+
   # label font
   font.label <- .parse_font(font.label)
   font.label$size <- ifelse(is.null(font.label$size), 12, font.label$size)
   font.label$color <- ifelse(is.null(font.label$color), color, font.label$color)
   font.label$face <- ifelse(is.null(font.label$face), "plain", font.label$face)
 
-  p <- ggplot(data, aes_string(x, y))
+  if(is.null(ggp)) p <- ggplot(data, aes_string(x, y))
+  else p <- ggp
 
   if(point) p <- p +
-      .geom_exec(geom_point, data = data,
+      .geom_exec(geom_point, data = data, x = x, y = y,
                  color = color, fill = fill, size = size,
                  shape = shape, ...)
+
+  # Adjust shape when ngroups > 6, to avoid ggplot warnings
+  if(shape %in% colnames(data)){
+    ngroups <- length(levels(data[, shape]))
+    if(ngroups > 6) p <- p + scale_shape_manual(values=1:ngroups, labels = levels(data[, shape]))
+  }
 
   # Add marginal rug
   # +++++++++++
@@ -200,8 +226,20 @@ ggscatter <- function(data, x, y,
                         size = mean.point.size)
   }
 
+  # Star plots
+  # ++++++++++++
+  if(star.plot){
+    p <-.add_stars(p, data, x, y, color, fill, shape,
+                   star.plot.lty = star.plot.lty, star.plot.lwd = star.plot.lwd)
+  }
+
+  #/ star plots
+
   # Add textual annotation
   # ++++++
+  alpha <- 1
+  if(!is.null(list(...)$alpha)) alpha <- list(...)$alpha
+
   if(!is.null(label)) {
     lab_data <- data
     # Select some labels to show
@@ -212,9 +250,10 @@ ggscatter <- function(data, x, y,
     if(repel){
       ggfunc <- ggrepel::geom_text_repel
       if(label.rectangle) ggfunc <- ggrepel::geom_label_repel
-        p <- p + .geom_exec(ggfunc, data = lab_data,
+        p <- p + .geom_exec(ggfunc, data = lab_data, x = x, y = y,
                           label = label, fontface = font.label$face,
                           size = font.label$size/3, color = font.label$color,
+                          alpha = alpha,
                           box.padding = unit(0.35, "lines"),
                           point.padding = unit(0.3, "lines"),
                           force = 1)
@@ -226,10 +265,10 @@ ggscatter <- function(data, x, y,
         ggfunc <- geom_label
         vjust <- -0.4
         }
-      p <- p + .geom_exec(ggfunc, data = lab_data, color = color,
+      p <- p + .geom_exec(ggfunc, data = lab_data, x = x, y = y, color = color,
                           label = label, fontface = font.label$face,
                           size = font.label$size/3, color = font.label$color,
-                          vjust = vjust)
+                          vjust = vjust, alpha = alpha)
     }
   }
 
@@ -308,6 +347,39 @@ ggscatter <- function(data, x, y,
   }
 }
 
+
+# Add stars to a plot
+# +++++++++++++++++++++
+.add_stars <- function(p, data, x, y, color, fill, shape, star.plot.lty, star.plot.lwd){
+
+  grp <- intersect(unique(c(color, fill, shape, star.plot.lty)), colnames(data))[1]
+  data <- stats::na.omit(data)
+  # NO grouping variable
+  if(is.na(grp)) {
+    grp <- factor(rep(1, nrow(data)))
+    grp_name <- "group"
+    data$group <- grp
+  }
+  # Case of grouping variable
+  else {
+    grp_name <- grp
+    grp <- data[, grp_name]
+    if(!inherits(data[, grp_name], "factor")) data[, grp_name] <- as.factor(data[, grp_name])
+  }
+  dd <- cbind.data.frame(grp = grp, data[, c(x, y)])
+  # calculate group centroid locations
+  centroids <- stats::aggregate(data[, c(x, y)], by = list(grp = grp), mean)
+  # merge centroid locations into ggplot dataframe
+  dd <- merge(dd, centroids, by="grp", suffixes = c("",".centroid"))
+  colnames(dd)[1] <- grp_name
+
+  .coord <- paste0(c(x, y), ".centroid")
+
+  # Star plot
+  p + .geom_exec(geom_segment, data = dd, x = .coord[1], y = .coord[2],
+                 xend = x, yend = y, color = color, linetype = star.plot.lty,
+                 size = star.plot.lwd)
+}
 
 
 

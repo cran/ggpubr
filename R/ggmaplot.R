@@ -27,7 +27,7 @@ NULL
 #'   c(14, "bold", "red")}.
 #' @param label.rectangle logical value. If TRUE, add rectangle underneath the
 #'   text, making it easier to read.
-#' @param top the number of top genes to be shown on the plot.
+#' @param top the number of top genes to be shown on the plot. Use top = 0 to hide to gene labels.
 #' @param select.top.method methods to be used for selecting top genes. Allowed
 #'   values include "padj" and "fc" for selecting by adjusted p values or fold
 #'   changes, respectively.
@@ -59,12 +59,12 @@ NULL
 #'    ggtheme = ggplot2::theme_minimal())
 #' @export
 ggmaplot <- function (data, fdr = 0.05, fc = 1.5, genenames = NULL,
-                     detection_call = NULL, size = 0.9,
+                     detection_call = NULL, size = NULL,
                      font.label = c(12, "plain", "black"), label.rectangle = FALSE,
                      palette = c("#B31B21", "#1465AC", "darkgray"),
                      top = 15, select.top.method = c("padj", "fc"),
                      main = NULL, xlab = "Log2 mean expression",  ylab = "Log2 fold change",
-                     ggtheme = theme_pubr(),...)
+                     ggtheme = theme_classic2(),...)
 {
 
   if(!base::inherits(data, c("matrix", "data.frame", "DataFrame", "DE_Results", "DESeqResults")))
@@ -108,7 +108,7 @@ ggmaplot <- function (data, fdr = 0.05, fc = 1.5, genenames = NULL,
   else if(select.top.method == "fc") data <- data[order(abs(data$lfc), decreasing = TRUE), ]
   # select data for top genes
   labs_data <- stats::na.omit(data)
-  labs_data <- subset(labs_data, padj <= 0.05 & name!="")
+  labs_data <- subset(labs_data, padj <= 0.05 & name!="" & abs(lfc) >= log2(fc))
   labs_data <- utils::head(labs_data, top)
 
   font.label <- .parse_font(font.label)

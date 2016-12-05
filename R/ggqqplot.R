@@ -43,13 +43,19 @@ NULL
 #' @export
 ggqqplot <- function(data, x,
                       color = "black",  palette = NULL,
-                      size = 1,
+                      size = NULL,
                       add = c( "qqline", "none"),
                       add.params = list(linetype = "solid"),
                       conf.int = TRUE, conf.int.level = 0.95,
-                      ggtheme = theme_pubr(),
+                      ggtheme = theme_classic2(),
                       ...)
 {
+
+  # Check data
+  .dd <- .check_data(data, x, y=NULL)
+  data <- .dd$data
+  x <- .dd$x
+  y <- .dd$y
 
   add <- match.arg(add)
   add.params <- .check_add.params(add, add.params, error.plot = "", data, color, fill = "white", ...)

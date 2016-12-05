@@ -1,4 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+[![Build Status](https://api.travis-ci.org/kassambara/ggpubr.png)](https://travis-ci.org/kassambara/ggpubr) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/ggpubr)](https://cran.r-project.org/package=ggpubr) [![Downloads](http://cranlogs.r-pkg.org/badges/ggpubr)](https://cran.r-project.org/package=ggpubr) [![Total Downloads](http://cranlogs.r-pkg.org/badges/grand-total/ggpubr?color=orange)](http://cranlogs.r-pkg.org/badges/grand-total/ggpubr)
+
 ggpubr: 'ggplot2' Based Publication Ready Plots
 ===============================================
 
@@ -112,3 +114,8 @@ ggviolin(df, x = "dose", y = "len", fill = "dose",
 ### More
 
 Find out more at <http://www.sthda.com/english/rpkgs/ggpubr>.
+
+Blog posts
+----------
+
+-   A. Kassambara. STHDA Jully 2016. [ggpubr R Package: ggplot2-Based Publication Ready Plots](http://www.sthda.com/english/wiki/ggpubr-r-package-ggplot2-based-publication-ready-plots)

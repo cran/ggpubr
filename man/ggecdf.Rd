@@ -4,8 +4,8 @@
 \alias{ggecdf}
 \title{Empirical cumulative density function}
 \usage{
-ggecdf(data, x, color = "black", palette = NULL, size = 1,
-  linetype = "solid", ggtheme = theme_pubr(), ...)
+ggecdf(data, x, color = "black", palette = NULL, size = NULL,
+  linetype = "solid", ggtheme = theme_classic2(), ...)
 }
 \arguments{
 \item{data}{a data frame}

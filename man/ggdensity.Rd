@@ -5,9 +5,9 @@
 \title{Density plot}
 \usage{
 ggdensity(data, x, y = "..density..", color = "black", fill = NA,
-  palette = NULL, size = 1, linetype = "solid", alpha = 0.5,
+  palette = NULL, size = NULL, linetype = "solid", alpha = 0.5,
   add = c("none", "mean", "median"), add.params = list(linetype = "dashed"),
-  rug = FALSE, ggtheme = theme_pubr(), ...)
+  rug = FALSE, ggtheme = theme_classic2(), ...)
 }
 \arguments{
 \item{data}{a data frame}
@@ -24,7 +24,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 "red"); and scientific journal palettes from ggsci R package, e.g.: "npg", "aaas", "lancet", "jco",
 "ucscgb", "uchicago", "simpsons" and "rickandmorty".}
 
-\item{size}{change the size of points and outlines.}
+\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
 
 \item{linetype}{line type. See \code{\link{show_line_types}}.}
 

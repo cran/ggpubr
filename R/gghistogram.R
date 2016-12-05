@@ -66,21 +66,31 @@ NULL
 #' @export
 gghistogram <- function(data, x, y = "..count..",
                       color = "black", fill = NA, palette = NULL,
-                      size = 1, linetype = "solid", alpha = 0.5,
-                      bins = 30,
+                      size = NULL, linetype = "solid", alpha = 0.5,
+                      bins = NULL,
                       add = c("none", "mean", "median"),
                       add.params = list(linetype = "dashed"),
                       rug = FALSE, add_density = FALSE,
-                      ggtheme = theme_pubr(),
+                      ggtheme = theme_classic2(),
                       ...)
 {
 
+  # Check data
+  .dd <- .check_data(data, x, y)
+  data <- .dd$data
+  x <- .dd$x
+  y <- .dd$y
+  # Check bins
+  if(is.null(bins)){
+    bins <- 30
+    warning("Using `bins = 30` by default. Pick better value with the argument `bins`.")
+  }
 
   add <- match.arg(add)
   add.params <- .check_add.params(add, add.params, error.plot = "", data, color, fill, ...)
   if(is.null(add.params$size)) add.params$size <- size
   if(is.null(add.params$linetype)) add.params$linetype <- linetype
-  if(add_density) y <- "..density.."
+  # if(add_density) y <- "..density.."
 
   p <- ggplot(data, aes_string(x, y))
 

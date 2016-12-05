@@ -12,14 +12,14 @@ NULL
 #'   "red"); and scientific journal palettes from ggsci R package, e.g.: "npg", "aaas", "lancet", "jco",
 #'   "ucscgb", "uchicago", "simpsons" and "rickandmorty".
 #' @param linetype line types.
-#' @param size change the size of points and outlines.
+#' @param size Numeric value (e.g.: size = 1). change the size of points and outlines.
 #' @param width plot width.
 #' @inheritParams ggplot2::geom_boxplot
 #' @param select character vector specifying which items to display.
 #' @param order character vector specifying the order of items.
 #' @param add character vector for adding another plot element (e.g.: dot plot
 #'   or error bars). Allowed values are one or the combination of: "none",
-#'   "dotplot", "jitter", "boxplot", "mean", "mean_se", "mean_sd", "mean_ci",
+#'   "dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd", "mean_ci",
 #'   "mean_range", "median", "median_iqr", "median_mad", "median_range"; see
 #'   ?desc_statby for more details.
 #' @param add.params parameters (color, shape, size, fill, linetype) for the
@@ -113,16 +113,21 @@ NULL
 #' @export
 ggboxplot <- function(data, x, y,
                       color = "black", fill = "white", palette = NULL,
-                      linetype = "solid", size = 1, width = 1,  notch = FALSE,
+                      linetype = "solid", size = NULL, width = 1,  notch = FALSE,
                       select = NULL, order = NULL,
                       add = "none", add.params = list(),
                       error.plot = "pointrange",
-                      ggtheme = theme_pubr(),
+                      ggtheme = theme_classic2(),
                       ...)
 {
 
-  data[, x] <- factor(data[, x])
+  # Check data
+  .dd <- .check_data(data, x, y)
+  data <- .dd$data
+  x <- .dd$x
+  y <- .dd$y
 
+  data[, x] <- factor(data[, x])
   p <- ggplot(data, aes_string(x, y)) +
       .geom_exec(geom_boxplot, data = data,
                 color = color, fill = fill, linetype = linetype,

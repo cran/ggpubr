@@ -6,6 +6,11 @@ NULL
 #' @inheritParams ggplot2::geom_bar
 #' @param x,y x and y variables for drawing.
 #' @param color,fill outline and fill colors.
+#' @param sort.val a string specifying whether the value should be sorted.
+#' Allowed values are "none" (no sorting), "asc" (for ascending) or "desc" (for descending).
+#' @param sort.by.groups logical value. If TRUE the data are sorted by groups.
+#' Used only when sort.val != "none".
+#' @param top a numeric value specifying the number of top elements to be shown.
 #' @param label specify whether to add labels on the bar plot. Allowed values
 #'   are: \itemize{ \item \strong{logical value}: If TRUE, y values is added as
 #'   labels on the bar plot \item \strong{character vector}: Used as text
@@ -17,6 +22,7 @@ NULL
 #' @param lab.vjust numeric, vertical justification of labels. Provide negative
 #'   value (e.g.: -0.4) to put labels outside the bars or positive value to put
 #'   labels inside (e.g.: 2).
+#' @param lab.hjust numeric, horizontal justification of labels.
 #' @param ... other arguments to be passed to be passed to ggpar().
 #' @details The plot can be easily customized using the function ggpar(). Read
 #'   ?ggpar for changing: \itemize{ \item main title and axis labels: main,
@@ -136,18 +142,21 @@ NULL
 #' @export
 ggbarplot <- function(data, x, y,
                       color = "black", fill = "white", palette = NULL,
-                      size = 1, width = NULL,
-                      label = FALSE, lab.col = "black", lab.size = 5,
-                      lab.pos = c("out", "in"), lab.vjust = NULL,
+                      size = NULL, width = NULL,
+                      label = FALSE, lab.col = "black", lab.size = 4,
+                      lab.pos = c("out", "in"), lab.vjust = NULL, lab.hjust = NULL,
                       select = NULL, order = NULL,
+                      sort.val = c("none", "desc", "asc"), sort.by.groups = TRUE,
+                      top = Inf,
                       add = "none",
                       add.params = list(),
                       error.plot = "errorbar",
                       position = position_stack(),
-                      ggtheme = theme_pubr(),
+                      ggtheme = theme_classic2(),
                       ...)
 {
 
+  sort.val <- match.arg(sort.val)
   data[, x] <- factor(data[, x])
   error.plot = error.plot[1]
   lab.pos <- match.arg(lab.pos)
@@ -171,7 +180,31 @@ ggbarplot <- function(data, x, y,
   }
   else data_sum <- data
 
+  # Sorting
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  if(top !=Inf & sort.val == "none") sort.val = "desc"
+  if(top !=Inf) {
+    data_sum <- data_sum[order(-data_sum[, y]), ]
+    data_sum <- utils::head(data_sum, n = top)
+  }
+  grps <- unique(intersect(c(color, fill), names(data)))
+  if(length(grps) > 0) grps <- .get_not_numeric_vars(data[, grps, drop = FALSE])
+  ngrps <- length(grps)
+  if(!sort.by.groups) ngrps <- 0
+  # Variables for ordering
+  if(ngrps > 0) dd <- data_sum[, c(grps, y)]
+  else dd <- data_sum[, y, drop = FALSE]
+  if(sort.val == "desc") dd[, y] <- -dd[, y]
+  # Sorting
+  if(sort.val != "none") {
+    if(ngrps == 0) data_sum <- data_sum[order(dd[, y]),]
+    else if(ngrps == 1) data_sum <- data_sum[order(dd[, 1], dd[, y]),]
+    else if(ngrps == 2) data_sum <- data_sum[order(dd[, 1], dd[, 2], dd[, y]),]
+    data_sum[, x] <- factor(data_sum[, x], levels = data_sum[, x])
+  }
+
   # Main plot
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   if(inherits(position, "PositionDodge") & is.null(position$width)) position$width = 0.95
   p <- ggplot(data, aes_string(x, y))
   p <- p +
@@ -179,7 +212,7 @@ ggbarplot <- function(data, x, y,
                 stat = "identity",
                 color = color, fill = fill,
                 position = position,
-                size = size, width = width)
+                size = size, width = width, ...)
 
   # Add errors
    p <- .add(p, add = add,
@@ -197,6 +230,7 @@ ggbarplot <- function(data, x, y,
 
    if(add.label) {
      if(is.null(lab.vjust)) lab.vjust <- ifelse(lab.pos == "out", -0.4, 2 )
+     if(is.null(lab.hjust)) lab.hjust <- 0.5
       # pos <- "identity"
       # if color or fill by groups
      .cols <- unique(c(color, fill))
@@ -204,18 +238,18 @@ ggbarplot <- function(data, x, y,
        .in <- which(.cols %in% names(data))
        lab.fill <- .cols[.in]
        p <- p + .geom_exec(geom_text, data = data_sum, label = .lab,  fill = lab.fill,
-                           vjust = lab.vjust, size = lab.size, color = lab.col,
-                           fontface = "bold", position = position)
+                           vjust = lab.vjust, hjust = lab.hjust, size = lab.size, color = lab.col,
+                           fontface = "plain", position = position)
      }
      else{
      p <- p + .geom_exec(geom_text, data = data_sum, label = .lab,
-                         vjust = lab.vjust, size = lab.size, color = lab.col,
-                         fontface = "bold", position = position)
+                         vjust = lab.vjust,  hjust = lab.hjust, size = lab.size, color = lab.col,
+                         fontface = "plain", position = position)
      }
    }
 
    # To do
-   # Sorting, top10, visualizing error
+   # top10, visualizing error
 
   # Select and order
   if(is.null(select)) select <- order

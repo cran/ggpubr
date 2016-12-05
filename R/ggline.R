@@ -115,16 +115,16 @@ ggline <- function(data, x, y, group = 1,
                       color = "black", palette = NULL,
                       linetype = "solid",
                       plot_type = c("b", "l", "p"),
-                      size = 1, shape = 19,
+                      size = 0.5, shape = 19,
                       select = NULL, order = NULL,
                       add = "none",
                       add.params = list(),
                       error.plot = "errorbar",
-                      ggtheme = theme_pubr(),
+                      ggtheme = theme_classic2(),
                       ...)
 {
 
-  data[, x] <- factor(data[, x])
+  data[, x] <- as.factor(data[, x])
   error.plot = error.plot[1]
   plot_type <- match.arg(plot_type)
   if("none" %in% add) add <- "none"
@@ -180,8 +180,11 @@ ggline <- function(data, x, y, group = 1,
     p <- p +
     .geom_exec(geom_point, data = data_sum,
                color = color, shape = shape,
-               size = 2+size)
+               size = 1.5+size)
+    # Adjust shape when ngroups > 6, to avoid ggplot warnings
+    p <-.scale_point_shape(p, data_sum, shape)
   }
+
 
   # Select and order
   if(is.null(select)) select <- order

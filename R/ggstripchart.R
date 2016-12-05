@@ -88,15 +88,22 @@ NULL
 #' @export
 ggstripchart <- function(data, x, y,
                       color = "black", fill = "white", palette = NULL,
-                      shape = 19, size = 2,
+                      shape = 19, size = NULL,
                       select = NULL, order = NULL,
                       add = "mean_se",
                       add.params = list(),
                       error.plot = "pointrange",
                       position = position_jitter(0.4),
-                      ggtheme = theme_pubr(),
+                      ggtheme = theme_classic2(),
                       ...)
 {
+
+  # Check data
+  .dd <- .check_data(data, x, y)
+  data <- .dd$data
+  x <- .dd$x
+  y <- .dd$y
+
 
   data[, x] <- factor(data[, x])
 

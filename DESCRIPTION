@@ -1,33 +1,34 @@
 Package: ggpubr
 Type: Package
 Title: 'ggplot2' Based Publication Ready Plots
-Version: 0.1.0
-Date: 2016-07-28
+Version: 0.1.1
+Date: 2016-12-04
 Authors@R: c(
     person("Alboukadel", "Kassambara", role = c("aut", "cre"), email = "alboukadel.kassambara@gmail.com"))
-Description: 'ggplot2' is an excellent and flexible package for elegant data visualization in R.
- However the default generated plots requires some formatting before we can send them for publication.
- Furthermore, to customize a 'ggplot', the syntax is opaque and this raises the level of difficulty
- for researchers with no advanced R programming skills.
- 'ggpubr' provides some easy-to-use functions for creating and customizing 'ggplot2'- based publication ready plots.
+Description: 'ggplot2' is an excellent and flexible package for elegant data
+    visualization in R. However the default generated plots requires some formatting
+    before we can send them for publication. Furthermore, to customize a 'ggplot',
+    the syntax is opaque and this raises the level of difficulty for researchers
+    with no advanced R programming skills. 'ggpubr' provides some easy-to-use
+    functions for creating and customizing 'ggplot2'- based publication ready plots.
 License: GPL-2
 LazyData: TRUE
 Depends: R (>= 3.1.0), ggplot2
 Imports: ggrepel, grid, ggsci, plyr, stats, utils
-Suggests: knitr, scales
+Suggests: grDevices, knitr, RColorBrewer, scales
 URL: http://www.sthda.com/english/rpkgs/ggpubr
 BugReports: https://github.com/kassambara/ggpubr/issues
 RoxygenNote: 5.0.1
-Collate: 'desc_statby.R' 'diff_express.R' 'utilities.R' 'ggpar.R'
-        'ggbarplot.R' 'ggboxplot.R' 'ggdensity.R' 'stat_conf_ellipse.R'
-        'stat_chull.R' 'ggdotchart.R' 'ggdotplot.R' 'ggecdf.R'
-        'ggerrorplot.R' 'gghistogram.R' 'ggline.R' 'ggmaplot.R'
-        'ggpie.R' 'ggqqplot.R' 'ggscatter.R' 'ggstripchart.R'
-        'ggviolin.R' 'show_line_types.R' 'show_point_shapes.R'
-        'stat_mean.R' 'theme_pubr.R'
+Collate: 'desc_statby.R' 'diff_express.R' 'geom_exec.R' 'utilities.R'
+        'ggpar.R' 'ggbarplot.R' 'ggboxplot.R' 'ggdensity.R'
+        'stat_conf_ellipse.R' 'stat_chull.R' 'ggdotchart.R'
+        'ggdotplot.R' 'ggecdf.R' 'ggerrorplot.R' 'gghistogram.R'
+        'ggline.R' 'ggmaplot.R' 'ggpie.R' 'ggqqplot.R' 'ggscatter.R'
+        'ggstripchart.R' 'ggtext.R' 'ggviolin.R' 'show_line_types.R'
+        'show_point_shapes.R' 'stat_mean.R' 'theme_pubr.R'
 NeedsCompilation: no
-Packaged: 2016-07-20 16:37:41 UTC; alboukadel
+Packaged: 2016-12-05 08:33:04 UTC; kass
 Author: Alboukadel Kassambara [aut, cre]
 Maintainer: Alboukadel Kassambara <alboukadel.kassambara@gmail.com>
 Repository: CRAN
-Date/Publication: 2016-07-20 20:09:54
+Date/Publication: 2016-12-05 15:22:10

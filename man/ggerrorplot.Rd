@@ -5,10 +5,10 @@
 \title{Visualizing Error}
 \usage{
 ggerrorplot(data, x, y, desc_stat = "mean_se", color = "black",
-  fill = "white", palette = NULL, size = 1, width = NULL,
+  fill = "white", palette = NULL, size = NULL, width = NULL,
   select = NULL, order = NULL, add = "none", add.params = list(),
   error.plot = "pointrange", position = position_dodge(),
-  ggtheme = theme_pubr(), ...)
+  ggtheme = theme_classic2(), ...)
 }
 \arguments{
 \item{data}{a data frame}
@@ -27,7 +27,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 "red"); and scientific journal palettes from ggsci R package, e.g.: "npg", "aaas", "lancet", "jco",
 "ucscgb", "uchicago", "simpsons" and "rickandmorty".}
 
-\item{size}{change the size of points and outlines.}
+\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
 
 \item{width}{plot width.}
 
@@ -37,7 +37,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 
 \item{add}{character vector for adding another plot element (e.g.: dot plot
 or error bars). Allowed values are one or the combination of: "none",
-"dotplot", "jitter", "boxplot", "mean", "mean_se", "mean_sd", "mean_ci",
+"dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd", "mean_ci",
 "mean_range", "median", "median_iqr", "median_mad", "median_range"; see
 ?desc_statby for more details.}
 

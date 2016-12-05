@@ -59,14 +59,21 @@ NULL
 #' @export
 ggdotplot <- function(data, x, y,
                       color = "black", fill = "lightgray", palette = NULL,
-                      size = 1,
+                      size = NULL,
                       select = NULL, order = NULL,
                       add = "mean_se",
                       add.params = list(),
                       error.plot = "pointrange",
-                      ggtheme = theme_pubr(),
+                      ggtheme = theme_classic2(),
                       ...)
 {
+
+  # Check data
+  .dd <- .check_data(data, x, y)
+  data <- .dd$data
+  x <- .dd$x
+  y <- .dd$y
+
 
   data[, x] <- factor(data[, x])
 

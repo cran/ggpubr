@@ -5,10 +5,10 @@
 \title{Violin plot}
 \usage{
 ggviolin(data, x, y, color = "black", fill = "white", palette = NULL,
-  linetype = "solid", trim = FALSE, size = 1, width = 1,
+  linetype = "solid", trim = FALSE, size = NULL, width = 1,
   draw_quantiles = NULL, select = NULL, order = NULL, add = "mean_se",
-  add.params = list(), error.plot = "pointrange", ggtheme = theme_pubr(),
-  ...)
+  add.params = list(), error.plot = "pointrange",
+  ggtheme = theme_classic2(), ...)
 }
 \arguments{
 \item{data}{a data frame}
@@ -28,7 +28,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 \item{trim}{If \code{TRUE} (default), trim the tails of the violins
 to the range of the data. If \code{FALSE}, don't trim the tails.}
 
-\item{size}{change the size of points and outlines.}
+\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
 
 \item{width}{violin width.}
 
@@ -41,7 +41,7 @@ at the given quantiles of the density estimate.}
 
 \item{add}{character vector for adding another plot element (e.g.: dot plot
 or error bars). Allowed values are one or the combination of: "none",
-"dotplot", "jitter", "boxplot", "mean", "mean_se", "mean_sd", "mean_ci",
+"dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd", "mean_ci",
 "mean_range", "median", "median_iqr", "median_mad", "median_range"; see
 ?desc_statby for more details.}
 

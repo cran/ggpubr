@@ -5,7 +5,7 @@
 \title{Cleveland's Dot Plots}
 \usage{
 ggdotchart(data, x, label, group = NULL, color = "black", palette = NULL,
-  shape = 19, size = 1, sorting = c("descending", "ascending"),
+  shape = 19, size = NULL, sorting = c("descending", "ascending"),
   orientation = c("vertical", "horizontal"), ggtheme = theme_bw(), ...)
 }
 \arguments{
@@ -23,8 +23,9 @@ grouped.}
 \item{palette}{the color palette to be used for coloring or filling by
 groups. Allowed values include "grey" for grey color palettes; brewer
 palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
-"red"); and scientific journal palettes from ggsci R package, e.g.: "npg", "aaas", "lancet", "jco",
-"ucscgb", "uchicago", "simpsons" and "rickandmorty".}
+"red"); and scientific journal palettes from ggsci R package, e.g.: "npg",
+"aaas", "lancet", "jco", "ucscgb", "uchicago", "simpsons" and
+"rickandmorty".}
 
 \item{shape}{point shape. See \code{\link{show_point_shapes}}.}
 

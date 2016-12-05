@@ -5,10 +5,10 @@
 \title{Line plot}
 \usage{
 ggline(data, x, y, group = 1, color = "black", palette = NULL,
-  linetype = "solid", plot_type = c("b", "l", "p"), size = 1,
+  linetype = "solid", plot_type = c("b", "l", "p"), size = 0.5,
   shape = 19, select = NULL, order = NULL, add = "none",
-  add.params = list(), error.plot = "errorbar", ggtheme = theme_pubr(),
-  ...)
+  add.params = list(), error.plot = "errorbar",
+  ggtheme = theme_classic2(), ...)
 }
 \arguments{
 \item{data}{a data frame}
@@ -32,7 +32,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 \item{plot_type}{plot type. Allowed values are one of "b" for both line and point;
 "l" for line only; and "p" for point only. Default is "b".}
 
-\item{size}{change the size of points and outlines.}
+\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
 
 \item{shape}{point shapes.}
 
@@ -42,7 +42,7 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 
 \item{add}{character vector for adding another plot element (e.g.: dot plot
 or error bars). Allowed values are one or the combination of: "none",
-"dotplot", "jitter", "boxplot", "mean", "mean_se", "mean_sd", "mean_ci",
+"dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd", "mean_ci",
 "mean_range", "median", "median_iqr", "median_mad", "median_range"; see
 ?desc_statby for more details.}
 
