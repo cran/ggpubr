@@ -157,7 +157,8 @@ ggbarplot <- function(data, x, y,
 {
 
   sort.val <- match.arg(sort.val)
-  data[, x] <- factor(data[, x])
+  if(!is.null(order)) data[, x] <- factor(data[, x], levels = order)
+  else data[, x] <- factor(data[, x])
   error.plot = error.plot[1]
   lab.pos <- match.arg(lab.pos)
   label <- as.vector(label)
@@ -237,7 +238,7 @@ ggbarplot <- function(data, x, y,
      if(any(.cols %in% names(data))){
        .in <- which(.cols %in% names(data))
        lab.fill <- .cols[.in]
-       p <- p + .geom_exec(geom_text, data = data_sum, label = .lab,  fill = lab.fill,
+       p <- p + .geom_exec(geom_text, data = data_sum, label = .lab,  #fill = lab.fill
                            vjust = lab.vjust, hjust = lab.hjust, size = lab.size, color = lab.col,
                            fontface = "plain", position = position)
      }

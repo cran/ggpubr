@@ -1,8 +1,8 @@
 Package: ggpubr
 Type: Package
 Title: 'ggplot2' Based Publication Ready Plots
-Version: 0.1.1
-Date: 2016-12-04
+Version: 0.1.2
+Date: 2017-03-14
 Authors@R: c(
     person("Alboukadel", "Kassambara", role = c("aut", "cre"), email = "alboukadel.kassambara@gmail.com"))
 Description: 'ggplot2' is an excellent and flexible package for elegant data
@@ -18,17 +18,18 @@ Imports: ggrepel, grid, ggsci, plyr, stats, utils
 Suggests: grDevices, knitr, RColorBrewer, scales
 URL: http://www.sthda.com/english/rpkgs/ggpubr
 BugReports: https://github.com/kassambara/ggpubr/issues
-RoxygenNote: 5.0.1
-Collate: 'desc_statby.R' 'diff_express.R' 'geom_exec.R' 'utilities.R'
-        'ggpar.R' 'ggbarplot.R' 'ggboxplot.R' 'ggdensity.R'
-        'stat_conf_ellipse.R' 'stat_chull.R' 'ggdotchart.R'
-        'ggdotplot.R' 'ggecdf.R' 'ggerrorplot.R' 'gghistogram.R'
-        'ggline.R' 'ggmaplot.R' 'ggpie.R' 'ggqqplot.R' 'ggscatter.R'
-        'ggstripchart.R' 'ggtext.R' 'ggviolin.R' 'show_line_types.R'
-        'show_point_shapes.R' 'stat_mean.R' 'theme_pubr.R'
+RoxygenNote: 6.0.1
+Collate: 'desc_statby.R' 'diff_express.R' 'geom_exec.R' 'get_palette.R'
+        'utilities.R' 'ggpar.R' 'ggbarplot.R' 'ggboxplot.R'
+        'ggdensity.R' 'stat_conf_ellipse.R' 'stat_chull.R'
+        'ggdotchart.R' 'ggdotplot.R' 'ggecdf.R' 'ggerrorplot.R'
+        'gghistogram.R' 'ggline.R' 'ggmaplot.R' 'ggpie.R' 'ggqqplot.R'
+        'ggscatter.R' 'ggstripchart.R' 'ggtext.R' 'ggviolin.R'
+        'show_line_types.R' 'show_point_shapes.R' 'stat_mean.R'
+        'theme_pubr.R'
 NeedsCompilation: no
-Packaged: 2016-12-05 08:33:04 UTC; kass
+Packaged: 2017-03-14 07:26:05 UTC; kassambara
 Author: Alboukadel Kassambara [aut, cre]
 Maintainer: Alboukadel Kassambara <alboukadel.kassambara@gmail.com>
 Repository: CRAN
-Date/Publication: 2016-12-05 15:22:10
+Date/Publication: 2017-03-14 10:26:21

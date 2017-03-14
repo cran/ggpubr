@@ -112,8 +112,10 @@ NULL
 # Check if color palette or default hue
 .is_col_palette <- function(pal){
   if(is.null(pal)) return(FALSE)
-  else return(length(pal)==1 & pal[1] %in% c(.brewerpal(), .ggscipal(), "default"))
+  else return(length(pal)==1 & pal[1] %in% c(.brewerpal(), .ggscipal(),
+                                             "default", "hue", "grey", "gray"))
 }
+.is_color_palette <- .is_col_palette # alias
 
 # Change color manually
 # possible value for palette: brewer palette, "grey" or a vector of colors
@@ -209,11 +211,12 @@ NULL
 .get_pal <- function(pal = "default", k){
  if(pal %in% .brewerpal()) .get_brewer_pal(pal, k)
   else if(pal %in% .ggscipal()) .get_ggsci_pal(pal, k)
-  else if(pal == "default"){
+  else if(pal %in% c("default", "hue")){
     hues <- seq(15, 375, length = k + 1)
     grDevices::hcl(h = hues, l = 65, c = 100, alpha = 1)[1:k]
   }
 }
+.get_palette <- .get_pal # alias
 
 # Generate color palette from ggsci
 # k the number of color
@@ -250,6 +253,8 @@ NULL
   if (!requireNamespace("RColorBrewer", quietly = TRUE)) {
     stop("RColorBrewer package needed. Please install it using install.packages('RColorBrewer').")
   }
+  initial.k <- k
+  k <- max(c(k, 3)) # Kshoud be at least 3
   pal <- palette[1]
   sequential <- c('Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges',
     'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds','YlGn', 'YlGnBu YlOrBr', 'YlOrRd')
@@ -262,7 +267,12 @@ NULL
   else if(pal %in% c('Paired', 'Set3')) max_k <- 12
   else stop("Don't support palette name: ", pal)
 
-  if(k <= max_k) RColorBrewer::brewer.pal(k, palette)
+  if(k <= max_k) {
+    cols <- RColorBrewer::brewer.pal(k, palette)
+    if(initial.k == 2) cols <- cols[c(1,3)]
+    else if(initial.k == 1) cols <- cols[1]
+    cols
+  }
   else grDevices::colorRampPalette(RColorBrewer::brewer.pal(max_k, palette))(k)
 }
 
@@ -295,17 +305,31 @@ NULL
 # Change title and labels
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 .labs <- function(p, main = NULL, xlab = NULL, ylab = NULL,
-                  font.main = NULL, font.x = NULL, font.y = NULL)
+                  font.main = NULL, font.x = NULL, font.y = NULL,
+                  submain = NULL, caption = NULL,
+                  font.submain = NULL, font.caption = NULL)
 {
 
   font.main <- .parse_font(font.main)
   font.x <- .parse_font(font.x)
   font.y <- .parse_font(font.y)
+  font.submain <- .parse_font(font.submain)
+  font.caption <- .parse_font(font.caption)
 
 
   if (!is.null(main)) {
     if (main != FALSE)
       p <- p + labs(title = main)
+  }
+
+  if (!is.null(submain)) {
+    if (submain != FALSE)
+      p <- p + labs(subtitle = submain)
+  }
+
+  if (!is.null(caption)) {
+    if (caption != FALSE)
+      p <- p + labs(caption = caption)
   }
 
   if (!is.null(xlab)) {
@@ -328,6 +352,22 @@ NULL
       plot.title = element_text(
         size = font.main$size,
         lineheight = 1.0, face = font.main$face, colour = font.main$color
+      )
+    )
+  if (!is.null(font.submain))
+    p <-
+    p + theme(
+      plot.subtitle = element_text(
+        size = font.submain$size,
+        lineheight = 1.0, face = font.submain$face, colour = font.submain$color
+      )
+    )
+  if (!is.null(font.caption))
+    p <-
+    p + theme(
+      plot.caption = element_text(
+        size = font.caption$size,
+        lineheight = 1.0, face = font.caption$face, colour = font.caption$color
       )
     )
   if (!is.null(font.x))
@@ -393,7 +433,7 @@ NULL
 # Change Axis limits
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 .set_axis_limits <- function(xlim = NULL, ylim = NULL){
-  coord_cartesian(xlim, ylim)
+  if(!is.null(xlim) | !is.null(ylim)) coord_cartesian(xlim, ylim)
 }
 
 
@@ -444,14 +484,14 @@ p
 
 # Legends
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-.set_legend <- function(p, legend = c("bottom", "top", "left", "right", "none"),
+.set_legend <- function(p, legend = NULL,
                         legend.title = NULL, font.legend = NULL)
 {
-  if(!inherits(legend, "numeric")) legend <- match.arg(legend)
   if(is.null(legend.title)) legend.title = waiver()
   font <- .parse_font(font.legend)
 
-   p <- p + theme(legend.position = legend) +
+  if(!is.null(legend)) p <- p + theme(legend.position = legend)
+   p <- p +
      labs(color = legend.title, fill = legend.title, linetype = legend.title, shape = legend.title)
 
    if(!is.null(font)){
@@ -730,6 +770,9 @@ p
     if(is.numeric(data)) data <- data.frame(x = data)
     else data$x <- rep("1", nrow(data))
   }
+
+  if(inherits(data, c("tbl_df", "tbl")))
+    data <- as.data.frame(data)
   list(data = data, x =x, y = y)
 }
 
@@ -751,6 +794,17 @@ p
   if(sum(!is_numeric) == 0) res = NULL
   else res <- colnames(data_frame[, !is_numeric, drop = FALSE])
   res
+}
+
+
+# Get the current color used in ggplot
+.get_ggplot_ncolors <- function(p){
+  g <- ggplot_build(p)
+  gdata <- g$data[[1]]
+  cols <- fills <- 1
+  if("colour" %in% names(gdata)) cols <- unique(unlist(gdata["colour"]))
+  if("fills" %in% names(gdata)) fills <- unique(unlist(gdata["fill"]))
+  max(length(cols), length(fills))
 }
 
 

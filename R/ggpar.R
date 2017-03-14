@@ -2,7 +2,7 @@
 NULL
 #' Graphical parameters
 #'
-#' @param p an object of class ggplot
+#' @param p an object of class ggplot or a list of ggplots
 #'
 #' @param palette the color palette to be used for coloring or filling by
 #'   groups. Allowed values include "grey" for grey color palettes; brewer
@@ -12,17 +12,21 @@ NULL
 #'   "rickandmorty".
 #' @param gradient.cols vector of colors to use for n-colour gradient. Allowed
 #'   values include brewer and ggsci color palettes.
-#' @param main plot main title.
+#' @param main,title plot main title.
+#' @param submain,subtitle plot subtitle.
+#' @param caption plot caption.
 #' @param xlab character vector specifying x axis labels, respectively. Use xlab
 #'   = FALSE to hide xlab.
 #' @param ylab character vector specifying y axis labels. Use ylab = FALSE to
 #'   hide ylab.
-#' @param font.main,font.x,font.y a vector of length 3 indicating respectively
-#'   the size (e.g.: 14), the style (e.g.: "plain", "bold", "italic",
-#'   "bold.italic") and the color (e.g.: "red") of main title, xlab and ylab,
-#'   respectively. For example \emph{font.x = c(14, "bold", "red")}. Use font.x
-#'   = 14, to change only font size; or use font.x = "bold", to change only font
-#'   face.
+#' @param font.main,font.submain,font.caption,font.x,font.y a vector of length 3
+#'   indicating respectively the size (e.g.: 14), the style (e.g.: "plain",
+#'   "bold", "italic", "bold.italic") and the color (e.g.: "red") of main title,
+#'   subtitle, caption, xlab and ylab, respectively. For example \emph{font.x =
+#'   c(14, "bold", "red")}. Use font.x = 14, to change only font size; or use
+#'   font.x = "bold", to change only font face.
+#' @param font.title,font.subtitle alias of font.submain and font.submain,
+#'   respectively.
 #' @param xlim,ylim a numeric vector of length 2, specifying  x and y axis
 #'   limits (minimum and maximum), respectively. e.g.: ylim = c(0, 50).
 #' @param xscale,yscale x and y axis scale, respectively. Allowed values are one
@@ -30,9 +34,9 @@ NULL
 #' @param format.scale logical value. If TRUE, axis tick mark labels will be
 #'   formatted when xscale or yscale = "log2" or "log10".
 #' @param legend character specifying legend position. Allowed values are one of
-#'   c("top", "bottom", "left", "right", "none"). Default is "bottom" side
-#'   position. to remove the legend use legend = "none". Legend position can be
-#'   also specified using a numeric vector c(x, y); see details section.
+#'   c("top", "bottom", "left", "right", "none"). To remove the legend use
+#'   legend = "none". Legend position can be also specified using a numeric
+#'   vector c(x, y); see details section.
 #' @param legend.title legend title.
 #' @param font.legend legend text font style; e.g.: font.legend = c(10, "plain",
 #'   "black").
@@ -131,13 +135,15 @@ NULL
 #'
 #' @export
 ggpar <- function(p, palette = NULL, gradient.cols = NULL,
-                  main = NULL, xlab = NULL, ylab = NULL,
-                  font.main = NULL, font.x = NULL, font.y = NULL,
+                  main = NULL, submain = NULL, caption = NULL, xlab = NULL, ylab = NULL,
+                  title = NULL, subtitle = NULL,
+                  font.main = NULL, font.submain = NULL, font.x = NULL, font.y = NULL, font.caption = NULL,
+                  font.title = NULL, font.subtitle = NULL,
                   xlim = NULL, ylim = NULL,
                   xscale = c("none", "log2", "log10", "sqrt"),
                   yscale = c("none", "log2", "log10", "sqrt"),
                   format.scale = FALSE,
-                  legend = c("bottom", "top", "left", "right", "none"),
+                  legend = NULL,
                   legend.title = NULL, font.legend = NULL,
                   ticks = TRUE, tickslab = TRUE, font.tickslab = NULL,
                   xtickslab.rt = 0, ytickslab.rt = 0,
@@ -146,21 +152,42 @@ ggpar <- function(p, palette = NULL, gradient.cols = NULL,
                   ggtheme = NULL,
                   ...)
   {
-  p <- p + .ggcolor(palette)+
-    .ggfill(palette)
-  if(!is.null(ggtheme)) p <- p + ggtheme # labs_pubr() +
-  if(!is.null(gradient.cols)) p <- p + .gradient_col(gradient.cols)
 
-  p <- p +.set_ticks(ticks, tickslab, font.tickslab,
-               xtickslab.rt, ytickslab.rt)
-  p <- .set_ticksby(p, xticks.by, yticks.by)
-  p <- p + .set_axis_limits(xlim, ylim)
-  p <-.set_legend(p, legend, legend.title, font.legend)
-  p <- .set_scale(p, xscale = xscale, yscale = yscale, format.scale = format.scale)
-  p <- .labs(p, main, xlab, ylab,
-               font.main, font.x, font.y)
-  p <- .set_orientation(p, orientation)
+  original.p <- p
 
-  p
+  if(is.ggplot(original.p)) list.plots <- list(original.p)
+  else if(is.list(original.p)) list.plots <- original.p
+  else stop("Can't handle an object of class ", class (original.p))
+  if(!is.null(title)) main <- title
+  if(!is.null(subtitle)) submain <- subtitle
+  if(!is.null(font.title)) font.main <- font.title
+  if(!is.null(font.subtitle)) font.submain <- font.subtitle
+
+
+  for(i in 1:length(list.plots)){
+    p <- list.plots[[i]]
+    if(is.ggplot(p)){
+        p <- p + .ggcolor(palette)+
+          .ggfill(palette)
+        if(!is.null(ggtheme)) p <- p + ggtheme # labs_pubr() +
+        if(!is.null(gradient.cols)) p <- p + .gradient_col(gradient.cols)
+
+        p <- p +.set_ticks(ticks, tickslab, font.tickslab,
+                     xtickslab.rt, ytickslab.rt)
+        p <- .set_ticksby(p, xticks.by, yticks.by)
+        p <- p + .set_axis_limits(xlim, ylim)
+        p <-.set_legend(p, legend, legend.title, font.legend)
+        p <- .set_scale(p, xscale = xscale, yscale = yscale, format.scale = format.scale)
+        p <- .labs(p, main, xlab, ylab,
+                     font.main, font.x, font.y,
+                   submain = submain, caption = caption, font.submain = font.submain, font.caption = font.caption)
+        p <- .set_orientation(p, orientation)
+        list.plots[[i]] <- p
+    }
+
+  }
+
+  if(is.ggplot(original.p)) list.plots[[1]]
+  else list.plots
 }
 

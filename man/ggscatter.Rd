@@ -9,11 +9,12 @@ ggscatter(data, x, y, color = "black", fill = "lightgray", palette = NULL,
   "reg.line", "loess"), add.params = list(), conf.int = FALSE,
   conf.int.level = 0.95, fullrange = FALSE, ellipse = FALSE,
   ellipse.level = 0.95, ellipse.type = "norm", ellipse.alpha = 0.1,
-  mean.point = FALSE, mean.point.size = 2 * size, star.plot = FALSE,
-  star.plot.lty = 1, star.plot.lwd = NULL, label = NULL,
-  font.label = c(12, "plain"), label.select = NULL, repel = FALSE,
-  label.rectangle = FALSE, cor.coef = FALSE, cor.method = "pearson",
-  cor.coef.coord = c(NULL, NULL), cor.coef.size = 12, ggp = NULL,
+  mean.point = FALSE, mean.point.size = ifelse(is.numeric(size), 2 * size,
+  size), star.plot = FALSE, star.plot.lty = 1, star.plot.lwd = NULL,
+  label = NULL, font.label = c(12, "plain"), label.select = NULL,
+  repel = FALSE, label.rectangle = FALSE, cor.coef = FALSE,
+  cor.method = "pearson", cor.coef.coord = c(NULL, NULL),
+  cor.coef.size = 12, ggp = NULL, show.legend.text = NA,
   ggtheme = theme_classic2(), ...)
 }
 \arguments{
@@ -104,6 +105,10 @@ coordinates of the correlation coefficient. Default values are NULL.}
 
 \item{ggp}{a ggplot. If not NULL, points are added to an existing plot.}
 
+\item{show.legend.text}{logical. Should text be included in the
+legends? NA, the default, includes if any aesthetics are mapped. FALSE
+never includes, and TRUE always includes.}
+
 \item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
@@ -182,4 +187,3 @@ ggscatter(df, x = "wt", y = "mpg",
 \seealso{
 \code{\link{ggpar}}
 }
-

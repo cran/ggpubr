@@ -4,18 +4,20 @@
 \alias{ggpar}
 \title{Graphical parameters}
 \usage{
-ggpar(p, palette = NULL, gradient.cols = NULL, main = NULL, xlab = NULL,
-  ylab = NULL, font.main = NULL, font.x = NULL, font.y = NULL,
-  xlim = NULL, ylim = NULL, xscale = c("none", "log2", "log10", "sqrt"),
-  yscale = c("none", "log2", "log10", "sqrt"), format.scale = FALSE,
-  legend = c("bottom", "top", "left", "right", "none"), legend.title = NULL,
+ggpar(p, palette = NULL, gradient.cols = NULL, main = NULL,
+  submain = NULL, caption = NULL, xlab = NULL, ylab = NULL,
+  title = NULL, subtitle = NULL, font.main = NULL, font.submain = NULL,
+  font.x = NULL, font.y = NULL, font.caption = NULL, font.title = NULL,
+  font.subtitle = NULL, xlim = NULL, ylim = NULL, xscale = c("none",
+  "log2", "log10", "sqrt"), yscale = c("none", "log2", "log10", "sqrt"),
+  format.scale = FALSE, legend = NULL, legend.title = NULL,
   font.legend = NULL, ticks = TRUE, tickslab = TRUE,
   font.tickslab = NULL, xtickslab.rt = 0, ytickslab.rt = 0,
   xticks.by = NULL, yticks.by = NULL, orientation = c("vertical",
   "horizontal", "reverse"), ggtheme = NULL, ...)
 }
 \arguments{
-\item{p}{an object of class ggplot}
+\item{p}{an object of class ggplot or a list of ggplots}
 
 \item{palette}{the color palette to be used for coloring or filling by
 groups. Allowed values include "grey" for grey color palettes; brewer
@@ -27,7 +29,11 @@ palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 \item{gradient.cols}{vector of colors to use for n-colour gradient. Allowed
 values include brewer and ggsci color palettes.}
 
-\item{main}{plot main title.}
+\item{main, title}{plot main title.}
+
+\item{submain, subtitle}{plot subtitle.}
+
+\item{caption}{plot caption.}
 
 \item{xlab}{character vector specifying x axis labels, respectively. Use xlab
 = FALSE to hide xlab.}
@@ -35,12 +41,15 @@ values include brewer and ggsci color palettes.}
 \item{ylab}{character vector specifying y axis labels. Use ylab = FALSE to
 hide ylab.}
 
-\item{font.main, font.x, font.y}{a vector of length 3 indicating respectively
-the size (e.g.: 14), the style (e.g.: "plain", "bold", "italic",
-"bold.italic") and the color (e.g.: "red") of main title, xlab and ylab,
-respectively. For example \emph{font.x = c(14, "bold", "red")}. Use font.x
-= 14, to change only font size; or use font.x = "bold", to change only font
-face.}
+\item{font.main, font.submain, font.caption, font.x, font.y}{a vector of length 3
+indicating respectively the size (e.g.: 14), the style (e.g.: "plain",
+"bold", "italic", "bold.italic") and the color (e.g.: "red") of main title,
+subtitle, caption, xlab and ylab, respectively. For example \emph{font.x =
+c(14, "bold", "red")}. Use font.x = 14, to change only font size; or use
+font.x = "bold", to change only font face.}
+
+\item{font.title, font.subtitle}{alias of font.submain and font.submain,
+respectively.}
 
 \item{xlim, ylim}{a numeric vector of length 2, specifying  x and y axis
 limits (minimum and maximum), respectively. e.g.: ylim = c(0, 50).}
@@ -52,9 +61,9 @@ of c("none", "log2", "log10", "sqrt"); e.g.: yscale="log2".}
 formatted when xscale or yscale = "log2" or "log10".}
 
 \item{legend}{character specifying legend position. Allowed values are one of
-c("top", "bottom", "left", "right", "none"). Default is "bottom" side
-position. to remove the legend use legend = "none". Legend position can be
-also specified using a numeric vector c(x, y); see details section.}
+c("top", "bottom", "left", "right", "none"). To remove the legend use
+legend = "none". Legend position can be also specified using a numeric
+vector c(x, y); see details section.}
 
 \item{legend.title}{legend title.}
 
@@ -166,4 +175,3 @@ ggpar(p2,
  font.legend = c(10, "bold", "red"))
 
 }
-

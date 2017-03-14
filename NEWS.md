@@ -1,4 +1,23 @@
 
+# ggpubr 0.1.2
+   
+    
+## New features
+   
+- New function `get_palette()` to generate a palette of k colors from ggsci palettes, RColorbrewer palettes and custom color palettes. Useful to extend RColorBrewer and ggsci to support more colors.
+  
+## Minor changes
+   
+- Now the `ggpar()` function can handle a list of ggplots.
+- Now the default legend position is `right`.
+- New argument `show.legend.text` in the `ggscatter()` function. Use show.legend.text = FALSE to hide text in the legend.
+- New arguments `title, submain, subtitle, caption, font.submain, font.subtitle, font.caption` in the `ggpar()` function.
+   
+## Bug fixed
+   
+- The mean within group for `ggdensity` (`gghistogram`) are now shown if data have NA values [@chunkaowang, #1](https://github.com/kassambara/ggpubr/issues/1)
+   
+   
 # ggpubr 0.1.1
    
   
