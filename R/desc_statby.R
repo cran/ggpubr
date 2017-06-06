@@ -36,23 +36,35 @@
 #'
 #' @export
 desc_statby <- function(data, measure.var, grps, ci = 0.95){
-
   if(!inherits(data, "data.frame"))
     stop("data must be a data.frame.")
 
-  summary_func <- function(x, col){
-    c(
-      length = base::sum(!is.na(x[[col]])),
-      min = base::min(x[[col]], na.rm=TRUE),
-      max = base::max(x[[col]], na.rm=TRUE),
-      median = stats::median(x[[col]], na.rm=TRUE),
-      mean = base::mean(x[[col]], na.rm=TRUE),
-      iqr = stats::IQR(x[[col]], na.rm=TRUE),
-      mad = stats::mad(x[[col]], na.rm=TRUE),
-      sd = stats::sd(x[[col]], na.rm=TRUE)
-    )
+  . <- NULL
+  data %>% as.data.frame() %>%
+    group_by_(.dots = grps) %>%
+    do(.summary(.[, measure.var], ci = ci)) %>%
+    as.data.frame()
+}
+
+# Helper function to compute summary statistics
+.summary <- function(x, ci = 0.95){
+
+  if(is.data.frame(x)){
+    if(ncol(x) == 1) x <- .select_vec(x, 1)
   }
-  data_sum <- plyr::ddply(data, grps, .fun=summary_func, measure.var)
+  if(!is.numeric(x))
+    stop("x should be a numeric vector or a data frame with one numeric column")
+
+  data_sum <- data.frame(
+    length = base::sum(!is.na(x)),
+    min = base::min(x, na.rm=TRUE),
+    max = base::max(x, na.rm=TRUE),
+    median = stats::median(x, na.rm=TRUE),
+    mean = base::mean(x, na.rm=TRUE),
+    iqr = stats::IQR(x, na.rm=TRUE),
+    mad = stats::mad(x, na.rm=TRUE),
+    sd = stats::sd(x, na.rm=TRUE)
+  )
 
   data_sum$se <- data_sum$sd / sqrt(data_sum$length) # standard error
   # Confidence interval from t-distribution
@@ -61,7 +73,9 @@ desc_statby <- function(data, measure.var, grps, ci = 0.95){
   data_sum$range <- data_sum$max - data_sum$min
   data_sum$cv <- data_sum$sd/data_sum$mean
   data_sum$var <- data_sum$sd^2
+  data_sum[, 2:ncol(data_sum)] <- round(data_sum[, 2:ncol(data_sum)], 1)
   return(data_sum)
 }
+
 
 

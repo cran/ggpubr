@@ -64,7 +64,7 @@ ggmaplot <- function (data, fdr = 0.05, fc = 1.5, genenames = NULL,
                      palette = c("#B31B21", "#1465AC", "darkgray"),
                      top = 15, select.top.method = c("padj", "fc"),
                      main = NULL, xlab = "Log2 mean expression",  ylab = "Log2 fold change",
-                     ggtheme = theme_classic2(),...)
+                     ggtheme = theme_classic(),...)
 {
 
   if(!base::inherits(data, c("matrix", "data.frame", "DataFrame", "DE_Results", "DESeqResults")))
@@ -96,11 +96,19 @@ ggmaplot <- function (data, fdr = 0.05, fc = 1.5, genenames = NULL,
   data <- data.frame(name = genenames, mean = data$baseMean, lfc = data$log2FoldChange,
                   padj = data$padj, sig = sig)
 
-  data$sig <- factor(sig,
-                   labels = c( paste0("Up: ", sum(sig ==1)),
-                               paste0("Down: ", sum(sig==2)),
-                               "NS"
-                   ))
+  # Change level labels
+  . <- NULL
+  data$sig <- as.factor(data$sig)
+  .lev <- .levels(data$sig) %>% as.numeric()
+   palette <- palette[.lev]
+  new.levels <- c(
+    paste0("Up: ", sum(sig == 1)),
+    paste0("Down: ", sum(sig == 2)),
+    "NS"
+  ) %>% .[.lev]
+
+  data$sig <- factor(data$sig, labels = new.levels)
+
 
   # Ordering for selecting top gene
   select.top.method <- match.arg(select.top.method)

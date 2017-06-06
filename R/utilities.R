@@ -1,6 +1,14 @@
-#' @include desc_statby.R
+#' @include desc_statby.R utilities_base.R utilities_color.R
 NULL
 #' @import ggplot2
+#' @importFrom magrittr %>%
+#' @importFrom dplyr group_by_
+#' @importFrom dplyr group_by
+#' @importFrom dplyr arrange_
+#' @importFrom dplyr mutate
+#' @importFrom dplyr do
+#' @importFrom dplyr summarise
+#' @importFrom dplyr everything
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Execute a geom_* function from ggplot2
@@ -90,206 +98,6 @@ NULL
 # Graphical parameters
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-.brewerpal <- function(){
-  c(
-    # sequential
-    'Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges',
-    'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds',
-    'YlGn', 'YlGnBu YlOrBr', 'YlOrRd',
-    #Divergent
-    'BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral',
-    # Qualitative
-    'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Set1', 'Set2', 'Set3'
-  )
-}
-.ggscipal <- function(){
-  # Scientific Journal and Sci-Fi Themed Color Palettes for ggplot2
-  # ggsci package: https://cran.r-project.org/web/packages/ggsci/vignettes/ggsci.html
-  c("npg", "aaas", "lancet", "jco",
-                "ucscgb", "uchicago", "simpsons", "rickandmorty")
-}
-
-# Check if color palette or default hue
-.is_col_palette <- function(pal){
-  if(is.null(pal)) return(FALSE)
-  else return(length(pal)==1 & pal[1] %in% c(.brewerpal(), .ggscipal(),
-                                             "default", "hue", "grey", "gray"))
-}
-.is_color_palette <- .is_col_palette # alias
-
-# Change color manually
-# possible value for palette: brewer palette, "grey" or a vector of colors
-.ggcolor <- function(palette = NULL, ...) {
-  brewerpal <- .brewerpal()
-  ggscipal <- .ggscipal()
-
-  res <- NULL
-  if (is.null(palette))
-    palette <- ""
-  if (length(palette) == 1) {
-    if (palette %in% brewerpal)
-      ggplot2::scale_color_brewer(..., palette = palette)
-    else if (palette %in% ggscipal)
-      .scale_color_ggsci(palette = palette)
-    else if (palette == "grey")
-       ggplot2::scale_color_grey(..., start = 0.8, end = 0.2)
-    else if (palette == "hue")
-      ggplot2::scale_color_hue(...)
-  }
-  else if (palette[1] != "")
-    ggplot2::scale_color_manual(..., values = palette)
-}
-
-# Change fill color manually
-# possible value for palette: brewer palette, "grey" or a vector of colors
-.ggfill <- function(palette = NULL, ...) {
-  brewerpal <- .brewerpal()
-  ggscipal <- .ggscipal()
-
-  res <- NULL
-  if (is.null(palette))
-    palette <- ""
-  if (length(palette) == 1) {
-    if (palette %in% brewerpal)
-      ggplot2::scale_fill_brewer(..., palette = palette)
-    else if (palette %in% ggscipal)
-      .scale_fill_ggsci(palette = palette)
-    else if (palette == "grey")
-      ggplot2::scale_fill_grey(..., start = 0.8, end = 0.2)
-    else if (palette == "hue")
-      ggplot2::scale_fill_hue(...)
-  }
-  else if (palette[1] != "")
-    ggplot2::scale_fill_manual(..., values = palette)
-}
-
-
-
-# Helper function to use palette from ggsci package
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-.scale_color_ggsci <- function(palette = c("npg", "aaas", "lancet", "jco",
-                                           "ucscgb", "uchicago", "simpsons", "rickandmorty"))
-{
-
- pal <- match.arg(palette)
-
-  functs <- list(
-    npg = ggsci::scale_color_npg(),
-    aaas = ggsci::scale_color_aaas(),
-    lancet = ggsci::scale_color_lancet(),
-    jco = ggsci::scale_color_jco(),
-    ucscgb = ggsci::scale_color_ucscgb(),
-    uchicago = ggsci::scale_color_uchicago(),
-    simpsons = ggsci::scale_color_simpsons(),
-    rickandmorty = ggsci::scale_color_rickandmorty()
-  )
-  functs[[pal]]
-}
-
-.scale_fill_ggsci <- function(palette = c("npg", "aaas", "lancet", "jco",
-                                           "ucscgb", "uchicago", "simpsons", "rickandmorty"))
-{
-
-  pal <- match.arg(palette)
-
-  functs <- list(
-    npg = ggsci::scale_fill_npg(),
-    aaas = ggsci::scale_fill_aaas(),
-    lancet = ggsci::scale_fill_lancet(),
-    jco = ggsci::scale_fill_jco(),
-    ucscgb = ggsci::scale_fill_ucscgb(),
-    uchicago = ggsci::scale_fill_uchicago(),
-    simpsons = ggsci::scale_fill_simpsons(),
-    rickandmorty = ggsci::scale_fill_rickandmorty()
-  )
-  functs[[pal]]
-}
-
-# Generate color palette from ggsci or Rcolorbrewer
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# pal could be a brewer or ggsci palette
-.get_pal <- function(pal = "default", k){
- if(pal %in% .brewerpal()) .get_brewer_pal(pal, k)
-  else if(pal %in% .ggscipal()) .get_ggsci_pal(pal, k)
-  else if(pal %in% c("default", "hue")){
-    hues <- seq(15, 375, length = k + 1)
-    grDevices::hcl(h = hues, l = 65, c = 100, alpha = 1)[1:k]
-  }
-}
-.get_palette <- .get_pal # alias
-
-# Generate color palette from ggsci
-# k the number of color
-.get_ggsci_pal <- function(palette = c("npg", "aaas", "lancet", "jco",
-                                           "ucscgb", "uchicago", "simpsons", "rickandmorty"), k)
-{
-
-  pal <- match.arg(palette)
-
-  if(pal %in% c("npg", "aaas", "jco")) max_k <- 10
-  else if (pal %in% c("lancet", "uchicago")) max_k <- 9
-  else if (pal %in% c("ucscgb")) max_k <- 26
-  else if (pal %in% c("simpsons")) max_k <- 16
-  else if (pal %in% c("rickandmorty")) max_k <- 12
-  else stop("Don't support palette name: ", pal)
-
-  functs <- list(
-    npg = ggsci::pal_npg(),
-    aaas = ggsci::pal_aaas(),
-    lancet = ggsci::pal_lancet(),
-    jco = ggsci::pal_jco(),
-    ucscgb = ggsci::pal_ucscgb(),
-    uchicago = ggsci::pal_uchicago(),
-    simpsons = ggsci::pal_simpsons(),
-    rickandmorty = ggsci::pal_rickandmorty()
-  )
-
-  if(k <= max_k) functs[[pal]](k)
-  else grDevices::colorRampPalette(functs[[pal]](max_k))(k)
-}
-
-# Generate a color palette from brewer
-.get_brewer_pal <- function(palette, k){
-  if (!requireNamespace("RColorBrewer", quietly = TRUE)) {
-    stop("RColorBrewer package needed. Please install it using install.packages('RColorBrewer').")
-  }
-  initial.k <- k
-  k <- max(c(k, 3)) # Kshoud be at least 3
-  pal <- palette[1]
-  sequential <- c('Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges',
-    'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds','YlGn', 'YlGnBu YlOrBr', 'YlOrRd')
-  divergent <- c('BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral')
-
-  if(pal %in% sequential) max_k <- 9
-  else if(pal %in% divergent) max_k <- 11
-  else if(pal %in% c('Accent','Dark2','Pastel2', 'Set2')) max_k <- 8
-  else if(pal %in% c('Pastel1',  'Set1')) max_k <- 9
-  else if(pal %in% c('Paired', 'Set3')) max_k <- 12
-  else stop("Don't support palette name: ", pal)
-
-  if(k <= max_k) {
-    cols <- RColorBrewer::brewer.pal(k, palette)
-    if(initial.k == 2) cols <- cols[c(1,3)]
-    else if(initial.k == 1) cols <- cols[1]
-    cols
-  }
-  else grDevices::colorRampPalette(RColorBrewer::brewer.pal(max_k, palette))(k)
-}
-
-# Set gradient colors
-# cols a vector of colors
-.gradient_col <- function (cols){
-  if(.is_col_palette(cols)) cols <- .get_pal(cols, k = 3)
-  n_cols <- length(cols)
-
-  if(n_cols == 1) {
-    cols <- grDevices::colorRampPalette(c("white", cols))(10)
-    cols <- cols[c(1, 10)]
-    n_cols <- 2
-  }
-  ggplot2::scale_color_gradientn(colours = cols)
-}
-
 # Set plot orientation
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 .set_orientation <-
@@ -316,19 +124,28 @@ NULL
   font.submain <- .parse_font(font.submain)
   font.caption <- .parse_font(font.caption)
 
+  if(is.logical(main)){
+    if(!main) main <- NULL
+  }
+
+  if(is.logical(submain)){
+    if(!submain) submain <- NULL
+  }
+
+  if(is.logical(caption)){
+    if(!caption) caption <- NULL
+  }
+
 
   if (!is.null(main)) {
-    if (main != FALSE)
       p <- p + labs(title = main)
   }
 
   if (!is.null(submain)) {
-    if (submain != FALSE)
       p <- p + labs(subtitle = submain)
   }
 
   if (!is.null(caption)) {
-    if (caption != FALSE)
       p <- p + labs(caption = caption)
   }
 
@@ -393,32 +210,31 @@ NULL
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 .set_ticks <-
   function(ticks = TRUE, tickslab = TRUE, font.tickslab = NULL,
-           xtickslab.rt = 0, ytickslab.rt = 0)
+           xtickslab.rt = NULL, ytickslab.rt = NULL,
+           font.xtickslab = font.tickslab, font.ytickslab = font.tickslab)
   {
 
-    if(xtickslab.rt > 5) xhjust <- 1 else xhjust <- NULL
+    . <- xhjust <- NULL
+   if(!is.null(xtickslab.rt)) {
+     if(xtickslab.rt > 5) xhjust <- 1
+     }
+    else xhjust <- NULL
 
     if (ticks)
       ticks <-
         element_line(colour = "black")
     else
       ticks <- element_blank()
-    if (is.null(font.tickslab))
-      font <- list(size = 12, face = "plain", color = "black")
-    else
-      font <- .parse_font(font.tickslab)
+
+    if (is.null(font.xtickslab)) font.x <- list()
+    else font.x <- .parse_font(font.xtickslab)
+    if (is.null(font.ytickslab)) font.y <- list()
+    else font.y <- .parse_font(font.ytickslab)
+
     if (tickslab) {
-      xtickslab <-
-        element_text(
-          size = font$size, face = font$face,
-          colour = font$color, angle = xtickslab.rt,
-          hjust = xhjust
-        )
-      ytickslab <-
-        element_text(
-          size = font$size, face = font$face,
-          colour = font$color, angle = ytickslab.rt
-        )
+      xtickslab <- font.x %>% .add_item(hjust = xhjust, angle = xtickslab.rt) %>%
+        do.call(element_text, .)
+      ytickslab <- font.y %>% .add_item(angle = ytickslab.rt) %>% do.call(element_text, .)
     }
     else {
       xtickslab <- element_blank()
@@ -614,7 +430,10 @@ p
     if(p_geom == "geom_line" | ngrps == 1) .jitter = position_jitter(0.4)
     else if(ngrps > 1) .jitter <- position_dodge(0.8)
 
-    if(!is.null(add.params$jitter)) .jitter = position_jitter(0.4)
+    if(is.null(add.params$jitter)) .jitter = position_jitter(0.4)
+    else if(is.numeric(add.params$jitter))
+      .jitter <- position_jitter(add.params$jitter)
+    else .jitter <- add.params$jitter
     p <- p + .geom_exec(geom_jitter, data = data,
                         color = color, fill = fill, shape = shape, size = add.params$size,
                         position = .jitter )
@@ -640,11 +459,10 @@ p
   if(length(center) == 2)
     stop("Use mean or mdedian, but not both at the same time.")
     if(length(center) == 1){
-      center.size <- ifelse(is.null(add.params$size), 6, add.params$size)
-      names(stat_sum)[which(names(stat_sum) == center)] <- y
-      p <- p + .geom_exec(geom_point, data = stat_sum, x = x, y = y,
-                          color = color,  shape = shape,
-                          position = position, size = center.size)
+      center.size <- ifelse(is.null(add.params$size), 1, add.params$size)
+      p <- p %>%
+        add_summary(fun = center, color = color, shape = shape,
+                    position = position, size = center.size)
     }
 
   # Add errors
@@ -704,17 +522,25 @@ p
 # data : a data frame
 # varname : the name of the variable to be summariezed
 # grps : column names to be used as grouping variables
-.mean_sd <- function(data, varname, grps){
-  summary_func <- function(x, col){
-    c(mean = base::mean(x[[col]], na.rm=TRUE),
-      sd = stats::sd(x[[col]], na.rm=TRUE))
-  }
-  data_sum <- plyr::ddply(data, grps, .fun=summary_func, varname)
-  data_sum$ymin <- data_sum$mean-data_sum$sd
-  data_sum$ymax <- data_sum$mean+data_sum$sd
-  names(data_sum)[ncol(data_sum)-3] <- varname
-  # data_sum <- plyr::rename(data_sum, c("mean" = varname))
-  return(data_sum)
+# .mean_sd <- function(data, varname, grps){
+#   summary_func <- function(x, col){
+#     c(mean = base::mean(x[[col]], na.rm=TRUE),
+#       sd = stats::sd(x[[col]], na.rm=TRUE))
+#   }
+#   data_sum <- plyr::ddply(data, grps, .fun=summary_func, varname)
+#   data_sum$ymin <- data_sum$mean-data_sum$sd
+#   data_sum$ymax <- data_sum$mean+data_sum$sd
+#   names(data_sum)[ncol(data_sum)-3] <- varname
+#   # data_sum <- plyr::rename(data_sum, c("mean" = varname))
+#   return(data_sum)
+# }
+
+
+
+# Summary functions
+.summary_functions <- function(){
+  c("mean", "mean_se", "mean_sd", "mean_ci",
+    "mean_range", "median", "median_iqr", "median_mad", "median_range")
 }
 
 
@@ -722,6 +548,7 @@ p
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 .parse_font <- function(font){
   if(is.null(font)) res <- NULL
+  else if(inherits(font, "list")) res <- font
   else{
     # matching size and face
     size <- grep("^[0-9]+$", font, perl = TRUE)
@@ -752,9 +579,13 @@ p
   }
 }
 
-# Check th data provided by user
+#:::::::::::::::::::::::::::::::::::::::::
+# Check the data provided by user
+#:::::::::::::::::::::::::::::::::::::::::
+# combine: if TRUE, gather y variables
 # return a list(data, x, y)
-.check_data <- function(data, x, y){
+.check_data <- function(data, x, y, combine = FALSE)
+  {
 
   if(missing(x) & missing(y)){
     if(!is.numeric(data))
@@ -770,10 +601,57 @@ p
     if(is.numeric(data)) data <- data.frame(x = data)
     else data$x <- rep("1", nrow(data))
   }
+  # A list of y elements to plot
+  else if(length(y) > 1){
+    if(!all(y %in% colnames(data))){
+      not_found <- setdiff(y , colnames(data))
+      y <- intersect(y, colnames(data))
+
+      if(.is_empty(y))
+        stop("Can't found the y elements in the data.")
+
+      else if(!.is_empty(not_found))
+        warning("Can't found the following element in the data: ",
+              .collapse(not_found))
+    }
+  }
 
   if(inherits(data, c("tbl_df", "tbl")))
     data <- as.data.frame(data)
-  list(data = data, x =x, y = y)
+
+  # Combining y variables
+  #......................................................
+  if(is.null(y)) y <- ""
+  if(combine & length(y) > 1){
+    data <- tidyr::gather_(data, key_col = ".y.", value_col = ".value.",
+                           gather_cols = y)
+    data[, ".y."] <- factor(data[, ".y."], levels = unique(data[, ".y."]))
+    y <- ".value."
+  }
+  # Combining x variables: Case of density plot or histograms
+  #......................................................
+  else if(combine & length(x) > 1 & y[1] %in% c("..density..", "..count..", "..ecdf..", "..qq..")){
+
+    data <- tidyr::gather_(data, key_col = ".y.", value_col = ".value.",
+                           gather_cols = x)
+    data[, ".y."] <- factor(data[, ".y."], levels = unique(data[, ".y."]))
+    x <- ".value."
+  }
+
+  # If not factor, x elements on the plot should
+  # appear in the same order as in the data
+  if(is.character(data[, x]))
+    data[, x] <- factor(data[, x], levels = unique(data[, x]))
+
+  y <- unique(y)
+  names(y) <- y
+  x <- unique(x)
+  names(x) <- x
+
+  if(y[1] %in% c("..density..", "..count..", "..ecdf..", "..qq.."))
+    list(x = x, data = data, y = y)    # The name of plots are x variables
+  else
+    list(y = y, data = data, x = x)   # The name of plots will be y variables
 }
 
 
@@ -806,6 +684,354 @@ p
   if("fills" %in% names(gdata)) fills <- unique(unlist(gdata["fill"]))
   max(length(cols), length(fills))
 }
+
+# Check if character string is a valid color representation
+.is_color <- function(x) {
+  sapply(x, function(X) {
+    tryCatch(is.matrix(grDevices::col2rgb(X)),
+             error = function(e) FALSE)
+  })
+}
+
+
+# Collapse one or two vectors
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+.collapse <- function(x, y = NULL, sep = "."){
+  if(missing(y))
+    paste(x, collapse = sep)
+  else if(is.null(x) & is.null(y))
+    return(NULL)
+  else if(is.null(x))
+    return (as.character(y))
+  else if(is.null(y))
+    return(as.character(x))
+  else
+    paste0(x, sep, y)
+}
+
+# Check if en object is empty
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+.is_empty <- function(x){
+  length(x) == 0
+}
+
+# Remove NULL items in a vector or list
+#
+# x a vector or list
+.compact <- function(x){Filter(Negate(is.null), x)}
+
+# Check if is a list
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+.is_list <- function(x){
+  inherits(x, "list")
+}
+
+# Returns the levels of a factor variable
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+.levels <- function(x){
+  if(!is.factor(x)) x <- as.factor(x)
+  levels(x)
+}
+
+# Remove items from a list
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+.remove_item <- function(.list, items){
+  for(item in items)
+    .list[[item]] <- NULL
+  .list
+}
+
+# Additems in a list
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+.add_item <- function(.list, ...){
+  pms <- list(...)
+  for(pms.names in names(pms)){
+    .list[[pms.names]] <- pms[[pms.names]]
+  }
+  .list
+}
+
+
+# Select a colun as vector from tiblle data frame
+.select_vec <- function(df, column){
+  if(is.numeric(column))
+    df %>% dplyr::select(column) %>% unlist(use.names = FALSE)
+  else
+    df %>% dplyr::select_(.dots = column) %>% unlist(use.names = FALSE)
+}
+
+# Select the top up or down rows of a data frame sorted by variables
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# - df: data frame
+# - x: x axis variables (grouping variables)
+# - y: y axis variables (sorting variables)
+# - n the number of rows
+# - grps: other grouping variables
+.top_up <- function(df, x, y, n, grouping.vars = NULL){
+  . <- NULL
+  grouping.vars <- c(x, grouping.vars) %>%
+    unique()
+  df %>%
+    arrange_(.dots = c(grouping.vars, y)) %>%
+    group_by_(.dots = grouping.vars) %>%
+    do(utils::tail(., n))
+}
+
+
+.top_down <- function(df, x, y, n, grouping.vars = NULL){
+  . <- NULL
+  grouping.vars <- c(x, grouping.vars) %>%
+    unique()
+  df %>%
+    arrange_(.dots = c(grouping.vars, y)) %>%
+    group_by_(.dots = grouping.vars) %>%
+    do(utils::head(., n))
+}
+
+
+#::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# Apply ggpubr functions on a data
+#::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# fun: function, can be ggboxplot, ggdotplot, ggstripchart, ...
+.plotter <- function(fun, data, x, y, combine = FALSE, merge = FALSE,
+                     color = "black", fill = "white",
+                     title = NULL, xlab = NULL, ylab = NULL,
+                     legend = NULL, legend.title = NULL,
+                     facet.by = NULL,
+                     select = NULL, remove = NULL, order = NULL,
+                     add = "none", add.params = list(),
+                     label = NULL, font.label = list(size = 11, color = "black"),
+                     label.select = NULL, repel = FALSE, label.rectangle = FALSE,
+                     ggtheme = theme_pubr(),
+                     fun_name = "", group = 1, # used only by ggline
+                     ...)
+  {
+
+  if(is.logical(merge)){
+    if(merge) merge = "asis"
+    else merge = "none"
+  }
+  if(combine & merge != "none")
+    stop("You should use either combine = TRUE or merge = TRUE, but not both together.")
+
+  font.label <- .parse_font(font.label)
+  if(is.null(label) & fun_name == "barplot") label  <- FALSE
+  .lab <- label
+  if(fun_name != "barplot") .lab <- NULL
+
+  if(!missing(x) & !missing(y)){
+    if(length(y) == 1 & length(x) == 1){
+      combine <- FALSE
+      merge <- "none"
+    }
+  }
+
+  # Check data
+  #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # - returns a list of updated main options:
+  #       list(y, data,  x)
+  opts <- .check_data(data, x, y, combine = combine | merge != "none")
+  data <- opts$data
+  x <- opts$x
+  y <- opts$y
+
+
+  is_density_plot <- y[1] %in% c("..count..", "..density..", "..ecdf..", "..qq..")
+
+  if(combine) facet.by <- ".y." # Faceting by y variables
+  if(merge != "none"){
+    if(!is_density_plot) facet.by <- NULL
+    if(is.null(legend.title)) legend.title <- "" # remove .y. in the legend
+  }
+
+
+  # Updating parameters after merging
+  #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+  # Special case for density and histograms:
+      # x are variables and y is ..count.. or ..density..
+      # after merging ggpubr add a new column .y. which hold x variables
+      # User might want to color by x variables as follow color = ".x." and
+      # he aren't aware that the column is ".y." --> so we should translate this (see from line 1055)
+
+  user.add.color <- add.params$color
+  geom.text.position <- "identity"
+
+  if(merge == "asis" ){
+    .grouping.var <- ".y."  # y variables become grouping variable
+  }
+  else if(merge == "flip"){
+    .grouping.var <- opts$x  # x variable becomes grouping variable
+     opts$x <- ".y."  # y variables become x tick labels
+    if(is.null(xlab)) xlab <- FALSE
+  }
+
+  if(merge == "asis" | merge == "flip"){
+
+    if(is_density_plot){
+      color <- ifelse(color == ".x.", ".y.", color)
+      fill <- ifelse(fill == ".x.", ".y.", fill)
+    }
+
+    if(any(c(color, fill) %in% names(data))){
+      add.params$color <- font.label$color <- ifelse(color %in% names(data), color, fill)
+    }
+    else if(!all(c(color, fill) %in% names(data))){
+      color <- add.params$color <- font.label$color <-  .grouping.var
+      #fill <- "white"
+    }
+    group <- .grouping.var
+    geom.text.position <- position_dodge(0.8)
+  }
+
+  if(!combine & merge == "none" & length(opts$y) > 1 & is.null(title))
+    title <- opts$y
+
+  if(!combine & merge == "none" & is.null(title)){
+    if(length(opts$y) > 1) title <- opts$y
+    else if (length(opts$x) > 1 & is_density_plot)  # case of density plot
+      title <- opts$x
+  }
+
+  # Item to display
+  x <- opts$data[, opts$x] %>% as.vector()
+  if(!is.null(select))
+    opts$data <- subset(opts$data, x %in% select)
+  if(!is.null(remove))
+    opts$data <- subset(opts$data, !(x %in% remove))
+  if(!is.null(order)) opts$data[, opts$x] <- factor(opts$data[, opts$x], levels = order)
+
+  # Add additional options, which can be potentially vectorized
+  # when multiple plots
+  opts <- opts %>% c(list(title = title, xlab = xlab, ylab = ylab)) %>%
+    .compact()
+  data <- opts$data
+  opts$data <- list(opts$data)
+ if(fun_name %in% c("ggline", "ggdotchart")) opts$group <- group
+  # Plotting
+  #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  # Apply function to each y variables
+  p <- purrr::pmap(opts, fun, color = color, fill = fill, legend = legend,
+                   legend.title = legend.title, ggtheme = ggtheme, facet.by = facet.by,
+                   add = add, add.params  = add.params ,
+                   # group = group, # for line plot
+                   user.add.color = user.add.color,
+                   label = .lab, # used only in ggbarplot
+                   font.label = font.label, repel = repel, label.rectangle = label.rectangle,
+                   ...)
+  # Faceting
+  if(!is.null(facet.by))
+    p <-purrr::map(p, facet, facet.by = facet.by, ...)
+
+
+  # Add labels
+  if(!is.null(label) & fun_name != "barplot"){
+
+    if(is.logical(label)){
+      if(label) label <- opts$y
+    }
+
+    grouping.vars <- intersect(c(facet.by, color, fill), colnames(data))
+
+    label.opts <- font.label %>%
+      .add_item(data = data, x = opts$x, y = opts$y,
+                label = label, label.select = label.select,
+                repel = repel, label.rectangle = label.rectangle, ggtheme = NULL,
+                grouping.vars = grouping.vars, facet.by = facet.by, position = geom.text.position)
+    p <- purrr::map(p,
+                   function(p, label.opts){
+                     . <- NULL
+                     label.opts %>% .add_item(ggp = p) %>%
+                       do.call(ggtext, .)
+                   },
+                   label.opts
+                   )
+  }
+
+  # Take into account the legend argument, when the main plot has no legend and ggtext has legend
+  p <-purrr::map(p, ggpar, legend = legend, legend.title = legend.title)
+
+  if(.is_list(p) & length(p) == 1) p <- p[[1]]
+  p
+
+}
+
+
+# get the geometry of the first layer
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+.geom <- function(p, .layer = 1){
+
+  . <- NULL
+  if(is.null(p) | .is_empty(p$layers)) return("")
+  class(p$layers[[.layer]]$geom)[1] %>%
+    tolower() %>%
+    gsub("geom", "", .)
+}
+
+
+# Get the mapping variables of the first layer
+.mapping <- function(p){
+
+  if(is.null(p)) return(list())
+
+  res0 <- as.character(p$mapping)
+  res1 <- NULL
+  if(!.is_empty(p$layers))
+    res1 <- as.character(p$layers[[1]]$mapping)
+  c(res0, res1) %>%
+    as.list()
+}
+
+# Call geom_exec function to update a plot
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+.update_plot <- function(opts, p){
+  p + do.call(geom_exec, opts)
+}
+
+
+# Add mean or median line
+# used by ggdensity and gghistogram
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# p: main plot
+# data: data frame
+# x: measure variables
+# add: center to add
+# grouping.vars: grouping variables
+.add_center_line <- function(p, add = c("none", "mean", "median"), grouping.vars = NULL,
+                             color = "black", linetype = "dashed", size = NULL)
+{
+
+  add <- match.arg(add)
+  data <- p$data
+  x <- .mapping(p)$x
+
+  if(!(add %in% c("mean", "median")))
+    return(p)
+
+  # NO grouping variable
+  if(.is_empty(grouping.vars)) {
+    m <- ifelse(add == "mean",
+                mean(data[, x], na.rm = TRUE),
+                stats::median(data[, x], na.rm = TRUE))
+    p <- p + geom_exec(geom_vline, data = data,
+                       xintercept = m, color = color,
+                       linetype = linetype, size = size)
+  }
+  # Case of grouping variable
+  else {
+    data_sum <- desc_statby(data, measure.var = x, grps = grouping.vars)
+    names(data_sum)[which(names(data_sum) == add)] <- x
+    p <- p + geom_exec(geom_vline, data = data_sum,
+                       xintercept = x, color = color,
+                       linetype = linetype, size = size)
+  }
+
+  p
+}
+
+
+
+
 
 
 

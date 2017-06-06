@@ -4,39 +4,74 @@
 \alias{ggscatter}
 \title{Scatter plot}
 \usage{
-ggscatter(data, x, y, color = "black", fill = "lightgray", palette = NULL,
-  shape = 19, size = 2, point = TRUE, rug = FALSE, add = c("none",
-  "reg.line", "loess"), add.params = list(), conf.int = FALSE,
-  conf.int.level = 0.95, fullrange = FALSE, ellipse = FALSE,
-  ellipse.level = 0.95, ellipse.type = "norm", ellipse.alpha = 0.1,
-  mean.point = FALSE, mean.point.size = ifelse(is.numeric(size), 2 * size,
-  size), star.plot = FALSE, star.plot.lty = 1, star.plot.lwd = NULL,
-  label = NULL, font.label = c(12, "plain"), label.select = NULL,
-  repel = FALSE, label.rectangle = FALSE, cor.coef = FALSE,
-  cor.method = "pearson", cor.coef.coord = c(NULL, NULL),
-  cor.coef.size = 12, ggp = NULL, show.legend.text = NA,
-  ggtheme = theme_classic2(), ...)
+ggscatter(data, x, y, combine = FALSE, merge = FALSE, color = "black",
+  fill = "lightgray", palette = NULL, shape = 19, size = 2,
+  point = TRUE, rug = FALSE, title = NULL, xlab = NULL, ylab = NULL,
+  facet.by = NULL, panel.labs = NULL, short.panel.labs = TRUE,
+  add = c("none", "reg.line", "loess"), add.params = list(),
+  conf.int = FALSE, conf.int.level = 0.95, fullrange = FALSE,
+  ellipse = FALSE, ellipse.level = 0.95, ellipse.type = "norm",
+  ellipse.alpha = 0.1, mean.point = FALSE,
+  mean.point.size = ifelse(is.numeric(size), 2 * size, size),
+  star.plot = FALSE, star.plot.lty = 1, star.plot.lwd = NULL,
+  label = NULL, font.label = c(12, "plain"), font.family = "",
+  label.select = NULL, repel = FALSE, label.rectangle = FALSE,
+  cor.coef = FALSE, cor.coeff.args = list(), cor.method = "pearson",
+  cor.coef.coord = c(NULL, NULL), cor.coef.size = 4, ggp = NULL,
+  show.legend.text = NA, ggtheme = theme_pubr(), ...)
 }
 \arguments{
 \item{data}{a data frame}
 
 \item{x, y}{x and y variables for drawing.}
 
+\item{combine}{logical value. Default is FALSE. Used only when y is a vector
+containing multiple variables to plot. If TRUE, create a multi-panel plot by
+combining the plot of y variables.}
+
+\item{merge}{logical or character value. Default is FALSE. Used only when y is
+a vector containing multiple variables to plot. If TRUE, merge multiple y
+variables in the same plotting area. Allowed values include also "asis"
+(TRUE) and "flip". If merge = "flip", then y variables are used as x tick
+labels and the x variable is used as grouping variable.}
+
 \item{color, fill}{point colors.}
 
-\item{palette}{the color palette to be used for coloring or filling by
-groups. Allowed values include "grey" for grey color palettes; brewer
-palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
-"red"); and scientific journal palettes from ggsci R package, e.g.: "npg", "aaas", "lancet", "jco",
-"ucscgb", "uchicago", "simpsons" and "rickandmorty".}
+\item{palette}{the color palette to be used for coloring or filling by groups.
+Allowed values include "grey" for grey color palettes; brewer palettes e.g.
+"RdBu", "Blues", ...; or custom color palette e.g. c("blue", "red"); and
+scientific journal palettes from ggsci R package, e.g.: "npg", "aaas",
+"lancet", "jco", "ucscgb", "uchicago", "simpsons" and "rickandmorty".}
 
 \item{shape}{point shape. See \code{\link{show_point_shapes}}.}
 
-\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
+\item{size}{Numeric value (e.g.: size = 1). change the size of points and
+outlines.}
 
 \item{point}{logical value. If TRUE, show points.}
 
 \item{rug}{logical value. If TRUE, add marginal rug.}
+
+\item{title}{plot main title.}
+
+\item{xlab}{character vector specifying x axis labels. Use xlab = FALSE to
+hide xlab.}
+
+\item{ylab}{character vector specifying y axis labels. Use ylab = FALSE to
+hide ylab.}
+
+\item{facet.by}{character vector, of length 1 or 2, specifying grouping
+variables for faceting the plot into multiple panels. Should be in the data.}
+
+\item{panel.labs}{a list of one or two character vectors to modify facet panel
+labels. For example, panel.labs = list(sex = c("Male", "Female")) specifies
+the labels for the "sex" variable. For two grouping variables, you can use
+for example panel.labs = list(sex = c("Male", "Female"), rx = c("Obs",
+"Lev", "Lev2") ).}
+
+\item{short.panel.labs}{logical value. Default is TRUE. If TRUE, create short
+labels for panels by omitting variable names; in other words panels will be
+labelled only by variable grouping levels.}
 
 \item{add}{allowed values are one of "none", "reg.line" (for adding linear
 regression line) or "loess" (for adding local regression fitting).}
@@ -84,6 +119,8 @@ the color (e.g.: "red") of point labels. For example \emph{font.label =
 c(14, "bold", "red")}. To specify only the size and the style, use
 font.label = c(14, "plain").}
 
+\item{font.family}{character vector specifying font family.}
+
 \item{label.select}{character vector specifying some labels to show.}
 
 \item{repel}{a logical value, whether to use ggrepel to avoid overplotting
@@ -95,6 +132,11 @@ text, making it easier to read.}
 \item{cor.coef}{logical value. If TRUE, correlation coefficient with the
 p-value will be added to the plot.}
 
+\item{cor.coeff.args}{a list of arguments to pass to the function
+\code{\link{stat_cor}} for customizing the displayed correlation
+coefficients. For example: \code{cor.coeff.args = list(method = "pearson",
+label.x.npc = "right", label.y.npc = "top")}.}
+
 \item{cor.method}{method for computing correlation coefficient. Allowed
 values are one of "pearson", "kendall", or "spearman".}
 
@@ -105,9 +147,9 @@ coordinates of the correlation coefficient. Default values are NULL.}
 
 \item{ggp}{a ggplot. If not NULL, points are added to an existing plot.}
 
-\item{show.legend.text}{logical. Should text be included in the
-legends? NA, the default, includes if any aesthetics are mapped. FALSE
-never includes, and TRUE always includes.}
+\item{show.legend.text}{logical. Should text be included in the legends? NA,
+the default, includes if any aesthetics are mapped. FALSE never includes,
+and TRUE always includes.}
 
 \item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
@@ -142,7 +184,8 @@ ggscatter(df, x = "wt", y = "mpg",
    add = "reg.line",  # Add regressin line
    add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
    conf.int = TRUE, # Add confidence interval
-   cor.coef = TRUE # Add correlation coefficient
+   cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+   cor.coeff.args = list(method = "pearson", label.x = 3, label.sep = "\\n")
    )
 
 # loess method: local regression fitting
@@ -185,5 +228,5 @@ ggscatter(df, x = "wt", y = "mpg",
 
 }
 \seealso{
-\code{\link{ggpar}}
+\code{\link{stat_cor}}, \code{\link{stat_stars}}, \code{\link{stat_conf_ellipse}} and \code{\link{ggpar}}.
 }

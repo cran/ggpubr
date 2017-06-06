@@ -4,11 +4,13 @@
 \alias{ggerrorplot}
 \title{Visualizing Error}
 \usage{
-ggerrorplot(data, x, y, desc_stat = "mean_se", color = "black",
-  fill = "white", palette = NULL, size = NULL, width = NULL,
-  select = NULL, order = NULL, add = "none", add.params = list(),
-  error.plot = "pointrange", position = position_dodge(),
-  ggtheme = theme_classic2(), ...)
+ggerrorplot(data, x, y, desc_stat = "mean_se", combine = FALSE,
+  merge = FALSE, color = "black", fill = "white", palette = NULL,
+  size = NULL, width = NULL, title = NULL, xlab = NULL, ylab = NULL,
+  facet.by = NULL, panel.labs = NULL, short.panel.labs = TRUE,
+  select = NULL, remove = NULL, order = NULL, add = "none",
+  add.params = list(), error.plot = "pointrange",
+  position = position_dodge(), ggtheme = theme_pubr(), ...)
 }
 \arguments{
 \item{data}{a data frame}
@@ -19,37 +21,71 @@ ggerrorplot(data, x, y, desc_stat = "mean_se", color = "black",
 Allowed values are one of , "mean", "mean_se", "mean_sd", "mean_ci", "mean_range",
 "median", "median_iqr", "median_mad", "median_range"; see \code{\link{desc_statby}} for more details.}
 
+\item{combine}{logical value. Default is FALSE. Used only when y is a vector
+containing multiple variables to plot. If TRUE, create a multi-panel plot by
+combining the plot of y variables.}
+
+\item{merge}{logical or character value. Default is FALSE. Used only when y is
+a vector containing multiple variables to plot. If TRUE, merge multiple y
+variables in the same plotting area. Allowed values include also "asis"
+(TRUE) and "flip". If merge = "flip", then y variables are used as x tick
+labels and the x variable is used as grouping variable.}
+
 \item{color, fill}{outline and fill colors.}
 
-\item{palette}{the color palette to be used for coloring or filling by
-groups. Allowed values include "grey" for grey color palettes; brewer
-palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
-"red"); and scientific journal palettes from ggsci R package, e.g.: "npg", "aaas", "lancet", "jco",
-"ucscgb", "uchicago", "simpsons" and "rickandmorty".}
+\item{palette}{the color palette to be used for coloring or filling by groups.
+Allowed values include "grey" for grey color palettes; brewer palettes e.g.
+"RdBu", "Blues", ...; or custom color palette e.g. c("blue", "red"); and
+scientific journal palettes from ggsci R package, e.g.: "npg", "aaas",
+"lancet", "jco", "ucscgb", "uchicago", "simpsons" and "rickandmorty".}
 
-\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
+\item{size}{Numeric value (e.g.: size = 1). change the size of points and
+outlines.}
 
-\item{width}{plot width.}
+\item{width}{numeric value between 0 and 1 specifying box width.}
+
+\item{title}{plot main title.}
+
+\item{xlab}{character vector specifying x axis labels. Use xlab = FALSE to
+hide xlab.}
+
+\item{ylab}{character vector specifying y axis labels. Use ylab = FALSE to
+hide ylab.}
+
+\item{facet.by}{character vector, of length 1 or 2, specifying grouping
+variables for faceting the plot into multiple panels. Should be in the data.}
+
+\item{panel.labs}{a list of one or two character vectors to modify facet panel
+labels. For example, panel.labs = list(sex = c("Male", "Female")) specifies
+the labels for the "sex" variable. For two grouping variables, you can use
+for example panel.labs = list(sex = c("Male", "Female"), rx = c("Obs",
+"Lev", "Lev2") ).}
+
+\item{short.panel.labs}{logical value. Default is TRUE. If TRUE, create short
+labels for panels by omitting variable names; in other words panels will be
+labelled only by variable grouping levels.}
 
 \item{select}{character vector specifying which items to display.}
 
+\item{remove}{character vector specifying which items to remove from the plot.}
+
 \item{order}{character vector specifying the order of items.}
 
-\item{add}{character vector for adding another plot element (e.g.: dot plot
-or error bars). Allowed values are one or the combination of: "none",
-"dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd", "mean_ci",
-"mean_range", "median", "median_iqr", "median_mad", "median_range"; see
-?desc_statby for more details.}
+\item{add}{character vector for adding another plot element (e.g.: dot plot or
+error bars). Allowed values are one or the combination of: "none",
+"dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd",
+"mean_ci", "mean_range", "median", "median_iqr", "median_mad",
+"median_range"; see ?desc_statby for more details.}
 
 \item{add.params}{parameters (color, shape, size, fill, linetype) for the
 argument 'add'; e.g.: add.params = list(color = "red").}
 
-\item{error.plot}{plot type used to visualize error. Allowed values are one
-of c("pointrange", "linerange", "crossbar", "errorbar", "upper_errorbar",
-"lower_errorbar", "upper_pointrange", "lower_pointrange",
-"upper_linerange", "lower_linerange"). Default value is "pointrange" or "errorbar". Used
-only when add != "none" and add contains one "mean_*" or "med_*" where "*"
-= sd, se, ....}
+\item{error.plot}{plot type used to visualize error. Allowed values are one of
+c("pointrange", "linerange", "crossbar", "errorbar", "upper_errorbar",
+"lower_errorbar", "upper_pointrange", "lower_pointrange", "upper_linerange",
+"lower_linerange"). Default value is "pointrange" or "errorbar". Used only
+when add != "none" and add contains one "mean_*" or "med_*" where "*" = sd,
+se, ....}
 
 \item{position}{Position adjustment, either as a string, or the result of
 a call to a position adjustment function.}

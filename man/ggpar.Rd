@@ -12,9 +12,12 @@ ggpar(p, palette = NULL, gradient.cols = NULL, main = NULL,
   "log2", "log10", "sqrt"), yscale = c("none", "log2", "log10", "sqrt"),
   format.scale = FALSE, legend = NULL, legend.title = NULL,
   font.legend = NULL, ticks = TRUE, tickslab = TRUE,
-  font.tickslab = NULL, xtickslab.rt = 0, ytickslab.rt = 0,
-  xticks.by = NULL, yticks.by = NULL, orientation = c("vertical",
-  "horizontal", "reverse"), ggtheme = NULL, ...)
+  font.tickslab = NULL, font.xtickslab = font.tickslab,
+  font.ytickslab = font.tickslab, x.text.angle = NULL,
+  y.text.angle = NULL, xtickslab.rt = x.text.angle,
+  ytickslab.rt = y.text.angle, xticks.by = NULL, yticks.by = NULL,
+  rotate = FALSE, orientation = c("vertical", "horizontal", "reverse"),
+  ggtheme = NULL, ...)
 }
 \arguments{
 \item{p}{an object of class ggplot or a list of ggplots}
@@ -24,7 +27,9 @@ groups. Allowed values include "grey" for grey color palettes; brewer
 palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 "red"); and scientific journal palettes from ggsci R package, e.g.: "npg",
 "aaas", "lancet", "jco", "ucscgb", "uchicago", "simpsons" and
-"rickandmorty".}
+"rickandmorty". Can be also a numeric vector of length(groups); in this
+case a basic color palette is created using the function
+\link[grDevices]{palette}.}
 
 \item{gradient.cols}{vector of colors to use for n-colour gradient. Allowed
 values include brewer and ggsci color palettes.}
@@ -35,8 +40,8 @@ values include brewer and ggsci color palettes.}
 
 \item{caption}{plot caption.}
 
-\item{xlab}{character vector specifying x axis labels, respectively. Use xlab
-= FALSE to hide xlab.}
+\item{xlab}{character vector specifying x axis labels. Use xlab = FALSE to
+hide xlab.}
 
 \item{ylab}{character vector specifying y axis labels. Use ylab = FALSE to
 hide ylab.}
@@ -75,15 +80,22 @@ vector c(x, y); see details section.}
 \item{tickslab}{logical value. Default is TRUE. If FALSE, hide axis tick
 labels.}
 
-\item{font.tickslab}{Font style (size, face, color) for tick labels, e.g.:
+\item{font.tickslab, font.xtickslab, font.ytickslab}{Font style (size, face, color) for tick labels, e.g.:
 c(14, "bold", "red").}
 
-\item{xtickslab.rt, ytickslab.rt}{Rotation angle of x and y axis tick labels,
-respectively. Default value is 0.}
+\item{x.text.angle, y.text.angle}{Numeric value specifying the rotation angle
+of x and y axis tick labels, respectively. Default value is NULL. For
+vertical x axis texts use x.text.angle = 90.}
+
+\item{xtickslab.rt, ytickslab.rt}{Same as x.text.angle and y.text.angle,
+respectively. Will be deprecated in the near future.}
 
 \item{xticks.by, yticks.by}{numeric value controlling x and y axis breaks,
 respectively. For example, if yticks.by = 5, a tick mark is shown on every
 5. Default value is NULL.}
+
+\item{rotate}{logical value. If TRUE, rotate the graph by setting the plot
+orientation to horizontal.}
 
 \item{orientation}{change the orientation of the plot. Allowed values are one
 of c( "vertical", "horizontal", "reverse"). Partial match is allowed.}

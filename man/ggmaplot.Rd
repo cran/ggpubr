@@ -9,7 +9,7 @@ ggmaplot(data, fdr = 0.05, fc = 1.5, genenames = NULL,
   "black"), label.rectangle = FALSE, palette = c("#B31B21", "#1465AC",
   "darkgray"), top = 15, select.top.method = c("padj", "fc"), main = NULL,
   xlab = "Log2 mean expression", ylab = "Log2 fold change",
-  ggtheme = theme_classic2(), ...)
+  ggtheme = theme_classic(), ...)
 }
 \arguments{
 \item{data}{an object of class DESeqResults, get_diff, DE_Results, matrix or
@@ -42,11 +42,11 @@ c(14, "bold", "red")}.}
 \item{label.rectangle}{logical value. If TRUE, add rectangle underneath the
 text, making it easier to read.}
 
-\item{palette}{the color palette to be used for coloring or filling by
-groups. Allowed values include "grey" for grey color palettes; brewer
-palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
-"red"); and scientific journal palettes from ggsci R package, e.g.: "npg", "aaas", "lancet", "jco",
-"ucscgb", "uchicago", "simpsons" and "rickandmorty".}
+\item{palette}{the color palette to be used for coloring or filling by groups.
+Allowed values include "grey" for grey color palettes; brewer palettes e.g.
+"RdBu", "Blues", ...; or custom color palette e.g. c("blue", "red"); and
+scientific journal palettes from ggsci R package, e.g.: "npg", "aaas",
+"lancet", "jco", "ucscgb", "uchicago", "simpsons" and "rickandmorty".}
 
 \item{top}{the number of top genes to be shown on the plot. Use top = 0 to hide to gene labels.}
 
@@ -56,8 +56,8 @@ changes, respectively.}
 
 \item{main}{plot main title.}
 
-\item{xlab}{character vector specifying x axis labels, respectively. Use xlab
-= FALSE to hide xlab.}
+\item{xlab}{character vector specifying x axis labels. Use xlab = FALSE to
+hide xlab.}
 
 \item{ylab}{character vector specifying y axis labels. Use ylab = FALSE to
 hide ylab.}

@@ -4,38 +4,43 @@
 \alias{ggtext}
 \title{Text}
 \usage{
-ggtext(data, x, y, color = "black", palette = NULL, size = 2,
-  point = TRUE, label = NULL, font.label = c(12, "plain"),
+ggtext(data, x = NULL, y = NULL, label = NULL, color = "black",
+  palette = NULL, size = 11, face = "plain", family = "",
   label.select = NULL, repel = FALSE, label.rectangle = FALSE,
-  ggp = NULL, ggtheme = theme_classic2(), ...)
+  grouping.vars = NULL, position = "identity", ggp = NULL,
+  ggtheme = theme_pubr(), ...)
 }
 \arguments{
 \item{data}{a data frame}
 
 \item{x, y}{x and y variables for drawing.}
 
-\item{color}{point colors.}
-
-\item{palette}{the color palette to be used for coloring or filling by
-groups. Allowed values include "grey" for grey color palettes; brewer
-palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
-"red"); and scientific journal palettes from ggsci R package, e.g.: "npg", "aaas", "lancet", "jco",
-"ucscgb", "uchicago", "simpsons" and "rickandmorty".}
-
-\item{size}{Numeric value (e.g.: size = 1). change the size of points and outlines.}
-
-\item{point}{logical value. If TRUE, show points.}
-
 \item{label}{the name of the column containing point labels. Can be also a
 character vector with length = nrow(data).}
 
-\item{font.label}{a vector of length 3 indicating respectively the size
-(e.g.: 14), the style (e.g.: "plain", "bold", "italic", "bold.italic") and
-the color (e.g.: "red") of point labels. For example \emph{font.label =
-c(14, "bold", "red")}. To specify only the size and the style, use
-font.label = c(14, "plain").}
+\item{color}{text font color.}
 
-\item{label.select}{character vector specifying some labels to show.}
+\item{palette}{the color palette to be used for coloring or filling by groups.
+Allowed values include "grey" for grey color palettes; brewer palettes e.g.
+"RdBu", "Blues", ...; or custom color palette e.g. c("blue", "red"); and
+scientific journal palettes from ggsci R package, e.g.: "npg", "aaas",
+"lancet", "jco", "ucscgb", "uchicago", "simpsons" and "rickandmorty".}
+
+\item{size}{text font size.}
+
+\item{face}{text font style. Allowed values are one of c("plain", "bold",
+"italic", "bold.italic").}
+
+\item{family}{character vector specifying font family.}
+
+\item{label.select}{can be of two formats: \itemize{ \item a character vector
+specifying some labels to show. \item a list containing one or the
+combination of the following components: \itemize{ \item \code{top.up} and
+\code{top.down}: to display the labels  of the top up/down points. For
+example, \code{label.select = list(top.up = 10, top.down = 4)}. \item
+\code{criteria}: to filter, for example, by x and y variabes values, use
+this: \code{label.select = list(criteria = "`y` > 2 & `y` < 5 & `x` \%in\%
+c('A', 'B')")}. } }}
 
 \item{repel}{a logical value, whether to use ggrepel to avoid overplotting
 text labels or not.}
@@ -43,14 +48,19 @@ text labels or not.}
 \item{label.rectangle}{logical value. If TRUE, add rectangle underneath the
 text, making it easier to read.}
 
+\item{grouping.vars}{grouping variables to sort the data by, when the user
+wants to display the top n up/down labels.}
+
+\item{position}{Position adjustment, either as a string, or the result of a
+call to a position adjustment function.}
+
 \item{ggp}{a ggplot. If not NULL, points are added to an existing plot.}
 
 \item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
 
-\item{...}{other arguments to be passed to \code{\link[ggplot2]{geom_point}}
-and \code{\link{ggpar}}.}
+\item{...}{other arguments to be passed to \code{\link{ggpar}}.}
 }
 \description{
 Add text to a plot.

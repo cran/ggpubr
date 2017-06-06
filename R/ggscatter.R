@@ -1,8 +1,10 @@
-#' @include utilities.R ggpar.R stat_chull.R stat_conf_ellipse.R
+#' @include utilities.R ggpar.R stat_chull.R stat_conf_ellipse.R stat_stars.R stat_cor.R
 NULL
 #' Scatter plot
 #' @description Create a scatter plot.
 #' @inheritParams ggboxplot
+#' @inheritParams facet
+#' @inheritParams ggpar
 #' @param x,y x and y variables for drawing.
 #' @param color,fill point colors.
 #' @param shape point shape. See \code{\link{show_point_shapes}}.
@@ -39,6 +41,7 @@ NULL
 #'   the color (e.g.: "red") of point labels. For example \emph{font.label =
 #'   c(14, "bold", "red")}. To specify only the size and the style, use
 #'   font.label = c(14, "plain").
+#' @param font.family character vector specifying font family.
 #' @param label.select character vector specifying some labels to show.
 #' @param repel a logical value, whether to use ggrepel to avoid overplotting
 #'   text labels or not.
@@ -46,15 +49,19 @@ NULL
 #'   text, making it easier to read.
 #' @param cor.coef logical value. If TRUE, correlation coefficient with the
 #'   p-value will be added to the plot.
+#' @param cor.coeff.args a list of arguments to pass to the function
+#'   \code{\link{stat_cor}} for customizing the displayed correlation
+#'   coefficients. For example: \code{cor.coeff.args = list(method = "pearson",
+#'   label.x.npc = "right", label.y.npc = "top")}.
 #' @param cor.method method for computing correlation coefficient. Allowed
 #'   values are one of "pearson", "kendall", or "spearman".
 #' @param cor.coef.coord numeric vector, of length 2, specifying the x and y
 #'   coordinates of the correlation coefficient. Default values are NULL.
 #' @param cor.coef.size correlation coefficient text font size.
 #' @param ggp a ggplot. If not NULL, points are added to an existing plot.
-#' @param show.legend.text logical. Should text be included in the
-#'   legends? NA, the default, includes if any aesthetics are mapped. FALSE
-#'   never includes, and TRUE always includes.
+#' @param show.legend.text logical. Should text be included in the legends? NA,
+#'   the default, includes if any aesthetics are mapped. FALSE never includes,
+#'   and TRUE always includes.
 #' @param ... other arguments to be passed to \code{\link[ggplot2]{geom_point}}
 #'   and \code{\link{ggpar}}.
 #' @details The plot can be easily customized using the function ggpar(). Read
@@ -64,7 +71,7 @@ NULL
 #'   palette = "Dark2" or palette = c("gray", "blue", "red") \item legend title,
 #'   labels and position: legend = "right" \item plot orientation : orientation
 #'   = c("vertical", "horizontal", "reverse") }
-#' @seealso \code{\link{ggpar}}
+#' @seealso \code{\link{stat_cor}}, \code{\link{stat_stars}}, \code{\link{stat_conf_ellipse}} and \code{\link{ggpar}}.
 #' @examples
 #' # Load data
 #' data("mtcars")
@@ -79,7 +86,8 @@ NULL
 #'    add = "reg.line",  # Add regressin line
 #'    add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
 #'    conf.int = TRUE, # Add confidence interval
-#'    cor.coef = TRUE # Add correlation coefficient
+#'    cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+#'    cor.coeff.args = list(method = "pearson", label.x = 3, label.sep = "\n")
 #'    )
 #'
 #' # loess method: local regression fitting
@@ -121,7 +129,75 @@ NULL
 #'
 #'
 #' @export
-ggscatter <- function(data, x, y,
+ggscatter <- function(data, x, y, combine = FALSE, merge = FALSE,
+                      color = "black", fill = "lightgray", palette = NULL,
+                      shape = 19, size = 2, point = TRUE,  rug = FALSE,
+                      title = NULL, xlab = NULL, ylab = NULL,
+                      facet.by = NULL, panel.labs = NULL, short.panel.labs = TRUE,
+                      add = c("none", "reg.line", "loess"), add.params = list(),
+                      conf.int = FALSE, conf.int.level = 0.95, fullrange = FALSE,
+                      ellipse = FALSE, ellipse.level = 0.95,
+                      ellipse.type = "norm", ellipse.alpha = 0.1,
+                      mean.point = FALSE, mean.point.size = ifelse(is.numeric(size), 2*size, size),
+                      star.plot = FALSE, star.plot.lty = 1, star.plot.lwd = NULL,
+                      label = NULL,  font.label = c(12, "plain"), font.family = "",
+                      label.select = NULL, repel = FALSE, label.rectangle = FALSE,
+                      cor.coef = FALSE, cor.coeff.args = list(), cor.method = "pearson", cor.coef.coord = c(NULL, NULL), cor.coef.size = 4,
+                      ggp = NULL, show.legend.text = NA,
+                      ggtheme = theme_pubr(),
+                      ...){
+
+
+  # Default options
+  #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  .opts <- list(
+    combine = combine, merge = merge,
+    color = color, fill = fill, palette = palette,
+    title = title, xlab = xlab, ylab = ylab,
+    facet.by = facet.by, panel.labs = panel.labs, short.panel.labs = short.panel.labs,
+    shape = shape, size = size, point = point,  rug = rug,
+    add = add, add.params = add.params,
+    conf.int = conf.int, conf.int.level = conf.int.level, fullrange = fullrange,
+    ellipse = ellipse, ellipse.level = ellipse.level,
+    ellipse.type = ellipse.type, ellipse.alpha = ellipse.alpha,
+    mean.point = mean.point, mean.point.size = mean.point.size,
+    star.plot = star.plot, star.plot.lty = star.plot.lty, star.plot.lwd = star.plot.lwd,
+    label = label, font.label = font.label, font.family = font.family,
+    label.select = label.select, repel = repel, label.rectangle = label.rectangle,
+    cor.coef = cor.coef, cor.coeff.args = cor.coeff.args, cor.method = cor.method,
+    cor.coef.coord = cor.coef.coord, cor.coef.size = cor.coef.size,
+    ggp = ggp, show.legend.text = show.legend.text, ggtheme = ggtheme, ...)
+
+  if(!missing(data)) .opts$data <- data
+  if(!missing(x)) .opts$x <- x
+  if(!missing(y)) .opts$y <- y
+
+  # User options
+  #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  .user.opts <- as.list(match.call(expand.dots = TRUE))
+  .user.opts[[1]] <- NULL # Remove the function name
+  # keep only user arguments
+  for(opt.name in names(.opts)){
+    if(is.null(.user.opts[[opt.name]]))
+      .opts[[opt.name]] <- NULL
+  }
+
+  font.label <- .parse_font(font.label) %>% .compact()
+  font.label$color <- ifelse(is.null(font.label$color), color, font.label$color)
+  .opts$font.label <- font.label
+
+  .opts$fun <- ggscatter_core
+  if(missing(ggtheme) & (!is.null(facet.by) | combine))
+    .opts$ggtheme <- theme_pubr(border = TRUE)
+  p <- do.call(.plotter, .opts)
+
+  if(.is_list(p) & length(p) == 1) p <- p[[1]]
+  return(p)
+
+}
+
+
+ggscatter_core <- function(data, x, y,
                       color = "black", fill = "lightgray", palette = NULL,
                       shape = 19, size = 2, point = TRUE,  rug = FALSE,
                       add = c("none", "reg.line", "loess"), add.params = list(),
@@ -130,11 +206,11 @@ ggscatter <- function(data, x, y,
                       ellipse.type = "norm", ellipse.alpha = 0.1,
                       mean.point = FALSE, mean.point.size = ifelse(is.numeric(size), 2*size, size),
                       star.plot = FALSE, star.plot.lty = 1, star.plot.lwd = NULL,
-                      label = NULL,  font.label = c(12, "plain"),
+                      label = NULL,  font.label = c(12, "plain"), font.family = "",
                       label.select = NULL, repel = FALSE, label.rectangle = FALSE,
-                      cor.coef = FALSE, cor.method = "pearson", cor.coef.coord = c(NULL, NULL), cor.coef.size = 12,
+                      cor.coef = FALSE, cor.coeff.args = list(), cor.method = "pearson", cor.coef.coord = c(NULL, NULL), cor.coef.size = 4,
                       ggp = NULL, show.legend.text = NA,
-                      ggtheme = theme_classic2(),
+                      ggtheme = theme_classic(),
                       ...)
 {
 
@@ -232,8 +308,8 @@ ggscatter <- function(data, x, y,
   # Star plots
   # ++++++++++++
   if(star.plot){
-    p <-.add_stars(p, data, x, y, color, fill, shape,
-                   star.plot.lty = star.plot.lty, star.plot.lwd = star.plot.lwd)
+    p <- p + .geom_exec(stat_stars, data = data,
+                        color = color, linetype = star.plot.lty, size = star.plot.lwd)
   }
 
   #/ star plots
@@ -256,7 +332,7 @@ ggscatter <- function(data, x, y,
         p <- p + .geom_exec(ggfunc, data = lab_data, x = x, y = y,
                           label = label, fontface = font.label$face,
                           size = font.label$size/3, color = font.label$color,
-                          alpha = alpha,
+                          alpha = alpha, family = font.family,
                           box.padding = unit(0.35, "lines"),
                           point.padding = unit(0.3, "lines"),
                           force = 1, show.legend = show.legend.text)
@@ -269,7 +345,7 @@ ggscatter <- function(data, x, y,
         vjust <- -0.4
         }
       p <- p + .geom_exec(ggfunc, data = lab_data, x = x, y = y, color = color,
-                          label = label, fontface = font.label$face,
+                          label = label, fontface = font.label$face, family = font.family,
                           size = font.label$size/3, color = font.label$color,
                           vjust = vjust, alpha = alpha, show.legend = show.legend.text)
     }
@@ -278,18 +354,20 @@ ggscatter <- function(data, x, y,
   # Add correlation coefficient
   if(cor.coef){
 
-    coeff <- stats::cor.test(data[, x, drop = TRUE], data[, y, drop = TRUE],
-                             method = cor.method)
-    pval <- coeff$p.value
-    pvaltxt <- ifelse(pval < 1e-04, "p < 0.0001",
-                      paste("p =", signif(pval, 2)))
-     cortxt <- paste0("r = ", signif(coeff$estimate, 2),
-                     "\n",  pvaltxt)
-    p <- p + .ggannotate(cortxt, size = cor.coef.size, coord = cor.coef.coord)
+    if(!missing(cor.method))
+      cor.coeff.args$method <- cor.method
+    if(!missing(cor.coef.size))
+      cor.coeff.args$size <- cor.coef.size
+    if(!missing(cor.coef.coord)){
+      cor.coeff.args$label.x <- cor.coef.coord[1]
+      cor.coeff.args$label.y <- cor.coef.coord[2]
+    }
+     p <- p + do.call(stat_cor, cor.coeff.args)
   }
 
-
   p <- ggpar(p, palette = palette, ggtheme = ggtheme, ...)
+  if(font.family != "")
+    p <- p + theme(text = element_text(family = font.family))
   p
 }
 
@@ -349,41 +427,3 @@ ggscatter <- function(data, x, y,
                        geom = 'polygon')
   }
 }
-
-
-# Add stars to a plot
-# +++++++++++++++++++++
-.add_stars <- function(p, data, x, y, color, fill, shape, star.plot.lty, star.plot.lwd){
-
-  grp <- intersect(unique(c(color, fill, shape, star.plot.lty)), colnames(data))[1]
-  data <- stats::na.omit(data)
-  # NO grouping variable
-  if(is.na(grp)) {
-    grp <- factor(rep(1, nrow(data)))
-    grp_name <- "group"
-    data$group <- grp
-  }
-  # Case of grouping variable
-  else {
-    grp_name <- grp
-    grp <- data[, grp_name]
-    if(!inherits(data[, grp_name], "factor")) data[, grp_name] <- as.factor(data[, grp_name])
-  }
-  dd <- cbind.data.frame(grp = grp, data[, c(x, y)])
-  # calculate group centroid locations
-  centroids <- stats::aggregate(data[, c(x, y)], by = list(grp = grp), mean)
-  # merge centroid locations into ggplot dataframe
-  dd <- merge(dd, centroids, by="grp", suffixes = c("",".centroid"))
-  colnames(dd)[1] <- grp_name
-
-  .coord <- paste0(c(x, y), ".centroid")
-
-  # Star plot
-  p + .geom_exec(geom_segment, data = dd, x = .coord[1], y = .coord[2],
-                 xend = x, yend = y, color = color, linetype = star.plot.lty,
-                 size = star.plot.lwd)
-}
-
-
-
-

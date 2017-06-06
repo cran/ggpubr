@@ -9,14 +9,16 @@ NULL
 #'   palettes e.g. "RdBu", "Blues", ...; or custom color palette e.g. c("blue",
 #'   "red"); and scientific journal palettes from ggsci R package, e.g.: "npg",
 #'   "aaas", "lancet", "jco", "ucscgb", "uchicago", "simpsons" and
-#'   "rickandmorty".
+#'   "rickandmorty". Can be also a numeric vector of length(groups); in this
+#'   case a basic color palette is created using the function
+#'   \link[grDevices]{palette}.
 #' @param gradient.cols vector of colors to use for n-colour gradient. Allowed
 #'   values include brewer and ggsci color palettes.
 #' @param main,title plot main title.
 #' @param submain,subtitle plot subtitle.
 #' @param caption plot caption.
-#' @param xlab character vector specifying x axis labels, respectively. Use xlab
-#'   = FALSE to hide xlab.
+#' @param xlab character vector specifying x axis labels. Use xlab = FALSE to
+#'   hide xlab.
 #' @param ylab character vector specifying y axis labels. Use ylab = FALSE to
 #'   hide ylab.
 #' @param font.main,font.submain,font.caption,font.x,font.y a vector of length 3
@@ -43,13 +45,18 @@ NULL
 #' @param ticks logical value. Default is TRUE. If FALSE, hide axis tick marks.
 #' @param tickslab logical value. Default is TRUE. If FALSE, hide axis tick
 #'   labels.
-#' @param font.tickslab Font style (size, face, color) for tick labels, e.g.:
+#' @param font.tickslab,font.xtickslab,font.ytickslab Font style (size, face, color) for tick labels, e.g.:
 #'   c(14, "bold", "red").
-#' @param xtickslab.rt,ytickslab.rt Rotation angle of x and y axis tick labels,
-#'   respectively. Default value is 0.
+#' @param x.text.angle,y.text.angle Numeric value specifying the rotation angle
+#'   of x and y axis tick labels, respectively. Default value is NULL. For
+#'   vertical x axis texts use x.text.angle = 90.
+#' @param xtickslab.rt,ytickslab.rt Same as x.text.angle and y.text.angle,
+#'   respectively. Will be deprecated in the near future.
 #' @param xticks.by,yticks.by numeric value controlling x and y axis breaks,
 #'   respectively. For example, if yticks.by = 5, a tick mark is shown on every
 #'   5. Default value is NULL.
+#' @param rotate logical value. If TRUE, rotate the graph by setting the plot
+#'   orientation to horizontal.
 #' @param orientation change the orientation of the plot. Allowed values are one
 #'   of c( "vertical", "horizontal", "reverse"). Partial match is allowed.
 #' @param ggtheme function, ggplot2 theme name. Default value is theme_pubr().
@@ -146,14 +153,18 @@ ggpar <- function(p, palette = NULL, gradient.cols = NULL,
                   legend = NULL,
                   legend.title = NULL, font.legend = NULL,
                   ticks = TRUE, tickslab = TRUE, font.tickslab = NULL,
-                  xtickslab.rt = 0, ytickslab.rt = 0,
+                  font.xtickslab = font.tickslab, font.ytickslab = font.tickslab,
+                  x.text.angle = NULL, y.text.angle = NULL,
+                  xtickslab.rt = x.text.angle, ytickslab.rt = y.text.angle,
                   xticks.by = NULL, yticks.by = NULL,
+                  rotate = FALSE,
                   orientation = c("vertical", "horizontal", "reverse"),
                   ggtheme = NULL,
                   ...)
   {
 
   original.p <- p
+  if(rotate) orientation <- "horizontal"
 
   if(is.ggplot(original.p)) list.plots <- list(original.p)
   else if(is.list(original.p)) list.plots <- original.p
@@ -162,6 +173,7 @@ ggpar <- function(p, palette = NULL, gradient.cols = NULL,
   if(!is.null(subtitle)) submain <- subtitle
   if(!is.null(font.title)) font.main <- font.title
   if(!is.null(font.subtitle)) font.submain <- font.subtitle
+  if(is.numeric(palette)) palette <- grDevices::palette()[palette]
 
 
   for(i in 1:length(list.plots)){
@@ -173,7 +185,8 @@ ggpar <- function(p, palette = NULL, gradient.cols = NULL,
         if(!is.null(gradient.cols)) p <- p + .gradient_col(gradient.cols)
 
         p <- p +.set_ticks(ticks, tickslab, font.tickslab,
-                     xtickslab.rt, ytickslab.rt)
+                     xtickslab.rt, ytickslab.rt,
+                     font.xtickslab = font.xtickslab, font.ytickslab = font.ytickslab)
         p <- .set_ticksby(p, xticks.by, yticks.by)
         p <- p + .set_axis_limits(xlim, ylim)
         p <-.set_legend(p, legend, legend.title, font.legend)
