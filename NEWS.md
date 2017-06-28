@@ -1,4 +1,31 @@
-# ggpubr 0.1.2.999
+# ggpubr 0.1.4
+
+## New features
+
+- New helper functions:
+    - `gradient_color()` and `gradient_color()`: change gradient color and fill palettes.
+    - `clean_theme()`: remove axis lines, ticks, texts and titles.
+    - `get_legend()`: to extract the legend labels from a ggplot object.
+    - `as_ggplot()`: Transform the output of `gridExtra::arrangeGrob()` and `gridExtra::grid.arrange()` to a an object of class ggplot.
+    - `ggtexttable()`: to draw a textual table.
+    - `ggparagraph()`: to draw a paragraph of text.
+    - fill_palette() and color_palette() to change the fill and color palette, respectively.
+    - `annotate_figure()` to annotate (arranged) ggplots.
+    - `text_grob()` to create easily a customized text graphical object. 
+    - `background_image()` to add a background image to a ggplot.
+    
+- New theme function `theme_transparent()` to create a ggplot with transparent background.
+ 
+## Minor changes
+
+- In `gghistogram()`, density curve and rug react to the fill color.
+- `ggarrange()`:
+    - New  argument `àlign` to specify whether graphs in the grid should be horizontally ("h") or vertically ("v") aligned. 
+    - New argument `legend` to remove or specify the legend position when arranging multiple plots.
+    - New argument `common.legend` to create a common unique legend for multiple plots.
+     
+
+# ggpubr 0.1.3
    
 ## New features
    
@@ -10,32 +37,35 @@
     - `stat_compare_means()` to add p-values and significance levels to plots.
     - `stat_cor()` to add correlation coefficients with p-values to a scatter plot.
     - `stat_stars()` to add stars to a scatter plot.
-    
-    
+      
+      
+      
 - Now, the argument `y` can be a character vector of multiple variables to plot at once. This might be useful in genomic fields to plot the gene expression levels of multiple genes at once. see `ggboxplot()`, `ggdotplot()`, `ggstripchart()`, `ggviolin()`, `ggbarplot()` and `ggline`.
    
 - The argument `x` can be a vector of multiple variables in `gghistogram()`, `ggdensity()`, `ggecdf()` and `ggqqplot()`.
-
+     
+     
 - New functions to edit ggplot graphical parameters:
-   - `font()` to change the appearance of titles and labels.
-   - `rotate_x_text()` and `rotate_y_text()` to rotate x and y axis texts.
-   - `rotate()` to rotate a ggplot for creating horizontal plot.
-   - `set_palette()` or `change_palette()` to change a ggplot color palette.
-   - `border()` to add/change border lines around a ggplot.
-   - `bgcolor()` to change ggplot panel background color.
-   - `rremove()` to remove a specific component from a ggplot.
-   - `grids()` to add grid lines.
-   - `xscale()` and `yscale()` to change axis scale.
-    
+    - `font()` to change the appearance of titles and labels.
+    - `rotate_x_text()` and `rotate_y_text()` to rotate x and y axis texts.
+    - `rotate()` to rotate a ggplot for creating horizontal plot.
+    - `set_palette()` or `change_palette()` to change a ggplot color palette.
+    - `border()` to add/change border lines around a ggplot.
+    - `bgcolor()` to change ggplot panel background color.
+    - `rremove()` to remove a specific component from a ggplot.
+    - `grids()` to add grid lines.
+    - `xscale()` and `yscale()` to change axis scale.
+       
+       
 - New helper functions:
     - `facet()` added to create multi-panel plots ([#5](https://github.com/kassambara/ggpubr/issues/5)).
     - `add_summary()` to add summary statistics.
     - `ggadd()` to add summary statistics or a geometry onto a ggplot.
-    
-    
-    
-- New data set added: `gene_citation`
-
+      
+      
+- New data set added: `gene_citation`    
+     
+     
 - New arguments in `ggpar()`: `x.text.angle` and `y.text.angle`
 
       
@@ -50,9 +80,11 @@
     - `order` to order plot items.
     - `label, font.label, label.select, repel, label.rectangle` to add and customize labels
     - `facet.by, panel.labs and short.panel.labs`: support for faceting and customization of plot panels
-    
+        
+        
 - New argument `grouping.vars`  in `ggtext()`. Grouping variables to sort the data by, when the user wants to display the top n up/down labels.
-
+      
+      
 - New arguments in `theme_pubr()`: 
     - border,
     - margin, 
@@ -72,8 +104,6 @@
 - `ggmaplot()` now handles situations, wehre there is only upregulated, or downlegulated gnes.
   
 
-
-     
 # ggpubr 0.1.2
    
     
@@ -177,4 +207,3 @@ ggboxplot(iris$Sepal.Length)
 - stat_chull(): Plot convex hull of a set of points
 - stat_conf_ellipse(): Plot confidence ellipses
 - stat_mean(): Draw group mean points
-
