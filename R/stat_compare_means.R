@@ -111,8 +111,8 @@ stat_compare_means <- function(mapping = NULL, data = NULL,
 
     if(.is_p.signif_in_mapping(mapping) | !.is_empty(label %in% "p.signif"))
       {
-      map_signif_level <- c("****"=0.0001, "***"=0.001, "**"=0.01,  "*"=0.05)
-      if(hide.ns) map_signif_level[4] <- " "
+      map_signif_level <- c("****"=0.0001, "***"=0.001, "**"=0.01,  "*"=0.05, " "=1)
+      if(hide.ns) map_signif_level[5] <- c(" "=1)
     }
 
     step_increase <- ifelse(is.null(label.y), 0.12, 0)
@@ -198,7 +198,8 @@ StatCompareMeans<- ggproto("StatCompareMeans", Stat,
                       .label.pms <- label.opts %>%
                         .add_item(group.ids = .test$x) %>%
                         do.call(.label_params_by_group, .) # Returns a data frame with label: x, y, hjust, vjust
-                      .test <- dplyr::select(.test, -x)
+                      # .test <- dplyr::select(.test, -x)
+                      .label.pms <- dplyr::select(.label.pms, -x)
 
                     }
 
@@ -217,7 +218,6 @@ StatCompareMeans<- ggproto("StatCompareMeans", Stat,
                         .add_item(group.ids = group.ids) %>%
                         do.call(.label_params_by_group, .)
                     }
-
 
                     res <- cbind(.test, .label.pms)
 

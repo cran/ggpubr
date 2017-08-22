@@ -11,7 +11,7 @@ ggscatter(data, x, y, combine = FALSE, merge = FALSE, color = "black",
   add = c("none", "reg.line", "loess"), add.params = list(),
   conf.int = FALSE, conf.int.level = 0.95, fullrange = FALSE,
   ellipse = FALSE, ellipse.level = 0.95, ellipse.type = "norm",
-  ellipse.alpha = 0.1, mean.point = FALSE,
+  ellipse.alpha = 0.1, ellipse.border.remove = FALSE, mean.point = FALSE,
   mean.point.size = ifelse(is.numeric(size), 2 * size, size),
   star.plot = FALSE, star.plot.lty = 1, star.plot.lwd = NULL,
   label = NULL, font.label = c(12, "plain"), font.family = "",
@@ -93,12 +93,23 @@ data. Used only when add != "none".}
 probability.}
 
 \item{ellipse.type}{Character specifying frame type. Possible values are
-'convex', 'confidence' or types supported by
-\code{\link[ggplot2]{stat_ellipse}} including one of c("t", "norm",
-"euclid").}
+ \code{"convex"}, \code{"confidence"} or types supported by
+ \code{\link[ggplot2]{stat_ellipse}()} including one of \code{c("t", "norm",
+ "euclid")} for plotting concentration ellipses.
+
+ \itemize{ \item \code{"convex"}: plot convex hull of a set o points. \item
+ \code{"confidence"}: plot confidence ellipses arround group mean points as
+ \code{\link[FactoMineR]{coord.ellipse}()}[in FactoMineR]. \item \code{"t"}:
+ assumes a multivariate t-distribution. \item \code{"norm"}: assumes a
+ multivariate normal distribution. \item \code{"euclid"}: draws a circle with
+ the radius equal to level, representing the euclidean distance from the
+ center. This ellipse probably won't appear circular unless
+ \code{\link[ggplot2]{coord_fixed}()} is applied.}}
 
 \item{ellipse.alpha}{Alpha for ellipse specifying the transparency level of
 fill color. Use alpha = 0 for no fill color.}
+
+\item{ellipse.border.remove}{logical value. If TRUE, remove ellipse border lines.}
 
 \item{mean.point}{logical value. If TRUE, group mean points are added to the
 plot.}

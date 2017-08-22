@@ -2,10 +2,13 @@
 % Please edit documentation in R/ggparagraph.R
 \name{ggparagraph}
 \alias{ggparagraph}
+\alias{drawDetails.splitText}
 \title{Draw a Paragraph of Text}
 \usage{
 ggparagraph(text, color = NULL, size = NULL, face = NULL, family = NULL,
   lineheight = NULL)
+
+\method{drawDetails}{splitText}(x, recording)
 }
 \arguments{
 \item{text}{the text to plot.}
@@ -20,6 +23,11 @@ ggparagraph(text, color = NULL, size = NULL, face = NULL, family = NULL,
 \item{family}{font family}
 
 \item{lineheight}{Line height, example: lineheight = 2.}
+
+\item{x}{a grid grob}
+
+\item{recording}{a logical value indicating whether a grob is being added to
+the display list or redrawn from the display list.}
 
 \item{...}{other arguments passed to \link[grid]{grob}.}
 }

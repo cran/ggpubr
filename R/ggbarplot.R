@@ -210,6 +210,7 @@ ggbarplot <- function(data, x, y, combine = FALSE, merge = FALSE,
 ggbarplot_core <- function(data, x, y,
                       color = "black", fill = "white", palette = NULL,
                       size = NULL, width = 0.7,
+                      title = NULL, xlab = NULL, ylab = NULL,
                       label = FALSE, lab.col = "black", lab.size = 4,
                       lab.pos = c("out", "in"), lab.vjust = NULL, lab.hjust = NULL,
                       select = NULL, order = NULL, facet.by = NULL,
@@ -226,7 +227,11 @@ ggbarplot_core <- function(data, x, y,
 
   sort.val <- match.arg(sort.val)
   if(!is.null(order)) data[, x] <- factor(data[, x], levels = order)
-  else data[, x] <- factor(data[, x])
+  else {
+    xx <- .select_vec(data, x)
+    if(inherits(xx, c("character", "numeric")))
+      data[, x] <- .select_vec(data, x) %>% as.factor()
+  }
   error.plot = error.plot[1]
   lab.pos <- match.arg(lab.pos)
   label <- as.vector(label)
@@ -254,7 +259,9 @@ ggbarplot_core <- function(data, x, y,
 
     add <- setdiff(add, .center)
     names(data_sum)[which(names(data_sum) == .center)] <- y
-    data_sum[, x] <- as.factor(data_sum[, x])
+    # data_sum[, x] <- as.factor(data_sum[, x])
+    if(inherits(xx, c("character", "numeric")))
+      data_sum[, x] <- .select_vec(data_sum, x) %>% as.factor()
 
   }
   else data_sum <- data
@@ -319,7 +326,10 @@ ggbarplot_core <- function(data, x, y,
      .cols <- unique(c(color, fill))
      if(any(.cols %in% names(data))){
        .in <- which(.cols %in% names(data))
-       lab.fill <- .cols[.in]
+       lab.fill <- color.var <- .cols[.in]
+       data_sum <- data_sum %>%
+         dplyr::arrange_(.dots = list(x, paste0("desc(", color.var, ")")))
+
        p <- p + geom_exec(geom_text, data = data_sum, label = .lab,  #fill = lab.fill
                            vjust = lab.vjust, hjust = lab.hjust, size = lab.size, color = lab.col,
                            fontface = "plain", position = position)
@@ -334,7 +344,8 @@ ggbarplot_core <- function(data, x, y,
 
    # To do
    # top10, visualizing error
-   p <- ggpar(p, palette = palette, ggtheme = ggtheme, ...)
+   p <- ggpar(p, palette = palette, ggtheme = ggtheme,
+              title = title, xlab = xlab, ylab = ylab,...)
 
   p
 }

@@ -8,11 +8,11 @@ ggpar(p, palette = NULL, gradient.cols = NULL, main = NULL,
   submain = NULL, caption = NULL, xlab = NULL, ylab = NULL,
   title = NULL, subtitle = NULL, font.main = NULL, font.submain = NULL,
   font.x = NULL, font.y = NULL, font.caption = NULL, font.title = NULL,
-  font.subtitle = NULL, xlim = NULL, ylim = NULL, xscale = c("none",
-  "log2", "log10", "sqrt"), yscale = c("none", "log2", "log10", "sqrt"),
-  format.scale = FALSE, legend = NULL, legend.title = NULL,
-  font.legend = NULL, ticks = TRUE, tickslab = TRUE,
-  font.tickslab = NULL, font.xtickslab = font.tickslab,
+  font.subtitle = NULL, font.family = "", xlim = NULL, ylim = NULL,
+  xscale = c("none", "log2", "log10", "sqrt"), yscale = c("none", "log2",
+  "log10", "sqrt"), format.scale = FALSE, legend = NULL,
+  legend.title = NULL, font.legend = NULL, ticks = TRUE,
+  tickslab = TRUE, font.tickslab = NULL, font.xtickslab = font.tickslab,
   font.ytickslab = font.tickslab, x.text.angle = NULL,
   y.text.angle = NULL, xtickslab.rt = x.text.angle,
   ytickslab.rt = y.text.angle, xticks.by = NULL, yticks.by = NULL,
@@ -56,6 +56,8 @@ font.x = "bold", to change only font face.}
 \item{font.title, font.subtitle}{alias of font.submain and font.submain,
 respectively.}
 
+\item{font.family}{character vector specifying font family.}
+
 \item{xlim, ylim}{a numeric vector of length 2, specifying  x and y axis
 limits (minimum and maximum), respectively. e.g.: ylim = c(0, 50).}
 
@@ -70,7 +72,9 @@ c("top", "bottom", "left", "right", "none"). To remove the legend use
 legend = "none". Legend position can be also specified using a numeric
 vector c(x, y); see details section.}
 
-\item{legend.title}{legend title.}
+\item{legend.title}{legend title, e.g.: \code{legend.title = "Species"}. Can
+be also a list, \code{legend.title = list(color = "Species", linetype = "Species",
+shape = "Species")}.}
 
 \item{font.legend}{legend text font style; e.g.: font.legend = c(10, "plain",
 "black").}
@@ -80,8 +84,8 @@ vector c(x, y); see details section.}
 \item{tickslab}{logical value. Default is TRUE. If FALSE, hide axis tick
 labels.}
 
-\item{font.tickslab, font.xtickslab, font.ytickslab}{Font style (size, face, color) for tick labels, e.g.:
-c(14, "bold", "red").}
+\item{font.tickslab, font.xtickslab, font.ytickslab}{Font style (size, face,
+color) for tick labels, e.g.: c(14, "bold", "red").}
 
 \item{x.text.angle, y.text.angle}{Numeric value specifying the rotation angle
 of x and y axis tick labels, respectively. Default value is NULL. For

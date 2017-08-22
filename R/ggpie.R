@@ -14,6 +14,7 @@ NULL
 #'  14), the style (e.g.: "plain", "bold", "italic", "bold.italic") and the
 #'  color (e.g.: "red") of label font. For example \emph{lab.font= c(4, "bold",
 #'  "red")}.
+#'@param font.family character vector specifying font family.
 #'@param color,fill outline and fill colors.
 #'@param ... other arguments to be passed to be passed to ggpar().
 #'@details The plot can be easily customized using the function ggpar(). Read
@@ -72,7 +73,7 @@ NULL
 #'
 #'@export
 ggpie <- function(data, x, label = NULL, lab.pos = c("out", "in"), lab.adjust = 0,
-                  lab.font = c(4, "bold", "black"),
+                  lab.font = c(4, "bold", "black"), font.family = "",
                       color = "black", fill = "white", palette = NULL,
                       size = NULL, ggtheme = theme_classic(),
                       ...)
@@ -80,18 +81,18 @@ ggpie <- function(data, x, label = NULL, lab.pos = c("out", "in"), lab.adjust = 
 
   lab.pos <- match.arg(lab.pos)
   lab.font <- .parse_font(lab.font)
-#   data <- data[order(data[, x]), , drop = FALSE]
-#   if(fill %in% colnames(data)) {
-#     fill_d <- as.vector(data[, fill])
-#     data[, fill] <- factor(fill_d, levels = rev(fill_d))
-#   }
+  # data <- data[order(data[, x]), , drop = FALSE]
+  if(fill %in% colnames(data)) {
+    fill_d <- dplyr::pull(data, fill)
+    data[, fill] <- factor(fill_d, levels = rev(fill_d))
+  }
 
   if(is.null(lab.font)) lab.font <- list(size = 5, face = "bold", color = "black")
 
 
   p <- ggplot(data, aes_string(x = 1, y = x))+
     .geom_exec(geom_bar, data,  stat = "identity", fill = fill, color = color, size = size)
-  p <- ggpar(p, palette = palette, ggtheme = ggtheme, ...)
+  p <- ggpar(p, palette = palette, ggtheme = ggtheme, font.family = font.family, ...)
 
   p <- p + coord_polar(theta = "y", start = 0) +
     theme(
@@ -121,7 +122,8 @@ ggpie <- function(data, x, label = NULL, lab.pos = c("out", "in"), lab.adjust = 
       lab.font$color <- ifelse(is.null(lab.font$color), "black", lab.font$color)
       lab.font$face <- ifelse(is.null(lab.font$ace), "bold", lab.font$face)
       p <- p + .geom_exec(geom_text, data = df, x = 1, y = x, label = label,
-                          size = lab.font$size, fontface = lab.font$face, colour = lab.font$color
+                          size = lab.font$size, fontface = lab.font$face, colour = lab.font$color,
+                          family = font.family
                           )+
         theme(
           axis.text.x = element_blank(),

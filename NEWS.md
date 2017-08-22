@@ -1,3 +1,36 @@
+# ggpubr 0.1.5
+  
+## Minor changes
+
+- In `ggpar()`, now `legend.title` can be either a character vector, e.g.: legend.title = "Species" or a list, `legend.title = list(color = "Species", linetype = "Species", shape = "Species")`.
+
+- New argument `ellipse.border.remove` in `ggscatter()` to remove ellipse border lines.
+   
+```r
+ggscatter(mtcars, x = "mpg", y = "wt", 
+          color = "cyl",
+          ellipse = TRUE, mean.point = TRUE, 
+          ellipse.border.remove = TRUE)
+```
+
+- In `ggscatter`(), the argument `mean.point` now reacts to fill color.
+- Support for text justification added in `ggtexttable()` ([@cj-wilson, #15](https://github.com/kassambara/ggpubr/issues/18))
+
+- The function `ggpie()` can now display japanese texts. New argument `font.family` in `ggpie`() and in `ggpar()` ([@tomochan001, #15](https://github.com/kassambara/ggpubr/issues/15)).
+
+- Using time on x axis works know with `ggline()` and `ggbarplot()` ([@jcpsantiago, #15](https://github.com/kassambara/ggpubr/issues/17)).
+
+
+
+## Bug fixes
+   
+- `stat_compare_means()` now reacts to `hide.ns` properly.
+- `drawDetails.splitText()` exported so that the function `ggparagraph()` works properly.
+- Now, ggpubr functions accept expression for label text
+- In `ggbarplot()`, now labels correspond to the true size of bars ([@tdelhomme, #15](https://github.com/kassambara/ggpubr/issues/15)).
+- `stat_compare_means()` now keep the default order of factor levels ([@RoKant, #12](https://github.com/kassambara/ggpubr/issues/12)).
+
+
 # ggpubr 0.1.4
 
 ## New features

@@ -9,6 +9,7 @@ NULL
 #' @importFrom dplyr do
 #' @importFrom dplyr summarise
 #' @importFrom dplyr everything
+#' @importFrom grid drawDetails
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Execute a geom_* function from ggplot2
@@ -307,8 +308,13 @@ p
   font <- .parse_font(font.legend)
 
   if(!is.null(legend)) p <- p + theme(legend.position = legend)
-   p <- p +
-     labs(color = legend.title, fill = legend.title, linetype = legend.title, shape = legend.title)
+
+  if(!.is_empty(legend.title)){
+
+    if(.is_list(legend.title)) p <- p + do.call(ggplot2::labs, legend.title)
+    else p <- p +
+       labs(color = legend.title, fill = legend.title, linetype = legend.title, shape = legend.title)
+  }
 
    if(!is.null(font)){
      p <- p + theme(
@@ -754,10 +760,7 @@ p
 
 # Select a colun as vector from tiblle data frame
 .select_vec <- function(df, column){
-  if(is.numeric(column))
-    df %>% dplyr::select(column) %>% unlist(use.names = FALSE)
-  else
-    df %>% dplyr::select_(.dots = column) %>% unlist(use.names = FALSE)
+  dplyr::pull(df, column)
 }
 
 # Select the top up or down rows of a data frame sorted by variables

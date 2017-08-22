@@ -182,6 +182,7 @@ ggline_core <- function(data, x, y, group = 1,
                   plot_type = c("b", "l", "p"),
                   size = 0.5, shape = 19,
                   point.size = size, point.color = color,
+                  title = NULL, xlab = NULL, ylab = NULL,
                   select = NULL, order = NULL,
                   facet.by = NULL,
                   add = "none",
@@ -193,7 +194,9 @@ ggline_core <- function(data, x, y, group = 1,
                   ggtheme = theme_pubr(),
                       ...)
 {
-  data[, x] <- .select_vec(data, x) %>% as.factor()
+  xx <- .select_vec(data, x)
+  if(inherits(xx, c("character", "numeric")))
+    data[, x] <- .select_vec(data, x) %>% as.factor()
   error.plot = error.plot[1]
   plot_type <- match.arg(plot_type)
   if("none" %in% add) add <- "none"
@@ -207,7 +210,6 @@ ggline_core <- function(data, x, y, group = 1,
 
   if(any(.summary_functions() %in% add)) {
     data_sum <- desc_statby(data, measure.var = y, grps = grouping.vars)
-
     summary.funcs <- intersect(.summary_functions(), add)
     if(length(summary.funcs) > 1)
       stop("Only one summary function is allowed. ",
@@ -219,7 +221,9 @@ ggline_core <- function(data, x, y, group = 1,
 
     add <- setdiff(add, .center)
     names(data_sum)[which(names(data_sum) == .center)] <- y
-    data_sum[, x] <- as.factor(data_sum[, x])
+    # data_sum[, x] <- as.factor(data_sum[, x])
+    if(inherits(xx, c("character", "numeric")))
+      data_sum[, x] <- .select_vec(data_sum, x) %>% as.factor()
   }
   else data_sum <- data
 
@@ -228,7 +232,6 @@ ggline_core <- function(data, x, y, group = 1,
     .in <- which(.cols %in% names(data))
     group <- .cols[.in]
   }
-
 
   p <- ggplot(data, aes_string(x, y))
 
@@ -298,7 +301,8 @@ ggline_core <- function(data, x, y, group = 1,
       do.call(ggtext, .)
   }
 
-   p <- ggpar(p, palette = palette, ggtheme = ggtheme, ...)
+   p <- ggpar(p, palette = palette, ggtheme = ggtheme,
+              title = title, xlab = xlab, ylab = ylab,...)
 
   p
 }
