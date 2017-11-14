@@ -29,8 +29,8 @@ NULL
 #'  grouping variable levels is compared to all (i.e. basemean).
 #'@param symnum.args a list of arguments to pass to the function
 #'  \code{\link[stats]{symnum}} for symbolic number coding of p-values. For
-#'  example, \code{symnum.args <- list(list(cutpoints = c(0, 0.0001, 0.001,
-#'  0.01, 0.05, 1), symbols = c("****", "***", "**", "*",  "ns")))}.
+#'  example, \code{symnum.args <- list(cutpoints = c(0, 0.0001, 0.001,
+#'  0.01, 0.05, 1), symbols = c("****", "***", "**", "*",  "ns"))}.
 #'
 #'  In other words, we use the following convention for symbols indicating
 #'  statistical significance: \itemize{ \item \code{ns}: p > 0.05 \item
@@ -209,9 +209,14 @@ compare_means <- function(formula, data, method = "wilcox.test",
   if(!is.null(ref.group)){
     group.levs <- .select_vec(data, group) %>% .levels()
     group1 <- NULL
-    res <- res %>% dplyr::filter(group1 == ref.group)
+    res <- res %>% dplyr::filter(group1 == ref.group | group2 == ref.group)
+    # ref.group should be always in group1 column
+    # swap group1 and group2 if group2 contains ref.group
+    group2 <- res$group2
+    res <- transform(res,
+                    group1 = ifelse(group2 == ref.group, group2, group1),
+                    group2 = ifelse(group2 == ref.group, group1, group2))
   }
-
   # Formatting and adjusting pvalues, and adding significance symbols
   #:::::::::::::::::::::::::::::::::::::::::::::::::::::
   symnum.args$x <- res$p
@@ -294,7 +299,9 @@ compare_means <- function(formula, data, method = "wilcox.test",
 
 # pairwise test
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-.test_pairwise <- function(data, formula, method = "wilcox.test", ...)
+.test_pairwise <- function(data, formula, method = "wilcox.test",
+                           paired = FALSE, pool.sd = !paired,
+                           ...)
 {
 
   x <- deparse(formula[[2]])
@@ -313,8 +320,16 @@ compare_means <- function(formula, data, method = "wilcox.test",
   test <- match.fun(method)
 
   test.opts <- list(x = .select_vec(data, x),
-                    g = .select_vec(data, group),  ...)
+                    g = .select_vec(data, group),
+                    paired = paired,
+                    ...)
   if(method == "pairwise.wilcox.test") test.opts$exact <- FALSE
+  else if(method == "pairwise.t.test"){
+    if(missing(pool.sd)){
+      if(!paired) pool.sd <- FALSE
+    }
+    test.opts$pool.sd <- pool.sd
+  }
 
   pvalues <- do.call(test, test.opts)$p.value %>%
     as.data.frame()

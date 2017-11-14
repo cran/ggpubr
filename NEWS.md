@@ -1,3 +1,46 @@
+# ggpubr 0.1.6
+
+## New features
+   
+- New function `ggballoonplot()` added to visualize a contingency table.
+
+- `ggdotchart()` can be now used to plot multiple groups with `position = position_dodge()` [@ManuelSpinola, #45](https://github.com/kassambara/ggpubr/issues/45).
+
+- New function `ggscatterhist()` to create a scatter plot with marginal histograms, density plots and box plots.
+
+- New theme `theme_pubclean()`: a clean theme without axis lines, to direct more attention to the data.
+
+- New arguments in `ggarrange()` to customize plot labels ([@G-Thomson, #41](https://github.com/kassambara/ggpubr/issues/38)):  
+    - font.label
+    - label.x and label.y
+    - hjust and vjust
+    
+- New argument `method.args` added to `stat_compare_means()`. A list of additional arguments used for the test method. For example one might use method.args = list(alternative = "greater") for wilcoxon test ([@Nicktz, #41](https://github.com/kassambara/ggpubr/issues/41)).
+
+- New argument `symnum.args` added to `stat_compare_means()`. A list of arguments to pass to the function symnum for symbolic number coding of p-values. For example, `symnum.args <- list(cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, 1), symbols = c("****", "***", "**", "*", "ns"))`
+
+- New functions `table_cell_font()` and `table_cell_bg()` to easily access and change the text font and the background of `ggtexttable()` cells ([@ProbleMaker, #29](https://github.com/kassambara/ggpubr/issues/29)).
+  
+- New argument `numeric.x.axis` in `ggline()`. logical. If TRUE, x axis will be treated as numeric. Default is FALSE. ([@mdphan, #35](https://github.com/kassambara/ggpubr/issues/35))
+
+- New argument `lab.nb.digits` in `ggbarplot()`. Integer indicating the number of decimal places (round) to be used ([#28](https://github.com/kassambara/ggpubr/issues/28)). Example: lab.nb.digits = 2.
+
+- New argument `tip.length` in `stat_compare_means()`. Numeric vector with the fraction of total height that the bar goes down to indicate the precise column. Default is 0.03. Can be of same length as the number of comparisons to adjust specifically the tip lenth of each comparison. For example tip.length = c(0.01, 0.03).
+   
+
+## Minor changes
+
+- Now `get_legend()` returns NULL when the plot doesn't have legend.  
+   
+   
+## Bug fixes
+
+- Now data argument are supported in  `stat_compare_means()` when the option comparisons are specified ([@emcnerny, #48](https://github.com/kassambara/ggpubr/issues/48))
+
+- Now `compare_means()` returns the same p-values as `stat_compare_means()` ([@wydty, #15](https://github.com/kassambara/ggpubr/issues/34)).
+- `stat_compare_means()` now reacts to label = "p.format" when comparisons specified ([#28](https://github.com/kassambara/ggpubr/issues/28)).
+- Now, the p.values are displayed correctly when ref.group is not the first group ([@sehufnkjesktgna, #15](https://github.com/kassambara/ggpubr/issues/27)).
+ 
 # ggpubr 0.1.5
   
 ## Minor changes

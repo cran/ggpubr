@@ -5,37 +5,42 @@
 \title{Add Mean Comparison P-values to a ggplot}
 \usage{
 stat_compare_means(mapping = NULL, data = NULL, method = NULL,
-  paired = FALSE, ref.group = NULL, comparisons = NULL, hide.ns = FALSE,
-  label.sep = ", ", label = NULL, label.x.npc = "left",
-  label.y.npc = "top", label.x = NULL, label.y = NULL, geom = "text",
-  position = "identity", na.rm = FALSE, show.legend = NA,
+  paired = FALSE, method.args = list(), ref.group = NULL,
+  comparisons = NULL, hide.ns = FALSE, label.sep = ", ", label = NULL,
+  label.x.npc = "left", label.y.npc = "top", label.x = NULL,
+  label.y = NULL, tip.length = 0.03, symnum.args = list(),
+  geom = "text", position = "identity", na.rm = FALSE, show.legend = NA,
   inherit.aes = TRUE, ...)
 }
 \arguments{
-\item{mapping}{Set of aesthetic mappings created by \code{\link{aes}} or
-\code{\link{aes_}}. If specified and \code{inherit.aes = TRUE} (the
+\item{mapping}{Set of aesthetic mappings created by \code{\link[=aes]{aes()}} or
+\code{\link[=aes_]{aes_()}}. If specified and \code{inherit.aes = TRUE} (the
 default), it is combined with the default mapping at the top level of the
 plot. You must supply \code{mapping} if there is no plot mapping.}
 
 \item{data}{The data to be displayed in this layer. There are three
-   options:
+options:
 
-   If \code{NULL}, the default, the data is inherited from the plot
-   data as specified in the call to \code{\link{ggplot}}.
+If \code{NULL}, the default, the data is inherited from the plot
+data as specified in the call to \code{\link[=ggplot]{ggplot()}}.
 
-   A \code{data.frame}, or other object, will override the plot
-   data. All objects will be fortified to produce a data frame. See
-   \code{\link{fortify}} for which variables will be created.
+A \code{data.frame}, or other object, will override the plot
+data. All objects will be fortified to produce a data frame. See
+\code{\link[=fortify]{fortify()}} for which variables will be created.
 
-   A \code{function} will be called with a single argument,
-   the plot data. The return value must be a \code{data.frame.}, and
-   will be used as the layer data.}
+A \code{function} will be called with a single argument,
+the plot data. The return value must be a \code{data.frame.}, and
+will be used as the layer data.}
 
 \item{method}{a character string indicating which method to be used for
 comparing means.}
 
 \item{paired}{a logical indicating whether you want a paired test. Used only
 in \code{\link[stats]{t.test}} and in \link[stats]{wilcox.test}.}
+
+\item{method.args}{a list of additional arguments used for the test method.
+For example one might use \code{method.args = list(alternative = "greater")}
+for wilcoxon test.}
 
 \item{ref.group}{a character string specifying the reference group. If
  specified, for a given grouping variable, each of the group levels will be
@@ -55,21 +60,36 @@ significance levels.}
 separate the correlation coefficient and the p.value.}
 
 \item{label}{character string specifying label type. Allowed values include
-"p.signif" (shows the significance levels), "p.format" (shows the formatted p value).}
+"p.signif" (shows the significance levels), "p.format" (shows the formatted
+p value).}
 
 \item{label.x.npc, label.y.npc}{can be \code{numeric} or \code{character}
- vector of the same length as the number of groups and/or panels. If too
- short they will be recycled. \itemize{ \item If \code{numeric}, value should
- be between 0 and 1. Coordinates to be used for positioning the label,
- expressed in "normalized parent coordinates". \item If \code{character},
- allowed values include: i) one of c('right', 'left', 'center', 'centre',
- 'middle') for x-axis; ii) and one of c( 'bottom', 'top', 'center', 'centre',
- 'middle') for y-axis.}
-
- If too short they will be recycled.}
+vector of the same length as the number of groups and/or panels. If too
+short they will be recycled. \itemize{ \item If \code{numeric}, value should
+be between 0 and 1. Coordinates to be used for positioning the label,
+expressed in "normalized parent coordinates". \item If \code{character},
+allowed values include: i) one of c('right', 'left', 'center', 'centre',
+'middle') for x-axis; ii) and one of c( 'bottom', 'top', 'center', 'centre',
+'middle') for y-axis.}}
 
 \item{label.x, label.y}{\code{numeric} Coordinates (in data units) to be used
 for absolute positioning of the label. If too short they will be recycled.}
+
+\item{tip.length}{numeric vector with the fraction of total height that the
+ bar goes down to indicate the precise column. Default is 0.03. Can be of
+ same length as the number of comparisons to adjust specifically the tip
+ lenth of each comparison. For example tip.length = c(0.01, 0.03).
+
+ If too short they will be recycled.}
+
+\item{symnum.args}{a list of arguments to pass to the function
+ \code{\link[stats]{symnum}} for symbolic number coding of p-values. For
+ example, \code{symnum.args <- list(cutpoints = c(0, 0.0001, 0.001,
+ 0.01, 0.05, 1), symbols = c("****", "***", "**", "*",  "ns"))}.
+
+ In other words, we use the following convention for symbols indicating
+ statistical significance: \itemize{ \item \code{ns}: p > 0.05 \item
+ \code{*}: p <= 0.05 \item \code{**}: p <= 0.01 \item \code{***}: p <= 0.001 \item \code{****}:  p <= 0.0001 }}
 
 \item{geom}{The geometric object to use display the data}
 
@@ -81,12 +101,14 @@ TRUE silently removes missing values.}
 
 \item{show.legend}{logical. Should this layer be included in the legends?
 \code{NA}, the default, includes if any aesthetics are mapped.
-\code{FALSE} never includes, and \code{TRUE} always includes.}
+\code{FALSE} never includes, and \code{TRUE} always includes.
+It can also be a named logical vector to finely select the aesthetics to
+display.}
 
 \item{inherit.aes}{If \code{FALSE}, overrides the default aesthetics,
 rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
-the default plot specification, e.g. \code{\link{borders}}.}
+the default plot specification, e.g. \code{\link[=borders]{borders()}}.}
 
 \item{...}{other arguments to pass to \code{\link[ggplot2]{geom_text}} or
 \code{\link[ggplot2]{geom_label}}.}

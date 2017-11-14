@@ -7,13 +7,17 @@ NULL
 #'@inheritParams compare_means
 #'@param method a character string indicating which method to be used for
 #'  comparing means.
+#'@param method.args a list of additional arguments used for the test method.
+#'  For example one might use \code{method.args = list(alternative = "greater")}
+#'  for wilcoxon test.
 #'@param comparisons A list of length-2 vectors. The entries in the vector are
 #'  either the names of 2 values on the x-axis or the 2 integers that correspond
 #'  to the index of the groups of interest, to be compared.
 #'@param hide.ns logical value. If TRUE, hide ns symbol when displaying
 #'  significance levels.
 #'@param label character string specifying label type. Allowed values include
-#'  "p.signif" (shows the significance levels), "p.format" (shows the formatted p value).
+#'  "p.signif" (shows the significance levels), "p.format" (shows the formatted
+#'  p value).
 #'@param label.sep a character string to separate the terms. Default is ", ", to
 #'  separate the correlation coefficient and the p.value.
 #'@param label.x.npc,label.y.npc can be \code{numeric} or \code{character}
@@ -24,6 +28,10 @@ NULL
 #'  allowed values include: i) one of c('right', 'left', 'center', 'centre',
 #'  'middle') for x-axis; ii) and one of c( 'bottom', 'top', 'center', 'centre',
 #'  'middle') for y-axis.}
+#'@param tip.length numeric vector with the fraction of total height that the
+#'  bar goes down to indicate the precise column. Default is 0.03. Can be of
+#'  same length as the number of comparisons to adjust specifically the tip
+#'  lenth of each comparison. For example tip.length = c(0.01, 0.03).
 #'
 #'  If too short they will be recycled.
 #'@param label.x,label.y \code{numeric} Coordinates (in data units) to be used
@@ -87,10 +95,11 @@ NULL
 #'
 #'@export
 stat_compare_means <- function(mapping = NULL, data = NULL,
-                     method = NULL, paired = FALSE, ref.group = NULL,
+                     method = NULL, paired = FALSE, method.args = list(), ref.group = NULL,
                      comparisons = NULL, hide.ns = FALSE, label.sep = ", ",
                      label = NULL, label.x.npc = "left", label.y.npc = "top",
-                     label.x = NULL, label.y = NULL,
+                     label.x = NULL, label.y = NULL, tip.length = 0.03,
+                     symnum.args = list(),
                      geom = "text", position = "identity",  na.rm = FALSE, show.legend = NA,
                     inherit.aes = TRUE, ...) {
 
@@ -99,27 +108,30 @@ stat_compare_means <- function(mapping = NULL, data = NULL,
     method.info <- .method_info(method)
     method <- method.info$method
 
-    test.args <- list(paired = paired)
+    method.args <- .add_item(method.args, paired = paired)
     if(method == "wilcox.test")
-      test.args$exact <- FALSE
+      method.args$exact <- FALSE
+
 
     pms <- list(...)
     size <- ifelse(is.null(pms$size), 0.3, pms$size)
     color <- ifelse(is.null(pms$color), "black", pms$color)
 
     map_signif_level <- FALSE
+    if(is.null(label)) label <- "p.format"
 
-    if(.is_p.signif_in_mapping(mapping) | !.is_empty(label %in% "p.signif"))
+    if(.is_p.signif_in_mapping(mapping) | (label %in% "p.signif"))
       {
-      map_signif_level <- c("****"=0.0001, "***"=0.001, "**"=0.01,  "*"=0.05, " "=1)
-      if(hide.ns) map_signif_level[5] <- c(" "=1)
+      map_signif_level <- c("****"=0.0001, "***"=0.001, "**"=0.01,  "*"=0.05, "ns"=1)
+      if(hide.ns) names(map_signif_level)[5] <- " "
     }
 
     step_increase <- ifelse(is.null(label.y), 0.12, 0)
     ggsignif::geom_signif(comparisons = comparisons, y_position = label.y,
-                          test = method, test.args = test.args,
+                          test = method, test.args = method.args,
                           step_increase = step_increase, size = size, color = color,
-                          map_signif_level = map_signif_level)
+                          map_signif_level = map_signif_level, tip_length = tip.length,
+                          data = data)
   }
 
   else{
@@ -129,7 +141,9 @@ stat_compare_means <- function(mapping = NULL, data = NULL,
       position = position, show.legend = show.legend, inherit.aes = inherit.aes,
       params = list(label.x.npc  = label.x.npc , label.y.npc  = label.y.npc,
                     label.x = label.x, label.y = label.y, label.sep = label.sep,
-                    method = method, paired = paired, ref.group = ref.group,
+                    method = method, method.args = method.args,
+                    paired = paired, ref.group = ref.group,
+                    symnum.args = symnum.args,
                     hide.ns = hide.ns, na.rm = na.rm, ...)
     )
 
@@ -142,7 +156,8 @@ StatCompareMeans<- ggproto("StatCompareMeans", Stat,
                   required_aes = c("x", "y"),
                   default_aes = aes(hjust = ..hjust.., vjust = ..vjust..),
 
-                  compute_panel = function(data, scales, method, paired, ref.group,
+                  compute_panel = function(data, scales, method, method.args,
+                                           paired, ref.group, symnum.args,
                                            hide.ns, label.x.npc, label.y.npc,
                                            label.x, label.y, label.sep)
                     {
@@ -170,14 +185,20 @@ StatCompareMeans<- ggproto("StatCompareMeans", Stat,
 
                     # Perform group comparisons
                     #::::::::::::::::::::::::::::::::::::::::::::::::::
-                    if(.is.multiple.grouping.vars){
-                      .test <- compare_means(y~group, data = data, method = method, group.by = "x",
-                                             paired = paired, ref.group = ref.group)
+                    method.args <- method.args %>%
+                      .add_item(data = data, method = method,
+                                paired = paired, ref.group = ref.group,
+                                symnum.args = symnum.args)
 
+                    if(.is.multiple.grouping.vars){
+                      method.args <- method.args %>%
+                        .add_item(formula = y ~ group, group.by = "x")
+                      .test <- do.call(compare_means, method.args)
                     }
                     else{
-                      .test <- compare_means(y~x, data = data, method = method,
-                                             paired = paired, ref.group = ref.group)
+                      method.args <- method.args %>%
+                        .add_item(formula = y ~ x)
+                      .test <- do.call(compare_means, method.args)
                     }
 
                     pvaltxt <- ifelse(.test$p < 2.2e-16, "p < 2.2e-16",
@@ -188,7 +209,8 @@ StatCompareMeans<- ggproto("StatCompareMeans", Stat,
                     #::::::::::::::::::::::::::::::::::::::::::::::::::
                     label.opts <- list(data = data, scales = scales,
                                        label.x.npc = label.x.npc, label.y.npc = label.y.npc,
-                                       label.x = label.x, label.y = label.y, .by = "panel" )
+                                       label.x = label.x, label.y = label.y,
+                                       symnum.args = symnum.args, .by = "panel" )
 
                     if(.is.multiple.grouping.vars){
 
@@ -230,6 +252,7 @@ StatCompareMeans<- ggproto("StatCompareMeans", Stat,
 
                     if(hide.ns){
                       p.signif <- res$p.signif
+                      p.format <- res$p.format
                       p.signif[p.signif == "ns"] <- " "
                       res$p.signif <- p.signif
                     }

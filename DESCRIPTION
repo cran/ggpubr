@@ -1,8 +1,8 @@
 Package: ggpubr
 Type: Package
 Title: 'ggplot2' Based Publication Ready Plots
-Version: 0.1.5
-Date: 2017-08-21
+Version: 0.1.6
+Date: 2017-11-14
 Authors@R: c(
     person("Alboukadel", "Kassambara", role = c("aut", "cre"), email = "alboukadel.kassambara@gmail.com"))
 Description: 'ggplot2' is an excellent and flexible package for elegant data
@@ -25,21 +25,21 @@ Collate: 'utilities_color.R' 'utilities_base.R' 'desc_statby.R'
         'axis_scale.R' 'background_image.R' 'bgcolor.R' 'border.R'
         'compare_means.R' 'diff_express.R' 'facet.R' 'font.R'
         'gene_citation.R' 'geom_exec.R' 'get_legend.R' 'get_palette.R'
-        'ggadd.R' 'ggarrange.R' 'ggpar.R' 'ggbarplot.R' 'ggboxplot.R'
-        'ggdensity.R' 'stat_conf_ellipse.R' 'stat_chull.R'
-        'ggdotchart.R' 'ggdotplot.R' 'ggecdf.R' 'ggerrorplot.R'
-        'ggexport.R' 'gghistogram.R' 'ggline.R' 'ggmaplot.R'
-        'ggpaired.R' 'ggparagraph.R' 'ggpie.R' 'ggpubr_args.R'
-        'ggqqplot.R' 'utilities_label.R' 'stat_cor.R' 'stat_stars.R'
-        'ggscatter.R' 'ggstripchart.R' 'ggtext.R' 'ggtexttable.R'
-        'ggviolin.R' 'gradient_color.R' 'grids.R' 'rotate.R'
-        'rotate_axis_text.R' 'rremove.R' 'set_palette.R'
-        'show_line_types.R' 'show_point_shapes.R'
+        'ggadd.R' 'ggarrange.R' 'ggballoonplot.R' 'ggpar.R'
+        'ggbarplot.R' 'ggboxplot.R' 'ggdensity.R' 'stat_conf_ellipse.R'
+        'stat_chull.R' 'ggdotchart.R' 'ggdotplot.R' 'ggecdf.R'
+        'ggerrorplot.R' 'ggexport.R' 'gghistogram.R' 'ggline.R'
+        'ggmaplot.R' 'ggpaired.R' 'ggparagraph.R' 'ggpie.R'
+        'ggpubr_args.R' 'ggqqplot.R' 'utilities_label.R' 'stat_cor.R'
+        'stat_stars.R' 'ggscatter.R' 'ggscatterhist.R' 'ggstripchart.R'
+        'ggtext.R' 'ggtexttable.R' 'ggviolin.R' 'gradient_color.R'
+        'grids.R' 'rotate.R' 'rotate_axis_text.R' 'rremove.R'
+        'set_palette.R' 'show_line_types.R' 'show_point_shapes.R'
         'stat_compare_means.R' 'stat_mean.R' 'text_grob.R'
         'theme_pubr.R' 'theme_transparent.R'
 NeedsCompilation: no
-Packaged: 2017-08-21 17:34:55 UTC; kassambara
+Packaged: 2017-11-14 11:07:29 UTC; kassambara
 Author: Alboukadel Kassambara [aut, cre]
 Maintainer: Alboukadel Kassambara <alboukadel.kassambara@gmail.com>
 Repository: CRAN
-Date/Publication: 2017-08-22 07:13:13 UTC
+Date/Publication: 2017-11-14 15:09:36 UTC

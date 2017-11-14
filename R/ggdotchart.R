@@ -16,7 +16,10 @@ NULL
 #'   order. Allowed values are one of "descending" and "ascending". Partial
 #'   match are allowed (e.g. sorting = "desc" or "asc"). Default is
 #'   "descending".
-#' @param x.text.col logical. If TRUE (default), x axis texts are colored by groups.
+#' @param x.text.col logical. If TRUE (default), x axis texts are colored by
+#'   groups.
+#' @param position Position adjustment, either as a string, or the result of a
+#'   call to a position adjustment function.
 #' @param ... other arguments to be passed to \code{\link[ggplot2]{geom_point}}
 #'   and \code{\link{ggpar}}.
 #' @details The plot can be easily customized using the function ggpar(). Read
@@ -49,6 +52,24 @@ NULL
 #'    y.text.col = TRUE )
 #'
 #'
+#'# Plot with multiple groups
+#'# +++++++++++++++++++++
+#'# Create some data
+#'df2 <- data.frame(supp=rep(c("VC", "OJ"), each=3),
+#'                  dose=rep(c("D0.5", "D1", "D2"),2),
+#'                  len=c(6.8, 15, 33, 4.2, 10, 29.5))
+#'print(df2)
+#'
+#'ggdotchart(df2, x = "dose", y = "len",
+#'           color = "supp", size = 3,
+#'           add = "segment",
+#'           add.params = list(color = "lightgray", size = 1.5),
+#'           position = position_dodge(0.3),
+#'           palette = "jco",
+#'           ggtheme = theme_pubclean()
+#')
+#'
+#'
 #' @export
 ggdotchart <- function(data, x, y, group = NULL,
                        combine = FALSE,
@@ -63,6 +84,7 @@ ggdotchart <- function(data, x, y, group = NULL,
                        select = NULL, remove = NULL, order = NULL,
                        label = NULL, font.label = list(size = 11, color = "black"),
                        label.select = NULL, repel = FALSE, label.rectangle = FALSE,
+                       position = "identity",
                        ggtheme = theme_pubr(),
                        ...){
 
@@ -78,7 +100,8 @@ ggdotchart <- function(data, x, y, group = NULL,
     select = select , remove = remove, order = order,
     add = add, add.params = add.params,
     label = label, font.label = font.label, label.select = label.select,
-    repel = repel, label.rectangle = label.rectangle, ggtheme = ggtheme, ...)
+    repel = repel, label.rectangle = label.rectangle,
+    position = position, ggtheme = ggtheme, ...)
 
   # User options
   #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -113,14 +136,19 @@ ggdotchart_core <- function(data, x, y, group = NULL,
                        rotate = FALSE,
                        title = NULL, xlab = NULL, ylab = NULL,
                        ggtheme = theme_bw(),
+                       position = "identity",
                        ...)
 {
   add <- match.arg(add)
-
   if(!is.null(group)){
     if(group == 1)
       group <- NULL
   }
+
+  if(is.null(group) & color[1] %in% names(data)){
+    group <- color[1]
+  }
+
 
   .dots <- list(...)
   sorting <- match.arg(sorting)
@@ -147,26 +175,43 @@ ggdotchart_core <- function(data, x, y, group = NULL,
   p <- ggplot(data, aes_string(x = x, y =y))
 
   if(add == "segments"){
-    seg.opts <- geom_exec(data = data, color = color, size = size)
+    seg.opts <- geom_exec(data = data, color = color,
+                          size = size, position = position)
 
     mapping <- seg.opts$mapping %>%
-      .add_item(y = 0, x = x, yend = y, xend = x)
+      .add_item(x = x, ymin = 0, ymax = y, group = group)
     option <- seg.opts$option
 
+    # mapping <- seg.opts$mapping %>%
+    #   .add_item(y = 0, x = x, yend = y, xend = x)
+    # option <- seg.opts$option
+
+    seg.col <- "lightgray"
     if(!is.null(add.params$color))
-      option$color <- add.params$color
+      seg.col <- add.params$color
     else if(!is.null(add.params$colour))
-      option$color <- add.params$colour
+      seg.col <- add.params$colour
+    if(seg.col %in% names(data)) mapping$color <- seg.col
+    else option$color <- seg.col
+
+
     if(!is.null(add.params$size))
       option$size <- add.params$size
 
+    # if(!is.null(add.params$color))
+    #   option$color <- add.params$color
+    # else if(!is.null(add.params$colour))
+    #   option$color <- add.params$colour
+    # if(!is.null(add.params$size))
+    #   option$size <- add.params$size
+
     option[["mapping"]] <- do.call(aes_string, mapping)
-    p <- p + do.call(geom_segment, option)
+    p <- p + do.call(geom_linerange, option)
   }
 
 
   p <- p + geom_exec(geom_point, data = data, shape = shape,
-                      color = color, size = dot.size)
+                      color = color, size = dot.size, position = position)
 
 
   p <- ggpar(p, palette = palette, ggtheme = ggtheme, x.text.angle = x.text.angle,
