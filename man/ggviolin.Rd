@@ -5,8 +5,8 @@
 \title{Violin plot}
 \usage{
 ggviolin(data, x, y, combine = FALSE, merge = FALSE, color = "black",
-  fill = "white", palette = NULL, title = NULL, xlab = NULL,
-  ylab = NULL, facet.by = NULL, panel.labs = NULL,
+  fill = "white", palette = NULL, alpha = 1, title = NULL,
+  xlab = NULL, ylab = NULL, facet.by = NULL, panel.labs = NULL,
   short.panel.labs = TRUE, linetype = "solid", trim = FALSE,
   size = NULL, width = 1, draw_quantiles = NULL, select = NULL,
   remove = NULL, order = NULL, add = "mean_se", add.params = list(),
@@ -41,6 +41,8 @@ Allowed values include "grey" for grey color palettes; brewer palettes e.g.
 "RdBu", "Blues", ...; or custom color palette e.g. c("blue", "red"); and
 scientific journal palettes from ggsci R package, e.g.: "npg", "aaas",
 "lancet", "jco", "ucscgb", "uchicago", "simpsons" and "rickandmorty".}
+
+\item{alpha}{color transparency. Values should be between 0 and 1.}
 
 \item{title}{plot main title.}
 
@@ -101,11 +103,11 @@ se, ....}
 \item{label}{the name of the column containing point labels. Can be also a
 character vector with length = nrow(data).}
 
-\item{font.label}{a list which can contain the combination of the following elements: the size
-(e.g.: 14), the style (e.g.: "plain", "bold", "italic", "bold.italic") and
-the color (e.g.: "red") of labels. For example font.label = list(size = 14,
-face = "bold", color ="red"). To specify only the size and the style, use font.label =
-list(size = 14, face = "plain").}
+\item{font.label}{a list which can contain the combination of the following
+elements: the size (e.g.: 14), the style (e.g.: "plain", "bold", "italic",
+"bold.italic") and the color (e.g.: "red") of labels. For example font.label
+= list(size = 14, face = "bold", color ="red"). To specify only the size and
+the style, use font.label = list(size = 14, face = "plain").}
 
 \item{label.select}{can be of two formats: \itemize{ \item a character vector
 specifying some labels to show. \item a list containing one or the

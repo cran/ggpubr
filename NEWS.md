@@ -1,3 +1,25 @@
+# ggpubr 0.1.8
+  
+  
+## New features
+ 
+- New arguments `bxp.errorbar` added to `ggboxplot()` for adding error bars at the top of the box plots ([@	j3ypi, #105](https://github.com/kassambara/ggpubr/issues/105).
+- New function `stat_pvalue_manual()` for adding p-values generated elswhere ([@achamess, #81](https://github.com/kassambara/ggpubr/issues/81), [@grst, #65](https://github.com/kassambara/ggpubr/issues/65)).
+
+
+## Minor changes
+   
+- `alpha`option added to `ggviolin()` [@mtmatter, #77](https://github.com/kassambara/ggpubr/pull/77)
+- New argument `bracket.size` added to `stat_compare_means()` [@mtmatter, #43](https://github.com/kassambara/ggpubr/issues/43)
+- Now, the function `stat_cor()` supports R^2 as an option [@philament, #32](https://github.com/kassambara/ggpubr/issues/32)
+- New argument `position` added in `gghistogram()`. Allowed values include "identity", "stack", "dodge".
+- New argument `ci` added in `ggerrorplot()` [@abrar-alshaer, #94](https://github.com/kassambara/ggpubr/issues/94)
+
+## Bug fixes
+  
+- Now, `ggscatter()` can remove the letter 'a' from the legend, when the argument `show.legend.text = FALSE` specified [@atsyplenkov, #106](https://github.com/kassambara/ggpubr/issues/106).
+- Now, adding a `size` option to ggscatter `add.params` is supported [@retrogenomics, #94](https://github.com/kassambara/ggpubr/issues/53).
+
 # ggpubr 0.1.7
 
 ## New features

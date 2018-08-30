@@ -12,8 +12,9 @@
 \title{Add Summary Statistics onto a ggplot.}
 \usage{
 add_summary(p, fun = "mean_se", error.plot = "pointrange",
-  color = "black", fill = "white", width = NULL, shape = 19, size = 1,
-  data = NULL, position = position_dodge(0.8))
+  color = "black", fill = "white", group = 1, width = NULL,
+  shape = 19, size = 1, ci = 0.95, data = NULL,
+  position = position_dodge(0.8))
 
 mean_se_(x, error.limit = "both")
 
@@ -46,6 +47,10 @@ frame with variables ymin, y, and ymax. Allowed values are one of: "mean",
 
 \item{fill}{fill color. Used only whne \code{error.plot = "crossbar"}.}
 
+\item{group}{grouping variable. Allowed values are 1 (for one group) or a
+character vector specifying the name of the grouping variable. Used only for
+adding statistical summary per group.}
+
 \item{width}{numeric value between 0 and 1 specifying bar or box width.
 Example width = 0.8. Used only when \code{error.plot} is one of
 c("crossbar", "errorbar").}
@@ -54,6 +59,8 @@ c("crossbar", "errorbar").}
 \code{\link{show_point_shapes}()}.}
 
 \item{size}{numeric value in [0-1] specifying point and line size.}
+
+\item{ci}{the percent range of the confidence interval (default is 0.95).}
 
 \item{data}{a \code{data.frame} to be displayed. If \code{NULL}, the default, the
 data is inherited from the plot data as specified in the call to \link[ggplot2]{ggplot}.}
@@ -67,8 +74,6 @@ groups.}
 \item{error.limit}{allowed values are one of ("both", "lower", "upper", "none")
 specifying whether to plot the lower and/or the upper limits of error
 interval.}
-
-\item{ci}{the percent range of the confidence interval (default is 0.95).}
 }
 \description{
 add summary statistics onto a ggplot.
