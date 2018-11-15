@@ -1,6 +1,6 @@
-0b7176e24e4eca8f0db17f5eebd28274 *DESCRIPTION
+7b0b81576f0fab4c51173ac7c6c92051 *DESCRIPTION
 7c339031588675cced9c7491e9f5b5ba *NAMESPACE
-66c8cd72d4d3fa7b4e626bc65cd182a0 *NEWS.md
+8255c03ea75eb722fda56d9fe31cb9c4 *NEWS.md
 282855e6635d30f3806f9f94f7fa688c *R/add_summary.R
 bd0c36c1276f9d7ebee9bc00897973ca *R/annotate_figure.R
 16d74c52f38c57cc37d32dcb46d03096 *R/as_ggplot.R
@@ -54,7 +54,7 @@ b5e1e020823d44ee399904f993f59c3d *R/rotate.R
 2e971952af167291c1986fe4414c90dd *R/show_line_types.R
 2a9f66cdb3087b37761c2b75ab62d3c0 *R/show_point_shapes.R
 85dd822871eec1de68d71519b2e7e7de *R/stat_chull.R
-14f865d5064afc4cb5ae1fb592a17f40 *R/stat_compare_means.R
+8998f5e4f7a1f91be373fb3f7b5f7f65 *R/stat_compare_means.R
 453f3398007951b90c2008aa13fe64b9 *R/stat_conf_ellipse.R
 515fb8c177af884f992ef9ef5355d6e4 *R/stat_cor.R
 8381fe01c14f1860726af5af0c5c39c0 *R/stat_mean.R
@@ -66,7 +66,7 @@ cc9c1edd031413dd137e5e11f3290c0b *R/theme_pubr.R
 675f281c880755a59765703dea24a112 *R/theme_transparent.R
 02282d3682b91cd251323d8c86331927 *R/utilities.R
 6e863aecfa93f761bb9658a4a02c1c6b *R/utilities_base.R
-2e44aa064360277bad55985eadeae5d4 *R/utilities_color.R
+7d8842da561afbcc063beafe5ab75069 *R/utilities_color.R
 ee5da2d9755af4c6efd30d7a6af7c0bd *R/utilities_label.R
 fb9b26460d40cc5f7ab0d0f15b32966e *README.md
 54735e15f7e196d7bb48504609e34b72 *data/diff_express.rda
