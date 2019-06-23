@@ -10,9 +10,10 @@ gghistogram(data, x, y = "..count..", combine = FALSE, merge = FALSE,
   title = NULL, xlab = NULL, ylab = NULL, facet.by = NULL,
   panel.labs = NULL, short.panel.labs = TRUE, add = c("none", "mean",
   "median"), add.params = list(linetype = "dashed"), rug = FALSE,
-  add_density = FALSE, label = NULL, font.label = list(size = 11, color =
-  "black"), label.select = NULL, repel = FALSE, label.rectangle = FALSE,
-  position = position_identity(), ggtheme = theme_pubr(), ...)
+  add_density = FALSE, label = NULL, font.label = list(size = 11,
+  color = "black"), label.select = NULL, repel = FALSE,
+  label.rectangle = FALSE, position = position_identity(),
+  ggtheme = theme_pubr(), ...)
 }
 \arguments{
 \item{data}{a data frame}
@@ -50,8 +51,7 @@ be in [0, 1], where 0 is full transparency and 1 is no transparency.}
 \item{bins}{Number of bins. Defaults to 30.}
 
 \item{binwidth}{numeric value specifying bin width. use value between 0 and 1
-when you have a strong dense dotplot. For example binwidth = 0.2.
-\href{Read more about binwidth}{http://r4ds.had.co.nz/eda.html)}.}
+when you have a strong dense dotplot. For example binwidth = 0.2.}
 
 \item{title}{plot main title.}
 

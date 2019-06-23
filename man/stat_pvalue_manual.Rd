@@ -7,7 +7,7 @@
 stat_pvalue_manual(data, label = "p", y.position = "y.position",
   xmin = "group1", xmax = "group2", x = NULL, size = 3.88,
   label.size = size, bracket.size = 0.3, tip.length = 0.03,
-  remove.bracket = FALSE, ...)
+  remove.bracket = FALSE, position = "identity", ...)
 }
 \arguments{
 \item{data}{a data frame containing statitistical test results. The expected
@@ -47,6 +47,9 @@ bar goes down to indicate the precise column. Default is 0.03.}
 plot. Considered only in the situation, where comparisons are performed
 against reference group or against "all".}
 
+\item{position}{position adjustment, either as a string, or the result of a
+call to a position adjustment function.}
+
 \item{...}{other arguments passed on to \code{\link{layer}}. These are
 often aesthetics, used to set an aesthetic to a fixed value, like
 \code{color = "red"} or \code{size = 3}. They may also be parameters
@@ -85,6 +88,27 @@ p + stat_pvalue_manual(stat.test, label = "p.adj")
 # Customize the label with glue expression
 # (https://github.com/tidyverse/glue)
 p + stat_pvalue_manual(stat.test, label = "p = {p.adj}")
+
+
+# Grouped bar plots
+#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+# Comparisons against reference
+stat.test <- compare_means(
+  len ~ dose, data = ToothGrowth, group.by = "supp",
+  method = "t.test", ref.group = "0.5"
+)
+stat.test
+# Plot
+bp <- ggbarplot(ToothGrowth, x = "supp", y = "len",
+                fill = "dose", palette = "jco",
+                add = "mean_sd", add.params = list(group = "dose"),
+                position = position_dodge(0.8))
+bp + stat_pvalue_manual(
+  stat.test, x = "supp", y.position = 33,
+  label = "p.signif",
+  position = position_dodge(0.8)
+)
 
 }
 \seealso{

@@ -5,7 +5,6 @@ NULL
 #' @inheritParams ggboxplot
 #' @param binwidth numeric value specifying bin width. use value between 0 and 1
 #'   when you have a strong dense dotplot. For example binwidth = 0.2.
-#'   \href{Read more about binwidth}{http://r4ds.had.co.nz/eda.html)}.
 #' @param ... other arguments to be passed to
 #'   \code{\link[ggplot2]{geom_dotplot}}, \code{\link{ggpar}} and
 #'   \code{\link{facet}}.
@@ -119,6 +118,7 @@ ggdotplot_core <- function(data, x, y,
                       add = "mean_se",
                       add.params = list(),
                       error.plot = "pointrange",
+                      position = position_dodge(0.8),
                       ggtheme = theme_pubr(),
                       ...)
 {
@@ -147,7 +147,7 @@ ggdotplot_core <- function(data, x, y,
       geom_exec(geom_dotplot, data = data,
                 binaxis = "y", stackdir = "center",
                 color = color, fill = fill,
-                position = position_dodge(0.8), stackratio = 1,
+                position = position, stackratio = 1,
                 dotsize = dotsize, binwidth = binwidth, ...)
 
   # Add errors

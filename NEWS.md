@@ -1,8 +1,28 @@
+# ggpubr 0.2.1
+   
+## Minor changes
+
+- New arguments `step.increase` added in `stat_compare_means()` to avoid overlap between brackets.
+- In `stat_pvalue_manual()` x axis variable is no longer automatically converted into factor. If your x variable is a factor, make sure that it is converted into factor.
+- `stat_pvalue_manual()` can automatically handle the output of rstatix tests
+- `ggbarplot()` and `ggviolin()` now automatically create error bars by groups when users forget the option `add.params = list(group = )` ([#183](https://github.com/kassambara/ggpubr/issues/183)).  
+- Now, `ggarrange()` works when either `ncol = 1` or `nrow = 1` ([@GegznaV, #141](https://github.com/kassambara/ggpubr/issues/144).
+- When method = "wilcox.test", the function `compare_means()` set automatically the option `exact = FALSE`. This is no longer the case ([@stemicha, #141](https://github.com/kassambara/ggpubr/issues/141). 
+- `stat_pvalue_manual()` now supports dodged grouped plots ([@emcnerny, #104](https://github.com/kassambara/ggpubr/issues/104)).
+- the argument `position` is now handled by `ggdotplot()` ([@Adam-JJJJJ, #178](https://github.com/kassambara/ggpubr/issues/178))
+
+## Bug fixes
+
+- Adding points works now for barplots grouped by fill color ([@elenichri](https://github.com/kassambara/ggpubr/issues/173)) 
+- `label.sep` argument works now in `ggscatter()` and `stat_cor()` ([@sbbmu, #150](https://github.com/kassambara/ggpubr/issues/150))
+- Fix in `ggscatter()` to avoid freezing when the `add` argument is incorrect ([@atakanekiz, #135](https://github.com/kassambara/ggpubr/issues/180)). 
+  
+
 # ggpubr 0.2
 
 ## Bug fixes
    
-- P-value for multiple comparisons by group (stat_compare_means()) are now correctly displayed ([@elisheva100, #135](https://github.com/kassambara/ggpubr/issues/135).
+- P-value for multiple comparisons by group (stat_compare_means()) are now correctly displayed ([@elisheva100, #135](https://github.com/kassambara/ggpubr/issues/135)).
 
 
 # ggpubr 0.1.9
