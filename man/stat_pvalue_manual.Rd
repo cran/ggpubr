@@ -4,10 +4,12 @@
 \alias{stat_pvalue_manual}
 \title{Add Manually P-values to a ggplot}
 \usage{
-stat_pvalue_manual(data, label = "p", y.position = "y.position",
+stat_pvalue_manual(data, label = NULL, y.position = "y.position",
   xmin = "group1", xmax = "group2", x = NULL, size = 3.88,
-  label.size = size, bracket.size = 0.3, tip.length = 0.03,
-  remove.bracket = FALSE, position = "identity", ...)
+  label.size = size, bracket.size = 0.3, color = "black",
+  linetype = 1, tip.length = 0.03, remove.bracket = FALSE,
+  step.increase = 0, step.group.by = NULL, hide.ns = FALSE,
+  vjust = 0, position = "identity", ...)
 }
 \arguments{
 \item{data}{a data frame containing statitistical test results. The expected
@@ -16,11 +18,11 @@ p | y.position | etc}. \code{group1} and \code{group2} are the groups that
 have been compared. \code{p} is the resulting p-value. \code{y.position} is
 the y coordinates of the p-values in the plot.}
 
-\item{label}{the column containing the label (e.g.: label = "p"). Default
-value is "p", for p-value. Can be also an expression that can be formatted
-by the \code{\link[glue]{glue}()} package. For example, when specifying
-label = "t-test, p = \{p\}", the expression \{p\} will be replaced by its
-value.}
+\item{label}{the column containing the label (e.g.: label = "p" or label =
+"p.adj"), where \code{p} is the p-value. Can be also an expression that can
+be formatted by the \code{\link[glue]{glue}()} package. For example, when
+specifying label = "t-test, p = \{p\}", the expression \{p\} will be
+replaced by its value.}
 
 \item{y.position}{column containing the coordinates (in data units) to be used
 for absolute positioning of the label. Default value is "y.position". Can be
@@ -40,6 +42,10 @@ p-value as text (without brackets).}
 
 \item{bracket.size}{Width of the lines of the bracket.}
 
+\item{color}{text and line color. Can be variable name in the data for coloring by groups.}
+
+\item{linetype}{linetype. Can be variable name in the data for changing linetype by groups.}
+
 \item{tip.length}{numeric vector with the fraction of total height that the
 bar goes down to indicate the precise column. Default is 0.03.}
 
@@ -47,13 +53,24 @@ bar goes down to indicate the precise column. Default is 0.03.}
 plot. Considered only in the situation, where comparisons are performed
 against reference group or against "all".}
 
+\item{step.increase}{numeric vector with the increase in fraction of total
+height for every additional comparison to minimize overlap.}
+
+\item{step.group.by}{a variable name for grouping brackets before adding
+step.increase. Useful to group bracket by facet panel.}
+
+\item{hide.ns}{logical value. If TRUE, hide ns symbol when displaying
+significance levels. Filter is done by checking the column
+\code{p.adj.signif}, \code{p.signif}, \code{p.adj} and \code{p}.}
+
+\item{vjust}{move the text up or down relative to the bracket. Can be also a
+column name available in the data.}
+
 \item{position}{position adjustment, either as a string, or the result of a
 call to a position adjustment function.}
 
-\item{...}{other arguments passed on to \code{\link{layer}}. These are
-often aesthetics, used to set an aesthetic to a fixed value, like
-\code{color = "red"} or \code{size = 3}. They may also be parameters
-to the paired geom/stat.}
+\item{...}{other arguments passed to the function \code{geom_bracket()} or
+\code{geom_text()}}
 }
 \description{
 Add manually p-values to a ggplot, such as box blots, dot plots

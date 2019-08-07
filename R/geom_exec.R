@@ -56,7 +56,10 @@ geom_exec <- function (geomfunc = NULL, data = NULL,
     # segment
     "arrow", "xend", "yend",
     # stat_summary,
-    "fun.data", "fun.y", "fun.ymin", "fun.ymax"
+    "fun.data", "fun.y", "fun.ymin", "fun.ymax",
+    # bracket
+    "y.position", "tip.length", "label.size", "step.increase"
+
 
   )
 
@@ -73,7 +76,14 @@ geom_exec <- function (geomfunc = NULL, data = NULL,
     else if (key %in% allowed_options) {
       option[[key]] <- value
     }
-    else if (key =="group")  mapping[[key]] <- value # for line plot
+    else if (key =="group") {
+      mapping[[key]] <- value # for line plot
+    }
+    else if(key == "step.group.by"){
+      # for geom_bracket, value are variable name.
+      # but this parameter is an option not an aes
+      option[[key]] <- value
+    }
     # else warnings("Don't know '", key, "'")
   }
   if (!is.null(position))

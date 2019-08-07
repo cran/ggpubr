@@ -1,8 +1,8 @@
 Package: ggpubr
 Type: Package
 Title: 'ggplot2' Based Publication Ready Plots
-Version: 0.2.1
-Date: 2019-06-22
+Version: 0.2.2
+Date: 2019-08-03
 Authors@R: c(
     person("Alboukadel", "Kassambara", role = c("aut", "cre"), email = "alboukadel.kassambara@gmail.com"))
 Description: The 'ggplot2' package is excellent and flexible for elegant data
@@ -16,7 +16,8 @@ LazyData: TRUE
 Encoding: UTF-8
 Depends: R (>= 3.1.0), ggplot2, magrittr
 Imports: ggrepel, grid, ggsci, stats, utils, tidyr, purrr, dplyr (>=
-        0.7.1), cowplot, ggsignif, scales, gridExtra, glue, polynom
+        0.7.1), cowplot, ggsignif, scales, gridExtra, glue, polynom,
+        rlang
 Suggests: grDevices, knitr, RColorBrewer, gtable
 URL: https://rpkgs.datanovia.com/ggpubr/
 BugReports: https://github.com/kassambara/ggpubr/issues
@@ -25,9 +26,9 @@ Collate: 'utilities_color.R' 'utilities_base.R' 'desc_statby.R'
         'utilities.R' 'add_summary.R' 'annotate_figure.R' 'as_ggplot.R'
         'axis_scale.R' 'background_image.R' 'bgcolor.R' 'border.R'
         'compare_means.R' 'diff_express.R' 'facet.R' 'font.R'
-        'gene_citation.R' 'geom_exec.R' 'get_legend.R' 'get_palette.R'
-        'ggadd.R' 'ggarrange.R' 'ggballoonplot.R' 'ggpar.R'
-        'ggbarplot.R' 'ggboxplot.R' 'ggdensity.R' 'ggpie.R'
+        'gene_citation.R' 'geom_bracket.R' 'geom_exec.R' 'get_legend.R'
+        'get_palette.R' 'ggadd.R' 'ggarrange.R' 'ggballoonplot.R'
+        'ggpar.R' 'ggbarplot.R' 'ggboxplot.R' 'ggdensity.R' 'ggpie.R'
         'ggdonutchart.R' 'stat_conf_ellipse.R' 'stat_chull.R'
         'ggdotchart.R' 'ggdotplot.R' 'ggecdf.R' 'ggerrorplot.R'
         'ggexport.R' 'gghistogram.R' 'ggline.R' 'ggmaplot.R'
@@ -41,8 +42,8 @@ Collate: 'utilities_color.R' 'utilities_base.R' 'desc_statby.R'
         'stat_regline_equation.R' 'text_grob.R' 'theme_pubr.R'
         'theme_transparent.R'
 NeedsCompilation: no
-Packaged: 2019-06-22 10:24:38 UTC; kassambara
+Packaged: 2019-08-02 23:24:31 UTC; kassambara
 Author: Alboukadel Kassambara [aut, cre]
 Maintainer: Alboukadel Kassambara <alboukadel.kassambara@gmail.com>
 Repository: CRAN
-Date/Publication: 2019-06-23 06:00:06 UTC
+Date/Publication: 2019-08-07 05:50:03 UTC

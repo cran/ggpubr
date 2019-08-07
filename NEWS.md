@@ -1,3 +1,23 @@
+# ggpubr 0.2.2
+  
+## New fatures
+
+- New function `geom_bracket()` for adding brackets with label annotation to a ggplot. Helpers for adding p-value or significance levels to a plot.
+
+## Minor changes
+
+- `compare_means()` has been adapted to tidyr v1.0.0 ([@jennybc, #196](https://github.com/kassambara/ggpubr/pull/196))
+- `geom_exec()` now handles `geom_bracket()` arguments
+- New arguments `vjust`, `hide.ns`, `step.increase`, `step.group.by`, `color` and `linetype` added in `stat_pvalue_manual()`
+- `stat_pvalue_manual()` can now guess automatically the significance label column.
+- New argument `show.legend` added to `ggadd()` and `add_summary()` functions.
+  
+## Bug fixes
+   
+- Bug fixes in `gghistogram()`. Works now when the x variable is R keyword, such as var, mean, etc. ([#192](https://github.com/kassambara/ggpubr/issues/192))
+- In `ggline()`, error bars now react automatically to grouping by line type ([#191](https://github.com/kassambara/ggpubr/issues/191))
+
+
 # ggpubr 0.2.1
    
 ## Minor changes
