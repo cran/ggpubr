@@ -5,10 +5,12 @@
 \title{Add Correlation Coefficients with P-values to a Scatter Plot}
 \usage{
 stat_cor(mapping = NULL, data = NULL, method = "pearson",
-  label.sep = ", ", label.x.npc = "left", label.y.npc = "top",
-  label.x = NULL, label.y = NULL, output.type = "expression",
-  geom = "text", position = "identity", na.rm = FALSE,
-  show.legend = NA, inherit.aes = TRUE, ...)
+  cor.coef.name = c("R", "rho", "tau"), label.sep = ", ",
+  label.x.npc = "left", label.y.npc = "top", label.x = NULL,
+  label.y = NULL, output.type = "expression", digits = 2,
+  r.digits = digits, p.digits = digits, geom = "text",
+  position = "identity", na.rm = FALSE, show.legend = NA,
+  inherit.aes = TRUE, ...)
 }
 \arguments{
 \item{mapping}{Set of aesthetic mappings created by \code{\link[=aes]{aes()}} or
@@ -35,6 +37,10 @@ from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 covariance) is to be computed. One of "pearson" (default), "kendall", or
 "spearman".}
 
+\item{cor.coef.name}{character. Can be one of \code{"R"} (pearson coef),
+\code{"rho"} (spearman coef) and \code{"tau"} (kendall coef).
+Uppercase and lowercase are allowed.}
+
 \item{label.sep}{a character string to separate the terms. Default is ", ", to
 separate the correlation coefficient and the p.value.}
 
@@ -53,6 +59,9 @@ separate the correlation coefficient and the p.value.}
 for absolute positioning of the label. If too short they will be recycled.}
 
 \item{output.type}{character One of "expression", "latex" or "text".}
+
+\item{digits, r.digits, p.digits}{integer indicating the number of decimal places (round) or
+significant digits (signif) to be used for the correlation coefficient and the p-value, respectively..}
 
 \item{geom}{The geometric object to use display the data}
 

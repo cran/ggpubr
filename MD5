@@ -1,6 +1,6 @@
-93b35a51782a7472cebd98d064490a35 *DESCRIPTION
+4cb3b4cc452d94c5a98ab1fbabcf047b *DESCRIPTION
 1a570226897d0232cf1d2ca624dbdcc3 *NAMESPACE
-24cf5bae9bf19764db9c6cb766a30c15 *NEWS.md
+4fb05ac700e4a20128326ddd180df937 *NEWS.md
 d08109b0274857c7e4e88ca006675bbe *R/add_summary.R
 bd0c36c1276f9d7ebee9bc00897973ca *R/annotate_figure.R
 16d74c52f38c57cc37d32dcb46d03096 *R/as_ggplot.R
@@ -8,7 +8,7 @@ bd0c36c1276f9d7ebee9bc00897973ca *R/annotate_figure.R
 c1932e81cf6ceadbadf77bdf1eca857f *R/background_image.R
 9a9b8226b2cc87dcd94a2e59dc15bd29 *R/bgcolor.R
 114cde034f4d99d743db0bfdf5905ed0 *R/border.R
-5f8a8b1c1ab33c0dc004d8d24c77464d *R/compare_means.R
+818bee04e0f4c332d1d00724984bc402 *R/compare_means.R
 86d46bfb2ebbd1882fd38068940f6015 *R/desc_statby.R
 275ec2e7c56ac0480750a2b44a91e7fe *R/diff_express.R
 beb0f4d7e2881635ac091fde7bd85dbb *R/facet.R
@@ -35,7 +35,7 @@ cd3ba752ed03faf4e311f5c3bd33830a *R/ggdotplot.R
 859e1f896c7aeef6c2bd55b27040e3c2 *R/ggmaplot.R
 1cdcdf74f557da64531634ca3539b6f4 *R/ggpaired.R
 948b3e64fbc7752430f5e63ce2e49986 *R/ggpar.R
-625c003f8fba4427eade8b8590357dd2 *R/ggparagraph.R
+6f1690cc7d21face7c6b1f8c6dd84577 *R/ggparagraph.R
 f2b638f06de77efdd3324d2a21182fb0 *R/ggpie.R
 f5c78594a97dfc8162b4e5660d92bff0 *R/ggpubr_args.R
 3c6cb6f1744a2c4643ab248ef736090f *R/ggqqplot.R
@@ -58,10 +58,10 @@ b99b4fd183e99f3eca8d00ccaf927428 *R/stat_central_tendency.R
 85dd822871eec1de68d71519b2e7e7de *R/stat_chull.R
 2c12b1842595d86b286ef49654d954c1 *R/stat_compare_means.R
 453f3398007951b90c2008aa13fe64b9 *R/stat_conf_ellipse.R
-e9f5fabc9d121ca16252dfd702fa7467 *R/stat_cor.R
+4c0497b0d9bd3a9ed731f7c005bbbbb1 *R/stat_cor.R
 8381fe01c14f1860726af5af0c5c39c0 *R/stat_mean.R
 8bc20dd39f4d0212664b40be56386b94 *R/stat_overlay_normal_density.R
-f1188e1014167df059f4aa8aeec16aad *R/stat_pvalue_manual.R
+ea4c8a60aee4a2f856d5f1f11eee8890 *R/stat_pvalue_manual.R
 5f5fb1ff2f597e09c3fd54f97b28d929 *R/stat_regline_equation.R
 3488a4ab96bc8c8694d35edfc3f63f3b *R/stat_stars.R
 51f466f6c32fe273e8b2e7ee79832d17 *R/text_grob.R
@@ -110,7 +110,7 @@ ce4ef4820bfbb89e14a1ec39bf7a56b3 *man/ggdotplot.Rd
 2ab0a2202594894e76217956887169cc *man/ggmaplot.Rd
 30c552536509a403ee7a8e61290245a7 *man/ggpaired.Rd
 9f31734461381f7a6d80ff1fc90582f8 *man/ggpar.Rd
-4eb651812461e0e1dc26e7cf76dc0fa2 *man/ggparagraph.Rd
+262601483b82dd730c056b000a602e94 *man/ggparagraph.Rd
 c511582661842fb714360c19c7050ad3 *man/ggpie.Rd
 1caf5e9ade2da3d7880162b959405d48 *man/ggpubr_args.Rd
 08a1c763a2974bde1f11c24a6f08b9ed *man/ggqqplot.Rd
@@ -133,7 +133,7 @@ cf1a0effa04a6dd023e052dc0a9c62f7 *man/show_point_shapes.Rd
 65e441fb9e8e7c3de8b9fe4b5dac34c8 *man/stat_chull.Rd
 8e2a202215ee13f0566d42dfa6fcb044 *man/stat_compare_means.Rd
 3e0c2b5ba5438002584276969f97ff2b *man/stat_conf_ellipse.Rd
-df3a20dbcfc0c63ccfdb6779169c2bfb *man/stat_cor.Rd
+0940b87e8c9f90a7891b27df81f1fa6c *man/stat_cor.Rd
 83f4e5d9757d8e39540d30c16db94b13 *man/stat_mean.Rd
 f40c578cebfc092f749c836b245a3334 *man/stat_overlay_normal_density.Rd
 0bf07136221604aa2486a26ec0b02e52 *man/stat_pvalue_manual.Rd

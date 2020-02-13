@@ -1,8 +1,8 @@
 Package: ggpubr
 Type: Package
 Title: 'ggplot2' Based Publication Ready Plots
-Version: 0.2.4
-Date: 2019-11-14
+Version: 0.2.5
+Date: 2020-02-13
 Authors@R: c(
     person("Alboukadel", "Kassambara", role = c("aut", "cre"), email = "alboukadel.kassambara@gmail.com"))
 Description: The 'ggplot2' package is excellent and flexible for elegant data
@@ -43,8 +43,8 @@ Collate: 'utilities_color.R' 'utilities_base.R' 'desc_statby.R'
         'stat_regline_equation.R' 'text_grob.R' 'theme_pubr.R'
         'theme_transparent.R'
 NeedsCompilation: no
-Packaged: 2019-11-14 01:24:57 UTC; kassambara
+Packaged: 2020-02-13 07:08:29 UTC; kassambara
 Author: Alboukadel Kassambara [aut, cre]
 Maintainer: Alboukadel Kassambara <alboukadel.kassambara@gmail.com>
 Repository: CRAN
-Date/Publication: 2019-11-14 06:20:03 UTC
+Date/Publication: 2020-02-13 07:40:08 UTC
