@@ -4,11 +4,24 @@
 \alias{ggarrange}
 \title{Arrange Multiple ggplots}
 \usage{
-ggarrange(..., plotlist = NULL, ncol = NULL, nrow = NULL,
-  labels = NULL, label.x = 0, label.y = 1, hjust = -0.5,
-  vjust = 1.5, font.label = list(size = 14, color = "black", face =
-  "bold", family = NULL), align = c("none", "h", "v", "hv"),
-  widths = 1, heights = 1, legend = NULL, common.legend = FALSE)
+ggarrange(
+  ...,
+  plotlist = NULL,
+  ncol = NULL,
+  nrow = NULL,
+  labels = NULL,
+  label.x = 0,
+  label.y = 1,
+  hjust = -0.5,
+  vjust = 1.5,
+  font.label = list(size = 14, color = "black", face = "bold", family = NULL),
+  align = c("none", "h", "v", "hv"),
+  widths = 1,
+  heights = 1,
+  legend = NULL,
+  common.legend = FALSE,
+  legend.grob = NULL
+)
 }
 \arguments{
 \item{...}{list of plots to be arranged into the grid. The plots can be
@@ -60,6 +73,10 @@ legend = "none".}
 
 \item{common.legend}{logical value. Default is FALSE. If TRUE, a common
 unique legend will be created for arranged plots.}
+
+\item{legend.grob}{a legend grob as returned by the function
+\code{\link{get_legend}()}. If provided, it will be used as the common
+legend.}
 }
 \value{
 return an object of class \code{ggarrange}, which is a ggplot or a

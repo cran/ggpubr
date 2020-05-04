@@ -2,17 +2,18 @@
 NULL
 #' @import ggplot2
 #' @importFrom magrittr %>%
-#' @importFrom dplyr group_by_
-#' @importFrom dplyr group_by
-#' @importFrom dplyr arrange_
-#' @importFrom dplyr mutate
+#' @importFrom rstatix df_group_by df_nest_by df_select df_arrange
+#' @importFrom tibble as_tibble
+#' @importFrom dplyr group_by mutate mutate_if group_nest arrange desc
+#' @importFrom purrr map2 map
+#' @importFrom tidyr unite
 #' @importFrom dplyr do
 #' @importFrom dplyr summarise
 #' @importFrom dplyr everything
 #' @importFrom grid drawDetails
 #' @importFrom rlang !!
 #' @importFrom rlang !!!
-#' @importFrom rlang syms
+#' @importFrom rlang syms .data
 
 
 
@@ -31,6 +32,14 @@ is_pkg_version_sup<- function(pkg, version){
   vv <- as.character(utils::packageVersion(pkg))
   cc <- utils::compareVersion(vv, version) > 0
   cc
+}
+
+keep_only_tbl_df_classes <- function(x){
+  toremove <- setdiff(class(x), c("tbl_df", "tbl", "data.frame"))
+  if(length(toremove) > 0){
+    class(x) <- setdiff(class(x), toremove)
+  }
+  x
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -572,6 +581,9 @@ p
   c("mean", "mean_se", "mean_sd", "mean_ci",
     "mean_range", "median", "median_iqr", "median_mad", "median_range")
 }
+.errorbar_functions <- function(){
+  setdiff(.summary_functions(), c("mean", "median"))
+}
 
 
 # parse font
@@ -799,8 +811,8 @@ p
   grouping.vars <- c(x, grouping.vars) %>%
     unique()
   df %>%
-    arrange_(.dots = c(grouping.vars, y)) %>%
-    group_by_(.dots = grouping.vars) %>%
+    df_arrange(vars = c(grouping.vars, y)) %>%
+    df_group_by(vars = grouping.vars) %>%
     do(utils::tail(., n))
 }
 
@@ -810,8 +822,8 @@ p
   grouping.vars <- c(x, grouping.vars) %>%
     unique()
   df %>%
-    arrange_(.dots = c(grouping.vars, y)) %>%
-    group_by_(.dots = grouping.vars) %>%
+    df_arrange(vars = c(grouping.vars, y)) %>%
+    df_group_by(vars = grouping.vars) %>%
     do(utils::head(., n))
 }
 
