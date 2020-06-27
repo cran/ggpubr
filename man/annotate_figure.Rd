@@ -35,7 +35,7 @@ include: "plain", "bold", "italic", "bold.italic".}
 }
 \description{
 Annotate figures including: i) ggplots, ii) arranged ggplots from
- \code{\link{ggarrange}()}, \code{\link[gridExtra]{grid.arrange}()} and
+ \code{\link{ggarrange}()}, \code{\link[gridExtra:arrangeGrob]{grid.arrange}()} and
  \code{\link[cowplot]{plot_grid}()}.
 }
 \examples{
@@ -62,7 +62,7 @@ annotate_figure(figure,
                bottom = text_grob("Data source: \n ToothGrowth data set", color = "blue",
                                   hjust = 1, x = 1, face = "italic", size = 10),
                left = text_grob("Figure arranged using ggpubr", color = "green", rot = 90),
-               right = "I'm done, thanks :-)!",
+               right = text_grob(bquote("Superscript: ("*kg~NH[3]~ha^-1~yr^-1*")"), rot = 90),
                fig.lab = "Figure 1", fig.lab.face = "bold"
 )
 

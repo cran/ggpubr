@@ -11,11 +11,13 @@ ggmaplot(
   genenames = NULL,
   detection_call = NULL,
   size = NULL,
+  alpha = 1,
   font.label = c(12, "plain", "black"),
   label.rectangle = FALSE,
   palette = c("#B31B21", "#1465AC", "darkgray"),
   top = 15,
   select.top.method = c("padj", "fc"),
+  label.select = NULL,
   main = NULL,
   xlab = "Log2 mean expression",
   ylab = "Log2 fold change",
@@ -25,10 +27,23 @@ ggmaplot(
 }
 \arguments{
 \item{data}{an object of class DESeqResults, get_diff, DE_Results, matrix or
-data frame containing the columns baseMean, log2FoldChange, and padj. Rows
-are genes. \itemize{ \item baseMean: the mean expression of genes in the
-two groups. \item log2FoldChange: the log2 fold changes of group 2 compared
-to group 1 \item padj: the adjusted p-value of the used statiscal test. }}
+ data frame containing the columns baseMean (or baseMeanLog2),
+ log2FoldChange, and padj. Rows are genes.
+
+ Two possible formats are accepted for the input data: \itemize{ \item 1/
+ \code{baseMean | log2FoldChange | padj}. This is a typical output from
+ DESeq2 pipeline. Here, we'll use log2(baseMean) as the x-axis variable.
+ \item 2/ \code{baseMeanLog2 | log2FoldChange | padj}. Here, baseMeanLog2 is
+ assumed to be the mean of logged values; so we'll use it as the x-axis
+ variable without any transformation. This is the real A in MA plot. In other
+ words, it is the average of two log-scales values: \code{A = (log2(x) +
+ log2(y))/2 = log2(xy)*1/2} }
+
+ Terminology:
+
+ \itemize{ \item baseMean: the mean expression of genes in the two groups.
+ \item log2FoldChange: the log2 fold changes of group 2 compared to group 1
+ \item padj: the adjusted p-value of the used statiscal test. }}
 
 \item{fdr}{Accepted false discovery rate for considering genes as
 differentially expressed.}
@@ -36,20 +51,23 @@ differentially expressed.}
 \item{fc}{the fold change threshold. Only genes with a fold change >= fc and
 padj <= fdr are considered as significantly differentially expressed.}
 
-\item{genenames}{a character vector of length nrow(data) specifying gene
-names corresponding to each row. Used for point labels.}
+\item{genenames}{a character vector of length nrow(data) specifying gene names
+corresponding to each row. Used for point labels.}
 
-\item{detection_call}{a numeric vector with length = nrow(data), specifying
-if the genes is expressed (value = 1) or not (value = 0). For example
+\item{detection_call}{a numeric vector with length = nrow(data), specifying if
+the genes is expressed (value = 1) or not (value = 0). For example
 detection_call = c(1, 1, 0, 1, 0, 1). Default is NULL. If detection_call
 column is available in data, it will be used.}
 
 \item{size}{points size.}
 
-\item{font.label}{a vector of length 3 indicating respectively the size
-(e.g.: 14), the style (e.g.: "plain", "bold", "italic", "bold.italic") and
-the color (e.g.: "red") of point labels. For example \emph{font.label =
-c(14, "bold", "red")}.}
+\item{alpha}{numeric value betwenn 0 an 1 specifying point alpha for
+controlling transparency. For example, use alpha = 0.5.}
+
+\item{font.label}{a vector of length 3 indicating respectively the size (e.g.:
+14), the style (e.g.: "plain", "bold", "italic", "bold.italic") and the
+color (e.g.: "red") of point labels. For example \emph{font.label = c(14,
+"bold", "red")}.}
 
 \item{label.rectangle}{logical value. If TRUE, add rectangle underneath the
 text, making it easier to read.}
@@ -60,11 +78,14 @@ Allowed values include "grey" for grey color palettes; brewer palettes e.g.
 scientific journal palettes from ggsci R package, e.g.: "npg", "aaas",
 "lancet", "jco", "ucscgb", "uchicago", "simpsons" and "rickandmorty".}
 
-\item{top}{the number of top genes to be shown on the plot. Use top = 0 to hide to gene labels.}
+\item{top}{the number of top genes to be shown on the plot. Use top = 0 to
+hide to gene labels.}
 
 \item{select.top.method}{methods to be used for selecting top genes. Allowed
 values include "padj" and "fc" for selecting by adjusted p values or fold
 changes, respectively.}
+
+\item{label.select}{character vector specifying some labels to show.}
 
 \item{main}{plot main title.}
 
@@ -84,8 +105,10 @@ theme_minimal(), theme_classic(), theme_void(), ....}
 returns a ggplot.
 }
 \description{
-Make MA-plot which is a scatter plot of log2 fold changes (on
-  the y-axis) versus the mean expression signal (on the x-axis).
+Make MA-plot which is a scatter plot of log2 fold changes (M, on
+ the y-axis) versus the average expression signal (A, on the x-axis). \code{M
+ = log2(x/y)} and \code{A = (log2(x) + log2(y))/2 = log2(xy)*1/2}, where x
+ and y are respectively the mean of the two groups being compared.
 }
 \examples{
 data(diff_express)
@@ -111,4 +134,14 @@ ggmaplot(diff_express, main = expression("Group 1" \%->\% "Group 2"),
    font.legend = "bold",
    font.main = "bold",
    ggtheme = ggplot2::theme_minimal())
+
+# Select specific genes to show
+# set top = 0, then specify genes using label.select argument
+ggmaplot(diff_express, main = expression("Group 1" \%->\% "Group 2"),
+         fdr = 0.05, fc = 2, size = 0.4,
+         genenames = as.vector(diff_express$name),
+         ggtheme = ggplot2::theme_minimal(),
+         top = 0, label.select = c("BUB1", "CD83")
+)
+
 }

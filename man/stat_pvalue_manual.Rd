@@ -14,6 +14,8 @@ stat_pvalue_manual(
   size = 3.88,
   label.size = size,
   bracket.size = 0.3,
+  bracket.nudge.y = 0,
+  bracket.shorten = 0,
   color = "black",
   linetype = 1,
   tip.length = 0.03,
@@ -22,6 +24,7 @@ stat_pvalue_manual(
   step.group.by = NULL,
   hide.ns = FALSE,
   vjust = 0,
+  coord.flip = FALSE,
   position = "identity",
   ...
 )
@@ -57,6 +60,13 @@ p-value as text (without brackets).}
 
 \item{bracket.size}{Width of the lines of the bracket.}
 
+\item{bracket.nudge.y}{Vertical adjustment to nudge brackets by. Useful to
+move up or move down the bracket. If positive value, brackets will be moved
+up; if negative value, brackets are moved down.}
+
+\item{bracket.shorten}{a small numeric value in [0-1] for shortening the with
+of bracket.}
+
 \item{color}{text and line color. Can be variable name in the data for coloring by groups.}
 
 \item{linetype}{linetype. Can be variable name in the data for changing linetype by groups.}
@@ -81,6 +91,12 @@ significance levels. Filter is done by checking the column
 \item{vjust}{move the text up or down relative to the bracket. Can be also a
 column name available in the data.}
 
+\item{coord.flip}{logical. If \code{TRUE}, flip x and y coordinates so that
+horizontal becomes vertical, and vertical, horizontal. When adding the
+p-values to a horizontal ggplot (generated using
+\code{\link[ggplot2]{coord_flip}()}), you need to specify the option
+\code{coord.flip = TRUE}.}
+
 \item{position}{position adjustment, either as a string, or the result of a
 call to a position adjustment function.}
 
@@ -89,7 +105,16 @@ call to a position adjustment function.}
 }
 \description{
 Add manually p-values to a ggplot, such as box blots, dot plots
- and stripcharts.
+ and stripcharts. Frequently asked questions are available on \href{https://www.datanovia.com/en/blog/tag/ggpubr/}{Datanovia ggpubr FAQ page}, for example:
+ \itemize{
+ \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-onto-basic-ggplots/}{How to Add P-Values onto Basic GGPLOTS}
+ \item \href{https://www.datanovia.com/en/blog/ggpubr-how-to-add-adjusted-p-values-to-a-multi-panel-ggplot/}{How to Add Adjusted P-values to a Multi-Panel GGPlot}
+ \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-to-ggplot-facets/}{How to Add P-values to GGPLOT Facets}
+ \item \href{https://www.datanovia.com/en/blog/ggpubr-how-to-add-p-values-generated-elsewhere-to-a-ggplot/}{How to Add P-Values Generated Elsewhere to a GGPLOT}
+ \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-onto-a-grouped-ggplot-using-the-ggpubr-r-package/}{How to Add P-Values onto a Grouped GGPLOT using the GGPUBR R Package}
+ \item \href{https://www.datanovia.com/en/blog/how-to-create-stacked-bar-plots-with-error-bars-and-p-values/}{How to Create Stacked Bar Plots with Error Bars and P-values}
+ \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-onto-horizontal-ggplots/}{How to Add P-Values onto Horizontal GGPLOTS}
+ }
 }
 \examples{
 

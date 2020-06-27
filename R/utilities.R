@@ -16,6 +16,14 @@ NULL
 #' @importFrom rlang syms .data
 
 
+required_package <- function(pkg){
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop(
+      pkg, " package needed to be installed before using this function. ",
+      "Type this in R: install.packages('", pkg, "')"
+    )
+  }
+}
 
 # Unnesting, adapt to tidyr 1.0.0
 unnest <- function(data, cols = "data", ...){
@@ -363,23 +371,21 @@ p
 # Set ticks by
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 .set_ticksby <- function(p, xticks.by = NULL, yticks.by = NULL)
-  {
-    .data <- p$data
-    # .mapping <- as.character(p$mapping)
-    .mapping <- .get_gg_xy_variables(p)
-
-    if(!is.null(yticks.by)) {
-      y <- .data[, .mapping["y"]]
-      ybreaks <- seq(0, max(y, na.rm = TRUE), by = yticks.by)
-      p <- p + scale_y_continuous(breaks = ybreaks)
-    }
-    else if(!is.null(xticks.by)) {
-      x <- .data[, .mapping["x"]]
-      xbreaks <- seq(0, max(x, na.rm = TRUE), by = xticks.by)
-      p <- p + scale_x_continuous(breaks = xbreaks)
-    }
-    p
+{
+  if(!is.null(yticks.by)) {
+    # Forcing ymin to start at 0 when distribution plot
+    gg_mapping <- .get_gg_xy_variables(p)
+    is_density_plot <-  gg_mapping["y"] %in% c("..count..", "..density..", "..ecdf..")
+    ymin <- NULL
+    if(is_density_plot) ymin <- 0
+    p <- p + scale_y_continuous(breaks = get_breaks(by = yticks.by, from = ymin))
+  }
+  else if(!is.null(xticks.by)) {
+    p <- p + scale_x_continuous(breaks = get_breaks(by = xticks.by))
+  }
+  p
 }
+
 
 
 
@@ -578,8 +584,9 @@ p
 
 # Summary functions
 .summary_functions <- function(){
-  c("mean", "mean_se", "mean_sd", "mean_ci",
-    "mean_range", "median", "median_iqr", "median_mad", "median_range")
+  c("mean", "mean_se", "mean_se_", "mean_sd", "mean_ci",
+    "mean_range", "median", "median_iqr", "median_hilow", "median_hilow_",
+    "median_q1q3", "median_mad", "median_range")
 }
 .errorbar_functions <- function(){
   setdiff(.summary_functions(), c("mean", "median"))
@@ -841,6 +848,7 @@ p
                      add = "none", add.params = list(),
                      label = NULL, font.label = list(size = 11, color = "black"),
                      label.select = NULL, repel = FALSE, label.rectangle = FALSE,
+                     font.family = "", parse = FALSE,
                      ggtheme = theme_pubr(),
                      fun_name = "", group = 1, # used only by ggline
                      show.legend.text = NA,
@@ -976,7 +984,9 @@ p
     label.opts <- font.label %>%
       .add_item(data = data, x = opts$x, y = opts$y,
                 label = label, label.select = label.select,
-                repel = repel, label.rectangle = label.rectangle, ggtheme = NULL,
+                repel = repel, label.rectangle = label.rectangle,
+                family = font.family, parse = parse,
+                ggtheme = NULL,
                 grouping.vars = grouping.vars, facet.by = facet.by, position = geom.text.position,
                 show.legend = show.legend.text)
     p <- purrr::map(p,

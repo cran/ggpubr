@@ -29,7 +29,7 @@ NULL
 #'
 #'  \itemize{ \item \code{"convex"}: plot convex hull of a set o points. \item
 #'  \code{"confidence"}: plot confidence ellipses arround group mean points as
-#'  \code{\link[FactoMineR]{coord.ellipse}()}[in FactoMineR]. \item \code{"t"}:
+#'  \code{FactoMineR::coord.ellipse()}. \item \code{"t"}:
 #'  assumes a multivariate t-distribution. \item \code{"norm"}: assumes a
 #'  multivariate normal distribution. \item \code{"euclid"}: draws a circle with
 #'  the radius equal to level, representing the euclidean distance from the
@@ -57,6 +57,8 @@ NULL
 #'   text labels or not.
 #' @param label.rectangle logical value. If TRUE, add rectangle underneath the
 #'   text, making it easier to read.
+#' @param parse If \code{TRUE}, the labels will be parsed into expressions and
+#'   displayed as described in \code{?plotmath}.
 #' @param cor.coef logical value. If TRUE, correlation coefficient with the
 #'   p-value will be added to the plot.
 #' @param cor.coeff.args a list of arguments to pass to the function
@@ -153,6 +155,7 @@ ggscatter <- function(data, x, y, combine = FALSE, merge = FALSE,
                       star.plot = FALSE, star.plot.lty = 1, star.plot.lwd = NULL,
                       label = NULL,  font.label = c(12, "plain"), font.family = "",
                       label.select = NULL, repel = FALSE, label.rectangle = FALSE,
+                      parse = FALSE,
                       cor.coef = FALSE, cor.coeff.args = list(), cor.method = "pearson", cor.coef.coord = c(NULL, NULL), cor.coef.size = 4,
                       ggp = NULL, show.legend.text = NA,
                       ggtheme = theme_pubr(),
@@ -176,6 +179,7 @@ ggscatter <- function(data, x, y, combine = FALSE, merge = FALSE,
     star.plot = star.plot, star.plot.lty = star.plot.lty, star.plot.lwd = star.plot.lwd,
     label = label, font.label = font.label, font.family = font.family,
     label.select = label.select, repel = repel, label.rectangle = label.rectangle,
+    parse = parse,
     cor.coef = cor.coef, cor.coeff.args = cor.coeff.args, cor.method = cor.method,
     cor.coef.coord = cor.coef.coord, cor.coef.size = cor.coef.size,
     ggp = ggp, show.legend.text = show.legend.text, ggtheme = ggtheme, ...)
@@ -221,6 +225,7 @@ ggscatter_core <- function(data, x, y,
                       star.plot = FALSE, star.plot.lty = 1, star.plot.lwd = NULL,
                       label = NULL,  font.label = c(12, "plain"), font.family = "",
                       label.select = NULL, repel = FALSE, label.rectangle = FALSE,
+                      parse = FALSE,
                       cor.coef = FALSE, cor.coeff.args = list(), cor.method = "pearson", cor.coef.coord = c(NULL, NULL), cor.coef.size = 4,
                       ggp = NULL, show.legend.text = NA,
                       ggtheme = theme_classic(),
@@ -242,7 +247,7 @@ ggscatter_core <- function(data, x, y,
   font.label$color <- ifelse(is.null(font.label$color), color, font.label$color)
   font.label$face <- ifelse(is.null(font.label$face), "plain", font.label$face)
 
-  if(is.null(ggp)) p <- ggplot(data, aes_string(x, y))
+  if(is.null(ggp)) p <- ggplot(data, create_aes(list(x = x, y = y)))
   else p <- ggp
 
   if(point) p <- p +
@@ -266,6 +271,7 @@ ggscatter_core <- function(data, x, y,
   if(add %in% c("reg.line", "loess")){
     add <- ifelse(add == "reg.line", stats::lm, stats::loess)
     if(is.null(add.params$linetype)) add.params$linetype <- "solid"
+    if(conf.int == FALSE) add.params$fill <- "lightgray"
 
     .args <- .geom_exec(NULL, data = data,
                         se = conf.int, level = conf.int.level,
@@ -276,7 +282,7 @@ ggscatter_core <- function(data, x, y,
     mapping <- .args$mapping
     option <- .args$option
     option[["method"]] <- add
-    option[["mapping"]] <- do.call(ggplot2::aes_string, mapping)
+    option[["mapping"]] <- create_aes(mapping)
     p <- p + do.call(geom_smooth, option)
   }
 
@@ -344,6 +350,7 @@ ggscatter_core <- function(data, x, y,
       if(label.rectangle) ggfunc <- ggrepel::geom_label_repel
         p <- p + .geom_exec(ggfunc, data = lab_data, x = x, y = y,
                           label = label, fontface = font.label$face,
+                          parse = parse,
                           size = font.label$size/3, color = font.label$color,
                           alpha = alpha, family = font.family,
                           box.padding = unit(0.35, "lines"),
@@ -356,9 +363,10 @@ ggscatter_core <- function(data, x, y,
       if(label.rectangle) {
         ggfunc <- geom_label
         vjust <- -0.4
-        }
+      }
       p <- p + .geom_exec(ggfunc, data = lab_data, x = x, y = y, color = color,
                           label = label, fontface = font.label$face, family = font.family,
+                          parse = parse,
                           size = font.label$size/3, color = font.label$color,
                           vjust = vjust, alpha = alpha, show.legend = show.legend.text)
     }
@@ -412,14 +420,14 @@ ggscatter_core <- function(data, x, y,
                                 alpha = 0.1, level = 0.95, ellipse.border.remove = FALSE){
   grp_levels <- levels(data[, grp_name])
   if(length(grp_levels) == 1) {
-    mapping <- aes_string(x = x, y = y)
+    mapping <- create_aes(list(x = x, y = y))
     stat_conf_ellipse(mapping = mapping, data = data,
                color = color, fill = fill, alpha = alpha,
                level = level, geom = "polygon")
   }
   else {
-    mapping = aes_string(x = x, y = y, colour = grp_name, fill = grp_name)
-    if(ellipse.border.remove ) mapping = aes_string(x = x, y = y,  fill = grp_name)
+    mapping = create_aes(list(x = x, y = y, colour = grp_name, fill = grp_name))
+    if(ellipse.border.remove ) mapping = create_aes(list(x = x, y = y, colour = NULL, fill = grp_name))
     stat_conf_ellipse(mapping = mapping, data = data,
                           level = level, alpha = alpha,
                           geom = 'polygon')
@@ -434,15 +442,15 @@ ggscatter_core <- function(data, x, y,
   {
   grp_levels <- levels(data[, grp_name])
   if(length(grp_levels) == 1){
-    mapping <- aes_string(x = x, y = y)
+    mapping <- create_aes(list(x = x, y = y))
     ggplot2::stat_ellipse(mapping = mapping, data = data,
                          level = level, type = type,
                          colour = color, fill = fill, alpha = alpha,
                          geom = 'polygon')
   }
   else{
-  mapping = aes_string(x = x, y = y, colour = grp_name, group = grp_name, fill = grp_name)
-  if(ellipse.border.remove) mapping = aes_string(x = x, y = y, colour = NULL, group = grp_name, fill = grp_name)
+  mapping = create_aes(list(x = x, y = y, colour = grp_name, group = grp_name, fill = grp_name))
+  if(ellipse.border.remove) mapping = create_aes(list(x = x, y = y, group = grp_name, fill = grp_name))
   ggplot2::stat_ellipse(mapping = mapping, data = data,
                        level = level, type = type, alpha = alpha,
                        geom = 'polygon')

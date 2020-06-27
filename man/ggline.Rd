@@ -18,6 +18,7 @@ ggline(
   plot_type = c("b", "l", "p"),
   size = 0.5,
   shape = 19,
+  stroke = NULL,
   point.size = size,
   point.color = color,
   title = NULL,
@@ -38,6 +39,7 @@ ggline(
   repel = FALSE,
   label.rectangle = FALSE,
   show.line.label = FALSE,
+  position = "identity",
   ggtheme = theme_pubr(),
   ...
 )
@@ -81,6 +83,8 @@ outlines.}
 
 \item{shape}{point shapes.}
 
+\item{stroke}{point stroke. Used only for shapes 21-24 to control the thickness of points border.}
+
 \item{point.size}{point size.}
 
 \item{point.color}{point color.}
@@ -115,8 +119,9 @@ labelled only by variable grouping levels.}
 \item{add}{character vector for adding another plot element (e.g.: dot plot or
 error bars). Allowed values are one or the combination of: "none",
 "dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd",
-"mean_ci", "mean_range", "median", "median_iqr", "median_mad",
-"median_range"; see ?desc_statby for more details.}
+"mean_ci", "mean_range", "median", "median_iqr", "median_hilow",
+"median_q1q3", "median_mad", "median_range"; see ?desc_statby for more
+details.}
 
 \item{add.params}{parameters (color, shape, size, fill, linetype) for the
 argument 'add'; e.g.: add.params = list(color = "red").}
@@ -153,6 +158,9 @@ text labels or not.}
 text, making it easier to read.}
 
 \item{show.line.label}{logical value. If TRUE, shows line labels.}
+
+\item{position}{Position adjustment, either as a string, or the result of
+a call to a position adjustment function.}
 
 \item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),

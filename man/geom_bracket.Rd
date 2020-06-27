@@ -20,6 +20,8 @@ stat_bracket(
   step.increase = 0,
   step.group.by = NULL,
   tip.length = 0.03,
+  bracket.nudge.y = 0,
+  bracket.shorten = 0,
   size = 0.3,
   label.size = 3.88,
   family = "",
@@ -43,10 +45,13 @@ geom_bracket(
   step.increase = 0,
   step.group.by = NULL,
   tip.length = 0.03,
+  bracket.nudge.y = 0,
+  bracket.shorten = 0,
   size = 0.3,
   label.size = 3.88,
   family = "",
   vjust = 0,
+  coord.flip = FALSE,
   ...
 )
 }
@@ -111,6 +116,13 @@ step.increase. Useful to group bracket by facet panel.}
 \item{tip.length}{numeric vector with the fraction of total height that the
 bar goes down to indicate the precise column}
 
+\item{bracket.nudge.y}{Vertical adjustment to nudge brackets by. Useful to
+move up or move down the bracket. If positive value, brackets will be moved
+up; if negative value, brackets are moved down.}
+
+\item{bracket.shorten}{a small numeric value in [0-1] for shortening the with
+of bracket.}
+
 \item{size}{change the width of the lines of the bracket}
 
 \item{label.size}{change the size of the label text}
@@ -126,6 +138,12 @@ geom/stat.}
 
 \item{stat}{The statistical transformation to use on the data for this
 layer, as a string.}
+
+\item{coord.flip}{logical. If \code{TRUE}, flip x and y coordinates so that
+horizontal becomes vertical, and vertical, horizontal. When adding the
+p-values to a horizontal ggplot (generated using
+\code{\link[ggplot2]{coord_flip}()}), you need to specify the option
+\code{coord.flip = TRUE}.}
 }
 \description{
 add brackets with label annotation to a ggplot. Helpers for

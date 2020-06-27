@@ -21,7 +21,7 @@ geom_exec <- function (geomfunc = NULL, data = NULL,
   params <- list(...)
 
   mapping <-
-    list() # option to pass to mapping aes() or aes_string()
+    list() # option to pass to mapping aes()
   option <- list() # option to the geom_*()
 
   allowed_options <- c(
@@ -29,6 +29,8 @@ geom_exec <- function (geomfunc = NULL, data = NULL,
     "x", "y", "color", "colour", "linetype", "fill", "size", "shape", "width",
     "alpha", "na.rm", "lwd", "pch", "cex", "position", "stat", "geom",
     "show.legend", "inherit.aes", "fun.args", "fontface",
+    # point
+    "stroke",
     # boxplot
     "outlier.colour", "outlier.shape", "outlier.size",
     "outlier.stroke", "notch", "notchwidth", "varwidth",
@@ -40,7 +42,7 @@ geom_exec <- function (geomfunc = NULL, data = NULL,
     # error
     "ymin", "ymax", "xmin", "xmax",
     # text
-    "label", "hjust", "vjust", "fontface", "angle", "family",
+    "label", "hjust", "vjust", "fontface", "angle", "family", "parse",
     # text.repel
     "segment.size", "force",
     # smooth
@@ -49,7 +51,7 @@ geom_exec <- function (geomfunc = NULL, data = NULL,
     # straightline
     "xintercept", "yintercept",
     # histograms
-    "bins",
+    "bins", "weight",
     # rug
     "sides",
     # segment
@@ -57,7 +59,8 @@ geom_exec <- function (geomfunc = NULL, data = NULL,
     # stat_summary,
     "fun.data", "fun.y", "fun.ymin", "fun.ymax",
     # bracket
-    "y.position", "tip.length", "label.size", "step.increase"
+    "y.position", "tip.length", "label.size", "step.increase",
+    "bracket.nudge.y", "bracket.shorten", "coord.flip"
 
 
   )
@@ -92,7 +95,7 @@ geom_exec <- function (geomfunc = NULL, data = NULL,
    res <- list(option = option, mapping = mapping)
   }
   else{
-    option[["mapping"]] <- do.call(ggplot2::aes_string, mapping)
+    option[["mapping"]] <- create_aes(mapping)
     res <- do.call(geomfunc, option)
   }
   res

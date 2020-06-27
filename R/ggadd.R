@@ -7,7 +7,7 @@ NULL
 #'@param add character vector specifying other plot elements to be added.
 #'  Allowed values are one or the combination of: "none", "dotplot", "jitter",
 #'  "boxplot", "point", "mean", "mean_se", "mean_sd", "mean_ci", "mean_range",
-#'  "median", "median_iqr", "median_mad", "median_range".
+#'  "median", "median_iqr", "median_hilow", "median_q1q3", "median_mad", "median_range".
 #'@param color point or outline color.
 #'@param fill fill color. Used only when \code{error.plot = "crossbar"}.
 #'@param group grouping variable. Allowed values are 1 (for one group) or a
@@ -65,9 +65,7 @@ ggadd <- function(p, add = NULL, color = "black", fill = "white", group = 1,
   if(length(center) == 2)
     stop("Use mean or mdedian, but not both at the same time.")
   # Adding error bars
-  errors <- c("mean_se", "mean_sd", "mean_ci", "mean_range",
-              "median_iqr", "median_mad", "median_range")
-  errors <- intersect(errors, add)
+  errors <- intersect(.errorbar_functions(), add)
   if(length(errors) > 1)
     stop("Choose only one of these: ", .collapse(errors, sep = ", "))
 
@@ -84,7 +82,7 @@ ggadd <- function(p, add = NULL, color = "black", fill = "white", group = 1,
     color <- .map$colour
   if(missing(fill) & !is.null(.map$fill))
     fill <- .map$fill
-  ngrps <- intersect(names(data), c(.map$x, fill, color)) %>%
+  ngrps <- intersect(names(data), c(.map$x, fill, color, group)) %>%
     length() # number of grouping variables
 
   # Amount of jittering when add = "jitter"
@@ -119,7 +117,9 @@ ggadd <- function(p, add = NULL, color = "black", fill = "white", group = 1,
       .update_plot(p)
   }
   if ( "jitter" %in% add ){
-    p <- common.opts %>%
+    jitter.opts <- common.opts
+    if(!(shape %in% 21:25)) jitter.opts$fill <- NULL
+    p <- jitter.opts %>%
       .add_item(geomfunc = geom_jitter, position = jitter, shape = shape) %>%
       .update_plot(p)
   }
@@ -140,13 +140,14 @@ ggadd <- function(p, add = NULL, color = "black", fill = "white", group = 1,
   if(!.is_empty(center))
     p <- p %>% add_summary(fun = center, color = color, shape = shape,
                   position = position, size = size, group = group)
-
   # Add erors
   #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   if(!.is_empty(errors)){
-    if(error.plot %in% c("errorbar", "lower_errorbar", "upper_errorbar"))
-      width <- 0.1
-    else if(error.plot == "crossbar" & .geom(p) == "violin") width = 0.2
+    if(missing(width)){
+      if(error.plot %in% c("errorbar", "lower_errorbar", "upper_errorbar"))
+        width <- 0.1
+      else if(error.plot == "crossbar" & .geom(p) == "violin") width = 0.2
+    }
     p <- p %>% add_summary(errors, error.plot = error.plot, color = color, shape = shape,
                   position = position, size = size, width = width, ci = ci, group = group,
                   linetype = linetype, show.legend = show.legend)

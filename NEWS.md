@@ -1,3 +1,68 @@
+# ggpubr 0.4.0
+  
+
+## New features
+
+- New functions added to customize `ggtexttable()` (#125, #129 and #283):
+    - `tab_cell_crossout()`: cross out a table cell.
+    - `tab_ncol(), tab_nrow()`: returns, respectively, the number of columns and rows in a ggtexttable.
+    - `tab_add_hline()`: Creates horizontal lines or separators at the top or the bottom side of a given specified row.
+    - `tab_add_vline()`: Creates vertical lines or separators at the right or the left side of a given specified column.
+    - `tab_add_border(), tbody_add_border(), thead_add_border()`: Add borders to table; tbody is for table body and thead is for table head.
+    - `tab_add_title()` and `tab_add_footnote()` to add titles and footnotes (#243).
+- ggpubr functions updated to handle non-standard column names, for example ("A-A") (#229).
+- New function `create_aes()` added to create aes mapping from a list. Makes programming easy with ggplot2 (#229).
+- New argument `coord.flip` added to support adding p-values onto horizontal ggplots (#179). When adding the p-values to a horizontal ggplot (generated using `coord_flip()`), you need to specify the option `coord.flip = TRUE`.
+- New errorbar functions - `median_hilow_()` and `median_q1q3()` -  added ([@davidlorenz, #209](https://github.com/kassambara/ggpubr/issues/209)):
+    - `median_hilow_()`: computes the sample median and a selected pair of outer quantiles having equal tail areas. This function is a reformatted version of `Hmisc::smedian.hilow()`. The confidence limits are computed as follow: `lower.limits = (1-ci)/2` percentiles; `upper.limits = (1+ci)/2` percentiles. By default (`ci = 0.95`), the 2.5th and the 97.5th percentiles are used as the lower and the upper confidence limits, respectively. If you want to use the 25th and the 75th percentiles as the confidence limits, then specify `ci = 0.5` or use the function `median_q1q3()`.
+    - `median_q1q3()`: computes the sample median and, the 25th and 75th percentiles. Wrapper around the function median_hilow_() using ci = 0.5.
+- New function `get_breaks()` added to easily create breaks for numeric axes. Can be used to increase the number of x and y ticks by specifying the option `n`. It's also possible to control axis breaks by specifying a step between ticks. For example, if by = 5, a tick mark is shown on every 5 ([@Chitanda-Satou, #258](https://github.com/kassambara/ggpubr/issues/258)).
+
+   
+## Major changes
+   
+- The following enhancement has been added to `ggscatterhist()` ([@juliechevalier, #176](https://github.com/kassambara/ggpubr/issues/176)):
+    - the output of `ggscatterhist()` is now a list of ggplots, containing the main scatter plot (`sp`) and the marginal plots (`xplot` and `yplot`), which can be customized by the end user using the standard ggplot verbs
+    - An S3 printing method is now available for an object of class ggscatterhist. The printing method displays the arranged final figure.
+
+## Minor changes
+
+- Now, when creating a box plot with error bars, color and fill argiments are taken into account in the errorbar function (#105).
+- New argument `alternative` supported in `stat_cor()` (#276).
+- New argument `position` in `ggline()` to make position "dodged" (#52).
+- New argument `outlier.shape` in ggboxplot(). Default is 19. To hide outlier, specify outlier.shape = NA. When jitter is added, then outliers will be automatically hidden. 
+- Sorting can be now disabled in `ggdotchart()` using the option `sorting = "none"` (#115, #223).
+- New argument `weight` added in `gghistogram()` for creating a weighted histogram (#215)
+- Now `ggscaterhist()` takes into account the argument `position` in `margin.params` when marginal plot is a histogram (#286). 
+- `ggbarplot()` enhanced to better handle the creation of dodged bar plots combined with jitter points ([@aherholt, #176](https://github.com/kassambara/ggpubr/issues/282))
+- New argument `bracket.shorten` added in `stat_pvalue_manual()` and `geom_bracket()`. a small numeric value in [0-1] for shortening the with of bracket (#285).
+- New argument `bracket.nudge.y` added in `stat_pvalue_manual()` and `geom_bracket()`. Vertical adjustment to nudge brackets by. Useful to move up or move down the bracket. If positive value, brackets will be moved up; if negative value, brackets are moved down ([#281](https://github.com/kassambara/ggpubr/issues/281)).
+- New argument `numeric.x.axis` added in `ggerrorplot()`; logical value, If TRUE, x axis will be treated as numeric. Default is FALSE ([#280](https://github.com/kassambara/ggpubr/issues/280)).
+- The option `width` is now considered in `ggadd()` for plotting error bars ([#278](https://github.com/kassambara/ggpubr/issues/278)).
+- New argument `linetype` in `ggpaired()`.
+- `geom_exec()` used in `ggpaired()` to add lines between paired points.
+- `ggmaplot()` now supports two input formats (#198):
+    1. baseMean | log2FoldChange|padj: Here, we'll use log2(baseMean) as the x-axis variable
+    2. baseMeanLog2 | log2FoldChange|padj: here, baseMeanLog2 is assumed to be the mean of logged values; so we'll use it as x-axis variable without any transformation. 
+- new arguments added in `ggmaplot()`:
+    - `alpha` for controlling point transparency/density ([@apcamargo, #152](https://github.com/kassambara/ggpubr/issues/152)).
+    - `label.select` to select specific genes to show on the plot ([@apastore, #70](https://github.com/kassambara/ggpubr/issues/70))
+- In `ggadd()` the `fill` argument is considered for jitter points only when the point shape is in 21:25 ([@atakanekiz, #148](https://github.com/kassambara/ggpubr/issues/148)).
+- New argument `parse` added in `ggscatter()` and in `ggtext()`. If TRUE, the labels will be parsed into expressions and displayed as described in ?plotmath (#250).
+- New argument `stroke` supported in `ggscatter()` and in `ggline()`. Used only for shapes 21-24 to control the thickness of points border ([@bioguy2018, #258](https://github.com/kassambara/ggpubr/issues/236)).
+- the `stat_cor()` function code has been simplified. New arguments `p.accuracy` and `r.accuracy` added; a real value specifying the number of decimal places of precision for the p-value and the correlation coefficient, respectively. Default is NULL. Use (e.g.) 0.01 to show 2 decimal places of precision ([@garthtarr, #186](https://github.com/kassambara/ggpubr/issues/186), [@raedevan6, #114](https://github.com/kassambara/ggpubr/issues/114), [#270](https://github.com/kassambara/ggpubr/issues/270)). 
+  
+  
+## Bug fixes
+   
+- `annotate_figure()` manual updated to show how to use of superscript/subscript in the axis labels (#165). 
+- `ggtextable()` now supports further customization when theme is specified (#283).
+- the argument `font.family` is now correctly handled by `ggscatter()` (#149)
+- `ggpar()` arguments are correctly applied using `ggpie()` (#277).
+- `ggscatter()`: When `conf.int = FALSE`, fill color is set to "lightgray" for the regression line confidence band ([@zhan6073, #111](https://github.com/kassambara/ggpubr/issues/111)).
+- Now, `gghistogram()` supports the paramter `yticks.by` ([@Chitanda-Satou, #258](https://github.com/kassambara/ggpubr/issues/258)).
+
+   
 # ggpubr 0.3.0
   
   
@@ -341,7 +406,7 @@ ggscatter(mtcars, x = "mpg", y = "wt",
    
 - Now, `ggpar()` reacts to palette when length(palette) = 1 and palette is a color name [#3](https://github.com/kassambara/ggpubr/issues/3).
 
-- `ggmaplot()` now handles situations, wehre there is only upregulated, or downlegulated gnes.
+- `ggmaplot()` now handles situations, where there is only upregulated, or downlegulated gnes.
   
 
 # ggpubr 0.1.2

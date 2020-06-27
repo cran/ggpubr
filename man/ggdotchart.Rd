@@ -16,7 +16,7 @@ ggdotchart(
   shape = 19,
   size = NULL,
   dot.size = size,
-  sorting = c("ascending", "descending"),
+  sorting = c("ascending", "descending", "none"),
   add = c("none", "segment"),
   add.params = list(),
   x.text.col = TRUE,
@@ -67,15 +67,16 @@ scientific journal palettes from ggsci R package, e.g.: "npg", "aaas",
 \item{dot.size}{numeric value specifying the dot size.}
 
 \item{sorting}{a character vector for sorting into ascending or descending
-order. Allowed values are one of "descending" and "ascending". Partial
+order. Allowed values are one of "descending", "ascending" and "none". Partial
 match are allowed (e.g. sorting = "desc" or "asc"). Default is
 "descending".}
 
 \item{add}{character vector for adding another plot element (e.g.: dot plot or
 error bars). Allowed values are one or the combination of: "none",
 "dotplot", "jitter", "boxplot", "point", "mean", "mean_se", "mean_sd",
-"mean_ci", "mean_range", "median", "median_iqr", "median_mad",
-"median_range"; see ?desc_statby for more details.}
+"mean_ci", "mean_range", "median", "median_iqr", "median_hilow",
+"median_q1q3", "median_mad", "median_range"; see ?desc_statby for more
+details.}
 
 \item{add.params}{parameters (color, shape, size, fill, linetype) for the
 argument 'add'; e.g.: add.params = list(color = "red").}

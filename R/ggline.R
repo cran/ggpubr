@@ -14,6 +14,7 @@ NULL
 #' @param plot_type plot type. Allowed values are one of "b" for both line and point;
 #' "l" for line only; and "p" for point only. Default is "b".
 #' @param shape point shapes.
+#' @param stroke point stroke. Used only for shapes 21-24 to control the thickness of points border.
 #' @param show.line.label logical value. If TRUE, shows line labels.
 #' @param point.size point size.
 #' @param point.color point color.
@@ -123,7 +124,8 @@ ggline<- function(data, x, y, group = 1,
                   color = "black", palette = NULL,
                   linetype = "solid",
                   plot_type = c("b", "l", "p"),
-                  size = 0.5, shape = 19, point.size = size, point.color = color,
+                  size = 0.5, shape = 19, stroke = NULL,
+                  point.size = size, point.color = color,
                   title = NULL, xlab = NULL, ylab = NULL,
                   facet.by = NULL, panel.labs = NULL, short.panel.labs = TRUE,
                   select = NULL, remove = NULL, order = NULL,
@@ -133,6 +135,7 @@ ggline<- function(data, x, y, group = 1,
                   label = NULL, font.label = list(size = 11, color = "black"),
                   label.select = NULL, repel = FALSE, label.rectangle = FALSE,
                   show.line.label = FALSE,
+                  position = "identity",
                   ggtheme = theme_pubr(),
                   ...)
 {
@@ -145,7 +148,7 @@ ggline<- function(data, x, y, group = 1,
     combine = combine, merge = merge,
     color = color, palette = palette,
     linetype = linetype, plot_type = plot_type,
-    size = size,  shape = shape,
+    size = size,  shape = shape, stroke = stroke,
     point.size = point.size, point.color = point.color,
     title = title, xlab = xlab, ylab = ylab,
     facet.by = facet.by, panel.labs = panel.labs, short.panel.labs = short.panel.labs,
@@ -153,7 +156,7 @@ ggline<- function(data, x, y, group = 1,
     add = add, add.params = add.params, error.plot = error.plot,
     label = label, font.label = font.label, label.select = label.select,
     repel = repel, label.rectangle = label.rectangle,
-    show.line.label = show.line.label, ggtheme = ggtheme, ...)
+    show.line.label = show.line.label, position = position, ggtheme = ggtheme, ...)
   if(!missing(data)) .opts$data <- data
   if(!missing(x)) .opts$x <- x
   if(!missing(y)) .opts$y <- y
@@ -183,7 +186,7 @@ ggline_core <- function(data, x, y, group = 1,
                   color = "black", fill = "white", palette = NULL,
                   linetype = "solid",
                   plot_type = c("b", "l", "p"),
-                  size = 0.5, shape = 19,
+                  size = 0.5, shape = 19, stroke = NULL,
                   point.size = size, point.color = color,
                   title = NULL, xlab = NULL, ylab = NULL,
                   select = NULL, order = NULL,
@@ -194,6 +197,7 @@ ggline_core <- function(data, x, y, group = 1,
                   show.line.label = FALSE,
                   font.label = list(size = 11, color = "black"),
                   repel = FALSE, label.rectangle = FALSE,
+                  position = "identity",
                   ggtheme = theme_pubr(),
                       ...)
 {
@@ -204,7 +208,6 @@ ggline_core <- function(data, x, y, group = 1,
   error.plot = error.plot[1]
   plot_type <- match.arg(plot_type)
   if("none" %in% add) add <- "none"
-  position = "identity"
   grouping.vars <- intersect(c(x, color, linetype, group, facet.by), names(data))
   . <- NULL
 
@@ -238,13 +241,13 @@ ggline_core <- function(data, x, y, group = 1,
     if(is.null(add.params$group)) add.params$group <- group[1]
   }
 
-  p <- ggplot(data, aes_string(x, y))
+  p <- ggplot(data, create_aes(list(x = x, y = y)))
 
   # Add other geom or summary
   #:::::::::::::::::::::::::::::::::::::::
   add.params <- add.params %>%
     .add_item(error.plot = error.plot,
-              position = "identity", p_geom = "geom_line")
+              position = position, p_geom = "geom_line")
 
   # First add geom if any
   p <- add.params %>%
@@ -271,7 +274,7 @@ ggline_core <- function(data, x, y, group = 1,
     mapping <- line_args$mapping
     mapping[["group"]] <- group
     option <- line_args$option
-    option[["mapping"]] <- do.call(ggplot2::aes_string, mapping)
+    option[["mapping"]] <- create_aes(mapping)
     p <- p + do.call(geom_line, option)
   }
 
@@ -279,7 +282,8 @@ ggline_core <- function(data, x, y, group = 1,
     p <- p +
     geom_exec(geom_point, data = data_sum,
                color = point.color, shape = shape,
-               size = 1.2+point.size)
+               size = 1.2+point.size, stroke = stroke,
+              position = position)
     # Adjust shape when ngroups > 6, to avoid ggplot warnings
     p <-.scale_point_shape(p, data_sum, shape)
   }

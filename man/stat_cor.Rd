@@ -8,6 +8,7 @@ stat_cor(
   mapping = NULL,
   data = NULL,
   method = "pearson",
+  alternative = "two.sided",
   cor.coef.name = c("R", "rho", "tau"),
   label.sep = ", ",
   label.x.npc = "left",
@@ -18,6 +19,8 @@ stat_cor(
   digits = 2,
   r.digits = digits,
   p.digits = digits,
+  r.accuracy = NULL,
+  p.accuracy = NULL,
   geom = "text",
   position = "identity",
   na.rm = FALSE,
@@ -51,9 +54,13 @@ from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 covariance) is to be computed. One of "pearson" (default), "kendall", or
 "spearman".}
 
+\item{alternative}{a character string specifying the alternative hypothesis,
+must be one of "two.sided" (default), "greater" or "less". You can specify
+just the initial letter.}
+
 \item{cor.coef.name}{character. Can be one of \code{"R"} (pearson coef),
-\code{"rho"} (spearman coef) and \code{"tau"} (kendall coef).
-Uppercase and lowercase are allowed.}
+\code{"rho"} (spearman coef) and \code{"tau"} (kendall coef). Uppercase and
+lowercase are allowed.}
 
 \item{label.sep}{a character string to separate the terms. Default is ", ", to
 separate the correlation coefficient and the p.value.}
@@ -72,10 +79,20 @@ separate the correlation coefficient and the p.value.}
 \item{label.x, label.y}{\code{numeric} Coordinates (in data units) to be used
 for absolute positioning of the label. If too short they will be recycled.}
 
-\item{output.type}{character One of "expression", "latex" or "text".}
+\item{output.type}{character One of "expression", "latex", "tex" or "text".}
 
-\item{digits, r.digits, p.digits}{integer indicating the number of decimal places (round) or
-significant digits (signif) to be used for the correlation coefficient and the p-value, respectively..}
+\item{digits, r.digits, p.digits}{integer indicating the number of decimal
+places (round) or significant digits (signif) to be used for the correlation
+coefficient and the p-value, respectively..}
+
+\item{r.accuracy}{a real value specifying the number of decimal places of
+precision for the correlation coefficient. Default is NULL. Use (e.g.) 0.01
+to show 2 decimal places of precision. If specified, then \code{r.digits} is
+ignored.}
+
+\item{p.accuracy}{a real value specifying the number of decimal places of
+precision for the p-value. Default is NULL. Use (e.g.) 0.0001 to show 4
+decimal places of precision. If specified, then \code{p.digits} is ignored.}
 
 \item{geom}{The geometric object to use display the data}
 
@@ -97,12 +114,20 @@ that define both data and aesthetics and shouldn't inherit behaviour from
 the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
 
 \item{...}{other arguments to pass to \code{\link[ggplot2]{geom_text}} or
-\code{\link[ggplot2]{geom_label}}.}
+\code{\link[ggplot2:geom_text]{geom_label}}.}
 }
 \description{
 Add correlation coefficients with p-values to a scatter plot. Can
  be also used to add `R2`.
 }
+\section{Computed variables}{
+ \describe{ \item{r}{correlation coefficient}
+ \item{rr}{correlation coefficient squared} \item{r.label}{formatted label
+ for the correlation coefficient} \item{rr.label}{formatted label for the
+ squared correlation coefficient} \item{p.label}{label for the p-value}
+ \item{label}{default labeldisplayed by \code{stat_cor()}} }
+}
+
 \examples{
 # Load data
 data("mtcars")
@@ -118,6 +143,14 @@ sp <- ggscatter(df, x = "wt", y = "mpg",
    )
 # Add correlation coefficient
 sp + stat_cor(method = "pearson", label.x = 3, label.y = 30)
+
+# Specify the number of decimal places of precision for p and r
+# Using 3 decimal places for the p-value and
+# 2 decimal places for the correlation coefficient (r)
+sp + stat_cor(p.accuracy = 0.001, r.accuracy = 0.01)
+
+# Show only the r.label but not the p.label
+sp + stat_cor(aes(label = ..r.label..), label.x = 3)
 
 # Use R2 instead of R
 ggscatter(df, x = "wt", y = "mpg", add = "reg.line") +

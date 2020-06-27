@@ -27,8 +27,8 @@ text_grob(
     value specifies horizontal justification and the second value specifies
     vertical justification.  Possible string values are: \code{"left"},
     \code{"right"}, \code{"centre"}, \code{"center"}, \code{"bottom"},
-    and \code{"top"}.  For numeric values, 0 means left alignment
-    and 1 means right alignment.
+    and \code{"top"}.  For numeric values, 0 means left (bottom) alignment
+    and 1 means right (top) alignment.
   }
 
 \item{hjust}{A numeric vector specifying horizontal justification.
@@ -50,14 +50,14 @@ text_grob(
 
 \item{family}{font family.}
 
-\item{...}{other arguments passed to \link[grid]{textGrob}.}
+\item{...}{other arguments passed to \link[grid:grid.text]{textGrob}.}
 }
 \value{
 a text grob.
 }
 \description{
 Create easily a customized text grob (graphical object). Wrapper around
-  \code{\link[grid]{textGrob}}.
+  \code{\link[grid:grid.text]{textGrob}}.
 }
 \examples{
 text <- paste("iris data set gives the measurements in cm",

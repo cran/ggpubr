@@ -1,13 +1,18 @@
 #' @include utilities.R
 NULL
-#'Draw a Textual Table
-#'
-#'@description Draw a textual table. \itemize{ \item \code{ggtexttable()}: draw
+#' Draw a Textual Table
+#' @description Draw a textual table. \itemize{ \item \code{ggtexttable()}: draw
 #'  a textual table. \item \code{ttheme()}: customize table theme. \item
 #'  \code{rownames_style(), colnames_style(), tbody_style()}: helper functions
 #'  to customize the table row names, column names and body.
 #'  \item \code{table_cell_font()}: access to a table cell for changing the text font (size and face).
 #'  \item \code{table_cell_bg()}: access to a table cell for changing the background (fill, color, linewidth).
+#'  \item \code{tab_cell_crossout()}: cross out a table cell.
+#'  \item \code{tab_ncol(), tab_nrow()}: returns, respectively, the number of columns and rows in a ggtexttable.
+#'  \item \code{tab_add_hline()}: Creates horizontal lines or separators at the top or the bottom side of a given specified row.
+#'  \item \code{tab_add_vline()}: Creates vertical lines or separators at the right or the left side of a given specified column.
+#'  \item \code{tab_add_border(), tbody_add_border(), thead_add_border()}: Add borders to table; tbody is for table body and thead is for table head.
+#'  \item \code{tab_add_title(),tab_add_footnote()}: Add title, subtitle and footnote to a table.
 #'   }
 #'@inheritParams gridExtra::tableGrob
 #'@param x a \code{data.frame} or \code{matrix}.
@@ -37,6 +42,17 @@ NULL
 #'  values for face include c("plain", "bold", "italic", "bold.italic").
 #'@param fill background color.
 #'@param linewidth,linecolor line width and color, respectively.
+#'@param alpha numeric value specifying fill color transparency.
+#' Value should be in [0, 1], where 0 is full transparency and 1 is no transparency.
+#' @param at.row a numeric vector of row indexes; for example \code{at.row = c(1, 2)}.
+#' @param row.side row side to which the horinzotal line should be added. Can be one of \code{c("bottom", "top")}.
+#' @param from.column integer indicating the column from which to start drawing the horizontal line.
+#' @param to.column integer indicating the column to which the horizontal line should end.
+#' @param linetype line type
+#' @param at.column a numeric vector of column indexes; for example \code{at.column = c(1, 2)}.
+#' @param column.side column side to which the vertical line should be added. Can be one of \code{c("left", "right")}.
+#' @param from.row integer indicating the row from which to start drawing the horizontal line.
+#' @param to.row integer indicating the row to which the vertical line should end.
 #'@param ... extra parameters for text justification, e.g.: hjust and x. Default
 #'  is "centre" for the body and header, and "right" for the row names. Left
 #'  justification: \code{hjust = 0, x = 0.1}. Right justification: \code{hjust = 1, x = 0.9}.
@@ -53,6 +69,13 @@ NULL
 #'
 #' # Blank theme
 #' ggtexttable(df, rows = NULL, theme = ttheme("blank"))
+#'
+#' # light theme
+#' ggtexttable(df, rows = NULL, theme = ttheme("light"))
+#'
+#' # Column names border only
+#' ggtexttable(df, rows = NULL, theme = ttheme("blank")) %>%
+#'  tab_add_hline(at.row = 1:2, row.side = "top", linewidth = 2)
 #'
 #' # classic theme
 #' ggtexttable(df, rows = NULL, theme = ttheme("classic"))
@@ -106,6 +129,53 @@ NULL
 #'                     fill="darkolivegreen1", color = "darkolivegreen4")
 #'tab
 #'
+#'# Change table cells background and font for column 3,
+#'# Spaning from row 2 to the last row in the data
+#'tab <- ggtexttable(df, rows = NULL, theme = ttheme("classic"))
+#'tab %>%
+#'  table_cell_bg(row = 2:tab_nrow(tab), column = 3, fill = "darkblue") %>%
+#'  table_cell_font(row = 2:tab_nrow(tab), column = 3, face = "italic", color = "white")
+#'
+#'# Add separators and borders
+#'# :::::::::::::::::::::::::::::::::::::::::::::::::::
+#'# Table with blank theme
+#'tab <- ggtexttable(df, theme = ttheme("blank"), rows = NULL)
+#'# Add horizontal and vertical lines
+#'tab %>%
+#'  tab_add_hline(at.row = c(1, 2), row.side = "top", linewidth = 3, linetype = 1) %>%
+#'  tab_add_hline(at.row = c(7), row.side = "bottom", linewidth = 3, linetype = 1) %>%
+#'  tab_add_vline(at.column = 2:tab_ncol(tab), column.side = "left", from.row = 2, linetype = 2)
+#'
+#'# Add borders to table body and header
+#'# Cross out some cells
+#'tab %>%
+#'  tbody_add_border() %>%
+#'  thead_add_border() %>%
+#'  tab_cell_crossout(
+#'    row = c(2, 4), column = 3, linecolor = "red",
+#'    reduce.size.by = 0.6
+#'  )
+#'
+#'# Add titles andd footnote
+#'# :::::::::::::::::::::::::::::::::::::::::::::::::::
+#'# Add titles and footnote
+#'# Wrap subtitle into multiple lines using strwrap()
+#'main.title <- "Edgar Anderson's Iris Data"
+#'subtitle <- paste0(
+#' "This famous (Fisher's or Anderson's) iris data set gives the measurements",
+#' " in centimeters of the variables sepal length and width and petal length and width,",
+#'  " respectively, for 50 flowers from each of 3 species of iris.",
+#'  " The species are Iris setosa, versicolor, and virginica."
+#') %>%
+#'  strwrap(width = 80) %>%
+#'  paste(collapse = "\n")
+#'
+#'tab <- ggtexttable(head(iris), theme = ttheme("light"))
+#'tab %>%
+#'  tab_add_title(text = subtitle, face = "plain", size = 10) %>%
+#'  tab_add_title(text = main.title, face = "bold", padding = unit(0.1, "line")) %>%
+#'  tab_add_footnote(text = "*Table created using ggpubr", size = 10, face = "italic")
+#'
 #'
 #' # Combine density plot and summary table
 #'#:::::::::::::::::::::::::::::::::::::
@@ -132,19 +202,22 @@ ggtexttable <- function(x, rows = rownames(x), cols = colnames(x), vp = NULL,
                        theme = ttheme(), ...)
 {
   style <- attr(theme, "style")
-
+  res <- gridExtra::tableGrob(x, rows = rows, cols = cols, vp = vp,
+                                theme = theme, ...)
   if(style == "minimal"){
-    res <- minimalTableGrob(x, rows = rows, cols = cols, vp = vp, ...)
+    # minimal = blank theme + left vertical line
+    res <- tab_add_vline(
+      res, at.column = 2:tab_ncol(res), column.side = "left",
+      from.row = 2, to.row = tab_nrow(res)
+      )
   }
   else if(style == "light"){
-    res <- lightTableGrob(x, rows = rows, cols = cols, vp = vp, ...)
+    # light = blank theme + horizontal line
+    res <- tab_add_hline(
+      res, at.row = c(1, tab_nrow(res)), row.side = "bottom",
+      linewidth = 1.5, linetype = 1, from.column = 1
+    )
   }
-  else
-  {
-    res <- gridExtra::tableGrob(x, rows = rows, cols = cols, vp = vp,
-                                theme = theme, ...)
-  }
-
   .grob <- res
   res <- as_ggplot(res)
   attr(res, "ggtexttableGrob") <- .grob
@@ -161,21 +234,19 @@ ttheme <- function(base_style = "default", base_size = 11, base_colour = "black"
 {
 
   style <- tstyle(base_style, size = base_size)
-
   if(!is.null(style)){
-    colnames.style <- style$colnames.style
-    rownames.style  <- style$rownames.style
-    tbody.style <- style$tbody.style
+    if(missing(colnames.style)) colnames.style <- style$colnames.style
+    if(missing(rownames.style)) rownames.style  <- style$rownames.style
+    if(missing(tbody.style)) tbody.style <- style$tbody.style
   }
-
 
   .ttheme <- gridExtra::ttheme_default(base_size = base_size,
                                       base_colour = base_colour,
                                        padding = padding)
+
   .ttheme$colhead <- do.call(.add_item, c(list(.list = .ttheme$colhead), colnames.style))
   .ttheme$rowhead <- do.call(.add_item, c(list(.list = .ttheme$rowhead), rownames.style))
   .ttheme$core <- do.call(.add_item, c(list(.list = .ttheme$core), tbody.style))
-
   attr(.ttheme, "style") <- base_style
 
   .ttheme
@@ -229,30 +300,32 @@ tbody_style <- function(color = "black", face = "plain", size = 12,
 
 #' @export
 #' @rdname ggtexttable
-#' @param tab an object of class ggtexttable.
+#' @param tab an object from \code{ggtexttable} or from \code{gridExtra::tableGrob()}.
 #' @param row,column an integer specifying the row and the column numbers for the cell of interest.
-table_cell_font <- function(tab, row, column, face = NULL, size = NULL)
+table_cell_font <- function(tab, row, column, face = NULL, size = NULL, color = NULL)
 {
-  tabGrob <- attr(tab, "ggtexttableGrob")
-  tc <- .find_cell(tabGrob, row, column, "core-fg")
-  tabGrob$grobs[tc][[1]][["gp"]] <- grid::gpar(fontface = face, fontsize = size)
-
-  res <-as_ggplot(tabGrob)
-  attr(res, "ggtexttableGrob") <- tabGrob
-  res
+  tabGrob <- get_tablegrob(tab)
+  cells <- expand.grid(row = row, column = column)
+  for(i in 1:nrow(cells)){
+    tc <- .find_cell(tabGrob, cells$row[i], cells$column[i], "core-fg")
+    tabGrob$grobs[tc][[1]][["gp"]] <- grid::gpar(fontface = face, fontsize = size, col = color)
+  }
+  tab_return_same_class_as_input(tabGrob, input = tab)
 }
 
 #' @export
 #' @rdname ggtexttable
-table_cell_bg <- function(tab, row, column, fill = NULL, color = NULL, linewidth = NULL)
+table_cell_bg <- function(tab, row, column, fill = NULL, color = NULL, linewidth = NULL, alpha = NULL)
 {
-  tabGrob <- attr(tab, "ggtexttableGrob")
-  tc <- .find_cell(tabGrob, row, column, "core-bg")
-  tabGrob$grobs[tc][[1]][["gp"]] <- grid::gpar(fill = fill, col = color, lwd = linewidth)
-
-  res <- as_ggplot(tabGrob)
-  attr(res, "ggtexttableGrob") <- tabGrob
-  res
+  tabGrob <- get_tablegrob(tab)
+  cells <- expand.grid(row = row, column = column)
+  for(i in 1:nrow(cells)){
+    tc <- .find_cell(tabGrob, cells$row[i], cells$column[i], "core-bg")
+    tabGrob$grobs[tc][[1]][["gp"]] <- grid::gpar(
+      fill = fill, col = color, lwd = linewidth, alpha = alpha
+      )
+  }
+  tab_return_same_class_as_input(tabGrob, input = tab)
 }
 
 .find_cell <- function(tab, row, column, name="core-fg"){
@@ -260,54 +333,272 @@ table_cell_bg <- function(tab, row, column, fill = NULL, color = NULL, linewidth
   which(l$t==row & l$l==column & l$name==name)
 }
 
+#' @export
+#' @rdname ggtexttable
+#' @param reduce.size.by Numeric value in [0, 1] to reduce the size by.
+tab_cell_crossout <- function(tab, row, column, linetype = 1, linewidth = 1, linecolor = "black", reduce.size.by = 0){
+  required_package("gtable")
+  tabgrob <- get_tablegrob(tab)
+  crosses <- replicate(
+    n = length(row),
+    tab_cross(linetype = linetype, linewidth = linewidth, linecolor = linecolor, reduce.size.by = reduce.size.by),
+    simplify = FALSE
+  )
+  tabgrob <- gtable::gtable_add_grob(
+    tabgrob, grobs = crosses,
+    t = row, b = row,
+    l = column, r = column
+  )
+  tab_return_same_class_as_input(tabgrob, input = tab)
+}
+
+tab_cross <- function(linetype = 1, linewidth = 1, linecolor = "black", reduce.size.by = 0){
+  reduce <- reduce.size.by/2
+  grid::grobTree(
+    grid::segmentsGrob( # diagonal line ul -> lr
+      x0 = unit(0+reduce,"npc"),
+      y0 = unit(1-reduce,"npc"),
+      x1 = unit(1-reduce,"npc"),
+      y1 = unit(0+reduce,"npc"),
+      gp = grid::gpar( lty = linetype, lwd = linewidth, col = linecolor, reduce = reduce)
+    ),
+    grid::segmentsGrob( # diagonal line ll -> ur
+      x0 = unit(0+reduce,"npc"),
+      y0 = unit(0+reduce,"npc"),
+      x1 = unit(1-reduce,"npc"),
+      y1 = unit(1-reduce,"npc"),
+      gp = grid::gpar( lty = linetype, lwd = linewidth, col = linecolor)
+    )
+  )
+}
+
+
+#' @export
+#' @rdname  ggtexttable
+tab_ncol <- function(tab){
+  ncol(get_tablegrob(tab))
+}
+
+#' @export
+#' @rdname  ggtexttable
+tab_nrow <- function(tab){
+  nrow(get_tablegrob(tab))
+}
+
+#' @export
+#' @rdname ggtexttable
+tab_add_hline <- function(tab, at.row = 2:tab_nrow(tab), row.side = c("bottom", "top"),
+                          from.column = 1, to.column = tab_ncol(tab),
+                          linetype = 1, linewidth = 1, linecolor = "black"){
+  required_package("gtable")
+  row.side <- match.arg(row.side)
+  tabgrob <- get_tablegrob(tab)
+  separators <- replicate(
+    n = length(at.row),
+    tab_hline(row.side = row.side, linetype = linetype, linewidth = linewidth, linecolor = linecolor),
+    simplify = FALSE
+  )
+  tabgrob <- gtable::gtable_add_grob(
+    tabgrob, grobs = separators,
+    t = at.row, b = at.row,
+    l = from.column, r = to.column
+  )
+  tab_return_same_class_as_input(tabgrob, input = tab)
+}
+
+# Create hline at the top or the bottom side of a given row
+tab_hline <- function(row.side = c("bottom", "top"), linetype = 1, linewidth = 1, linecolor = "black"){
+  row.side <- match.arg(row.side)
+  y0 <- y1 <- unit(0, "npc")
+  if(row.side == "top") y0 <- y1 <- unit(1, "npc")
+  grid::segmentsGrob(
+    x0 = unit(0, "npc"), x1 = unit(1,"npc"),
+    y0 = y0, y1 = y1,
+    gp = grid::gpar( lty = linetype, lwd = linewidth, col = linecolor)
+  )
+}
+
+
+#' @export
+#' @rdname ggtexttable
+tab_add_vline <- function(tab, at.column = 2:tab_ncol(tab), column.side = c("left", "right"),
+                          from.row = 1, to.row = tab_nrow(tab),
+                          linetype = 1, linewidth = 1, linecolor = "black"){
+  required_package("gtable")
+  column.side <- match.arg(column.side)
+  tabgrob <- get_tablegrob(tab)
+  separators <- replicate(
+    n = length(at.column),
+    tab_vline(column.side = column.side, linetype = linetype, linewidth = linewidth, linecolor = linecolor),
+    simplify = FALSE
+  )
+  tabgrob <- gtable::gtable_add_grob(
+    tabgrob, grobs = separators,
+    t = from.row, b = to.row,
+    l = at.column, r = at.column
+  )
+  tab_return_same_class_as_input(tabgrob, input = tab)
+}
+# Create vline at the left or the right side of a given column
+tab_vline <- function(column.side = c("left", "right"), linetype = 1, linewidth = 1, linecolor = "black"){
+  column.side <- match.arg(column.side)
+  x0 <- x1 <- unit(0, "npc")
+  if(column.side == "right") x0 <- x1 <- unit(1, "npc")
+  grid::segmentsGrob(
+    x0 = x0, x1 = x1,
+    y0 = unit(0, "npc"), y1 = unit(1, "npc"),
+    gp = grid::gpar( lty = linetype, lwd = linewidth, col = linecolor)
+  )
+}
+
+#' @export
+#' @rdname ggtexttable
+tab_add_border <- function(tab, from.row = 2, to.row = tab_nrow(tab),
+                           from.column = 1, to.column = tab_ncol(tab),
+                           linetype = 1, linewidth = 1, linecolor = "black"){
+  required_package("gtable")
+  tabgrob <- get_tablegrob(tab)
+  border <- grid::rectGrob(
+    gp = grid::gpar(fill = NA, lty = linetype, lwd = linewidth, col = linecolor)
+    )
+  tabgrob <- gtable::gtable_add_grob(
+    tabgrob, grobs = border,
+    t = from.row, b = to.row,
+    l = from.column, r = to.column
+  )
+  tab_return_same_class_as_input(tabgrob, input = tab)
+}
+
+#' @export
+#' @rdname ggtexttable
+tbody_add_border <- function(tab, from.row = 2, to.row = tab_nrow(tab),
+                             from.column = 1, to.column = tab_ncol(tab),
+                             linetype = 1, linewidth = 1, linecolor = "black"){
+  tab_add_border(
+    tab, from.row = from.row, to.row = to.row,
+    from.column = from.column, to.column = to.column,
+    linetype = linetype, linewidth = linewidth, linecolor = linecolor
+  )
+}
+
+#' @export
+#' @rdname ggtexttable
+thead_add_border <- function(tab, from.row = 1, to.row = 1,
+                             from.column = 1, to.column = tab_ncol(tab),
+                             linetype = 1, linewidth = 1, linecolor = "black"){
+  tab_add_border(
+    tab, from.row = from.row, to.row = to.row,
+    from.column = from.column, to.column = to.column,
+    linetype = linetype, linewidth = linewidth, linecolor = linecolor
+  )
+}
+
+#' @export
+#' @rdname ggtexttable
+#' @param text text to be added as title or footnote.
+tab_add_title <- function(tab, text,  face = NULL, size = NULL, color = NULL,
+                      family = NULL, padding = unit(1.5,"line"),
+                      just = "left", hjust = NULL, vjust = NULL){
+  required_package("gtable")
+  tabgrob <- get_tablegrob(tab)
+  text <- grid::textGrob(
+    text, x = 0.02, just = just, hjust = hjust, vjust = vjust,
+    gp = grid::gpar(fontsize = size, fontface = face, fontfamily = family, col = color)
+    )
+  # Add row at the top
+  tabgrob <- gtable::gtable_add_rows(
+    tabgrob, heights = grid::grobHeight(text) + padding,
+    pos = 0
+    )
+  tabgrob <- gtable::gtable_add_grob(
+    tabgrob, list(text),
+    t = 1, b = 1, l = 1, r = ncol(tabgrob)
+    )
+  tab_return_same_class_as_input(tabgrob, input = tab)
+}
+
+
+#' @export
+#' @rdname ggtexttable
+#' @param text text to be added as title or footnote.
+#' @param family font family
+#' @param just The justification of the text relative to its (x, y) location. If
+#'   there are two values, the first value specifies horizontal justification
+#'   and the second value specifies vertical justification. Possible string
+#'   values are: "left", "right", "centre", "center", "bottom", and "top". For
+#'   numeric values, 0 means left (bottom) alignment and 1 means right (top)
+#'   alignment.
+#' @param hjust A numeric vector specifying horizontal justification. If
+#'   specified, overrides the just setting.
+#' @param vjust A numeric vector specifying vertical justification. If
+#'   specified, overrides the just setting.
+#'
+tab_add_footnote <- function(tab, text,  face = NULL, size = NULL, color = NULL,
+                          family = NULL, padding = unit(1.5,"line"),
+                          just = "right", hjust = NULL, vjust = NULL){
+  required_package("gtable")
+  tabgrob <- get_tablegrob(tab)
+  text <- grid::textGrob(
+    text, x = 0.95, just = just, hjust = hjust, vjust = vjust,
+    gp = grid::gpar(fontsize = size, fontface = face, fontfamily = family, col = color)
+  )
+  # Add row at the bottom
+  tabgrob <- gtable::gtable_add_rows(
+    tabgrob, heights = grid::grobHeight(text) + padding,
+    pos = -1
+  )
+  tabgrob <- gtable::gtable_add_grob(
+    tabgrob, list(text),
+    t = nrow(tabgrob), b = nrow(tabgrob), l = 1, r = ncol(tabgrob)
+  )
+  tab_return_same_class_as_input(tabgrob, input = tab)
+}
 
 
 #::::::::::::::::::::::::::::::::::::::::
 # Helper function
 #::::::::::::::::::::::::::::::::::::::::
 
-
-# Return a minimalist table
-minimalTableGrob <- function(x, rows = rownames(x), cols = colnames(x), vp = NULL, ...){
-
-  if (!requireNamespace("gtable", quietly = TRUE)) {
-    stop("gtable package needed for style = 'minimal'. Please install it first.")
-  }
-
-  tgrob <- gridExtra::tableGrob(x, rows = rows, cols = cols, vp = vp,
-                                theme = gridExtra::ttheme_minimal(), ...)
-  separators <- replicate(ncol(tgrob)-1,
-                          grid::segmentsGrob(x1 = grid::unit(0, "npc"), gp = grid::gpar(lty=1)),
-                          simplify=FALSE)
-  # add vertical lines on the left side of columns (after 2nd)
-  tgrob <- gtable::gtable_add_grob(tgrob, grobs = separators,
-                                   t = 2, b = nrow(tgrob), l = 2:(ncol(tgrob)))
-  tgrob
+is_ggtexttable <- function(tab){
+  !is.null(attr(tab, "ggtexttableGrob"))
+}
+is_tablegrob <- function(tab){
+  inherits(tab, "gtable") & inherits(tab, "grob")
 }
 
-
-# Return a light table
-lightTableGrob <- function(x, rows = rownames(x), cols = colnames(x), vp = NULL, ...){
-
-  if (!requireNamespace("gtable", quietly = TRUE)) {
-    stop("gtable package needed for style = 'minimal'. Please install it first.")
-  }
-
-  unit <- grid::unit
-
-  tgrob <- gridExtra::tableGrob(x, rows = rows, cols = cols, vp = vp,
-                                theme = gridExtra::ttheme_minimal(), ...)
-  separators <- replicate(2,
-                          grid::segmentsGrob(x1 = unit(ncol(tgrob),"npc"),
-                                             gp = grid::gpar( lty = 1, lwd = 1.5)),
-                          simplify = FALSE
-                          )
-  tgrob <- gtable::gtable_add_grob(tgrob, grobs = separators,
-                                   t = c(1, nrow(tgrob)),
-                                   b = c(1, nrow(tgrob)),
-                                   l = 1, r = ncol(tgrob))
-  tgrob
+# Transform a table grob in ggtexttable like object
+as_ggtexttable <- function(tabgrob){
+  res <- as_ggplot(tabgrob)
+  attr(res, "ggtexttableGrob") <- tabgrob
+  res
 }
+
+# Extract tableGrob from ggtexttable()
+get_tablegrob <- function(tab){
+  if(is_ggtexttable(tab)){
+    tabgrob <- attr(tab, "ggtexttableGrob")
+  }
+  else if(is_tablegrob(tab)){
+    tabgrob <- tab
+  }
+  else{
+    stop("tab should be an object from either ggpubr::ggtexttable() or gridExtra::tableGrob().")
+  }
+  tabgrob
+}
+
+# Return the same class as the input data,
+# which can be either ggtextable or a gridExtra::tableGrob
+tab_return_same_class_as_input <- function(tabgrob, input){
+  if(is_ggtexttable(input)){
+    return(as_ggtexttable(tabgrob))
+  }
+  else if(is_tablegrob(input)){
+    return(tabgrob)
+  }
+  tabgrob
+}
+
 
 
 # Define table style
@@ -334,6 +625,18 @@ tstyle <- function(pal, size = 12){
                     colnames.style = colnames_style(fill = NA, linecolor = "black", size = size),
                     rownames.style = rownames_style(fill = NA, linecolor = NA, size = size),
                     tbody.style = tbody_style(fill = NA, linecolor = "black", size = size)
+                  ),
+
+                  minimal = list(
+                    colnames.style = colnames_style(fill = NA, linecolor = NA, size = size),
+                    rownames.style = rownames_style(fill = NA, linecolor = NA, size = size),
+                    tbody.style = tbody_style(fill = NA, linecolor = NA, size = size)
+                  ),
+
+                  light = list(
+                    colnames.style = colnames_style(fill = NA, linecolor = NA, size = size),
+                    rownames.style = rownames_style(fill = NA, linecolor = NA, size = size),
+                    tbody.style = tbody_style(fill = NA, linecolor = NA, size = size)
                   ),
 
                   lBlack = list(

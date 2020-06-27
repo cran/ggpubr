@@ -6,10 +6,12 @@ NULL
 #'@inheritParams ggplot2::geom_errorbar
 #'@param ci the percent range of the confidence interval (default is 0.95).
 #'@param x,y x and y variables for drawing.
+#'@param numeric.x.axis logical. If TRUE, x axis will be treated as numeric. Default is FALSE.
+#'@param order character vector specifying the order of items. Considered only when x axis is a factor variable.
 #'@param color,fill outline and fill colors.
 #'@param desc_stat descriptive statistics to be used for visualizing errors. Default value is "mean_se".
 #'Allowed values are one of , "mean", "mean_se", "mean_sd", "mean_ci", "mean_range",
-#'"median", "median_iqr", "median_mad", "median_range"; see \code{\link{desc_statby}} for more details.
+#'"median", "median_iqr", "median_hilow", "median_q1q3", "median_mad", "median_range"; see \code{\link{desc_statby}} for more details.
 #'@param ... other arguments to be passed to be passed to ggpar().
 #'@details The plot can be easily customized using the function ggpar(). Read
 #'   ?ggpar for changing: \itemize{ \item main title and axis labels: main,
@@ -69,6 +71,7 @@ NULL
 #'
 #' @export
 ggerrorplot <- function(data, x, y, desc_stat = "mean_se",
+                        numeric.x.axis = FALSE,
                         combine = FALSE, merge = FALSE,
                         color = "black", fill = "white", palette = NULL,
                         size = NULL, width = NULL,
@@ -87,6 +90,7 @@ ggerrorplot <- function(data, x, y, desc_stat = "mean_se",
   #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   .opts <- list(
     desc_stat = desc_stat,
+    numeric.x.axis = numeric.x.axis,
     combine = combine, merge = merge,
     color = color, fill = fill, palette = palette,
     size = size, width = width,
@@ -119,6 +123,7 @@ ggerrorplot <- function(data, x, y, desc_stat = "mean_se",
 
 
 ggerrorplot_core <- function(data, x, y, desc_stat = "mean_se",
+                      numeric.x.axis = FALSE,
                       color = "black", fill = "white", palette = NULL,
                       title = NULL, xlab = NULL, ylab = NULL,
                       size = NULL, width = NULL,
@@ -130,9 +135,11 @@ ggerrorplot_core <- function(data, x, y, desc_stat = "mean_se",
                       ggtheme = theme_pubr(),
                       ...)
 {
-
-  if(!is.null(order)) data[, x] <- factor(data[, x], levels = order)
-  else if(!is.factor(data[, x])) data[, x] <- as.factor(data[, x])
+  if(numeric.x.axis){}
+  else{
+    if(!is.null(order)) data[, x] <- factor(data[, x], levels = order)
+    else if(!is.factor(data[, x])) data[, x] <- as.factor(data[, x])
+  }
   error.plot = error.plot[1]
   if("none" %in% add) add <- "none"
 
@@ -142,7 +149,7 @@ ggerrorplot_core <- function(data, x, y, desc_stat = "mean_se",
 
   add <- setdiff(add, desc_stat)
   if(inherits(position, "PositionDodge") & is.null(position$width)) position$width = 0.8
-  p <- ggplot(data, aes_string(x, y))
+  p <- ggplot(data, create_aes(list(x = x, y = y)))
   add.params <- add.params %>%
     .add_item(add = add, data = data, error.plot = error.plot, ci = ci, position = position, p = p)
   p <- do.call(ggadd, add.params)
