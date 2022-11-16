@@ -7,7 +7,7 @@ NULL
 #' @importFrom dplyr group_by mutate mutate_if group_nest arrange desc
 #' @importFrom purrr map2 map
 #' @importFrom tidyr unite
-#' @importFrom dplyr do
+#' @importFrom dplyr do select distinct
 #' @importFrom dplyr summarise
 #' @importFrom dplyr everything
 #' @importFrom grid drawDetails
@@ -254,9 +254,10 @@ keep_only_tbl_df_classes <- function(x){
            font.xtickslab = font.tickslab, font.ytickslab = font.tickslab)
   {
 
-    . <- xhjust <- NULL
+    . <- xhjust <- xvjust <- NULL
    if(!is.null(xtickslab.rt)) {
      if(xtickslab.rt > 5) xhjust <- 1
+     if(xtickslab.rt == 90) xvjust <- 0.5
      }
     else xhjust <- NULL
 
@@ -272,7 +273,7 @@ keep_only_tbl_df_classes <- function(x){
     else font.y <- .parse_font(font.ytickslab)
 
     if (tickslab) {
-      xtickslab <- font.x %>% .add_item(hjust = xhjust, angle = xtickslab.rt) %>%
+      xtickslab <- font.x %>% .add_item(hjust = xhjust, vjust = xvjust, angle = xtickslab.rt) %>%
         do.call(element_text, .)
       ytickslab <- font.y %>% .add_item(angle = ytickslab.rt) %>% do.call(element_text, .)
     }
