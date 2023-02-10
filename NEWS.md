@@ -1,3 +1,48 @@
+# ggpubr 0.6.0
+
+## New features
+
+- New function `ggadjust_pvalue()` added to adjust p-values produced by `geom_pwc()` on a ggplot (#522).
+- New data added: `gene_expression`
+- Global options: New available package options: `ggpubr.null_device`, which value should be a function that creates an appropriate null device. These include: `cowplot::pdf_null_device`, `cowplot::png_null_device`, `cowplot::cairo_null_device` and `cowplot::agg_null_device`. Default is `cowplot::pdf_null_device`. This is used in function like `as_ggplot()`, which needs to open a graphics device to render ggplot objects into grid graphics objects. This function is used to open null device for avoiding the display of unnecessary blank page when calling `ggarrange()` or `as_ggplot()` (#306 and #158).  The default option can be changed using, for example, `options(ggpubr.null_device = cowplot::png_null_device)`.
+
+  
+## Major changes
+
+- `gadd()`: Restoring back random state after setting seed when adding jittered points. To do so, the seed number is just passed to `position_jitter()` and `position_jitterdodge()`, which preserve the initial random state ( #177 and #349) .
+- `ggpubr` requires now a version of `ggrepel >= 0.9.2.9999`, which restores now the initial random state after set.seed(). see https://github.com/slowkow/ggrepel/issues/228
+- `ggpubr` requires now a version of `cowplot >= 1.1.1`
+
+    
+  
+## Minor changes
+
+- `ggtexttable()`: doc updated with another example; text justification for individual cells/rows/columns (#335).
+- `ggpie()`: setting the default of `clip = "off"` in `coord_polar()` so that `ggpie()` does not crop labels (#429)
+- `as_ggplot()`: using null_device to avoid blank page #306 and #158
+- `ggarrange()`: using null_device to avoid blank page #306 and #158
+- Indexing variable in a data frame: using df[[x]] instead of df[, x] to make sure that the result is a vector even if the `df` is a tibble.
+- `ggexport()`: support added for graphics device svg (#469)
+- `ggpie()` and `ggdonutchart()` now fully reacts to the option `lab.font` (#502)
+- Replacing deprecated `gather_()` in both internal (`.check_data()`) and exported functions (`compare_means()`) (#513)
+- `stat_compare_means()`: The dot-dot notation (`..p.signif..`) was deprecated in ggplot2 3.4.0; `after_stat(p.signif)` should be used; updated so that `..p.signif..` is automatically converted into `after_stat()` format without warning for bacward compatibility.
+- Enable faceting by column names with spaces (#391)
+- Licence changed to GPL (>= 2) (#482)
+- `desc_statby()` doc updated to clarify the difference between SD (standard deviation) and SE (standard error) (#492)
+- The message `geom_smooth() using formula 'y ~ x'` is now turned off in `ggscatter()`(#488)
+
+
+## Bug fixes
+  
+- `ggtext()`: fix warning "`filter_()` was deprecated in dplyr 0.7.0".
+- `ggqqplot()`: the argument `conf.int` is taken into account now when specified (#524). 
+- `ggqqplot()`: Fixing the warning: "The following aesthetics were dropped during statistical transformation: sample" (#523)
+- Requiring `rstatix v >=0.7.1.999` for preserving factor class in `emmeans_test()` (#386)
+- `ggmaplot()`: Suppressing ggmaplot warning: *Unlabeled data points (too many overlaps). Consider increasing max.overlaps* (#520)
+- `compare_means()`: works now when the grouping variable levels contain the key words group2 or group1 (#450)
+- `ggparagraph()` : fixing bug about minimum paragraph length (#408)
+- `ggexport()`: the verbose argument is now considered when specifyed by user (#474)
+
 # ggpubr 0.5.0
 
 
