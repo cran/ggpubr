@@ -85,7 +85,7 @@ NULL
 #'  "panel"}.
 #'@param symnum.args a list of arguments to pass to the function
 #'  \code{\link[stats]{symnum}} for symbolic number coding of p-values. For
-#'  example, \code{symnum.args <- list(cutpoints = c(0, 0.0001, 0.001, 0.01,
+#'  example, \code{symnum.args = list(cutpoints = c(0, 0.0001, 0.001, 0.01,
 #'  0.05, Inf), symbols = c("****", "***", "**", "*",  "ns"))}.
 #'
 #'  In other words, we use the following convention for symbols indicating
@@ -102,7 +102,7 @@ NULL
 #'@param na.rm If \code{FALSE} (the default), removes missing values with a
 #'  warning.  If \code{TRUE} silently removes missing values.
 #'@param parse logical for parsing plotmath expression.
-#'@param ... other arguments passed on to \code{\link{layer}}. These are often
+#'@param ... other arguments passed on to \code{\link[ggplot2]{layer}()}). These are often
 #'  aesthetics, used to set an aesthetic to a fixed value, like \code{color =
 #'  "red"} or \code{size = 3}. They may also be parameters to the paired
 #'  geom/stat.
@@ -121,6 +121,7 @@ NULL
 #'   \item \href{https://www.datanovia.com/en/blog/add-p-values-to-ggplot-facets-with-different-scales/}{Add P-values to GGPLOT Facets with Different Scales}
 #' }
 #' }
+#' @inheritParams ggpubr-common-params
 #'@inheritParams ggplot2::layer
 #' @examples
 #' df <- ToothGrowth
@@ -393,7 +394,7 @@ StatPwc <- ggplot2::ggproto("StatPwc", ggplot2::Stat,
                               if(is.grouped.plots){
                                 if(grouping.var == "group" & "colour" %in% colnames(data)){
                                   color.data <- data %>%
-                                    select(.data$group, .data$colour) %>%
+                                    select("group", "colour") %>%
                                     distinct(.data$group, .keep_all = TRUE)
                                   stat.test <- stat.test %>% dplyr::left_join(color.data, by = "group")
                                 }

@@ -16,10 +16,11 @@ ggline(
   palette = NULL,
   linetype = "solid",
   plot_type = c("b", "l", "p"),
-  size = 0.5,
+  size = NULL,
+  linewidth = NULL,
   shape = 19,
   stroke = NULL,
-  point.size = size,
+  point.size = linewidth,
   point.color = color,
   title = NULL,
   xlab = NULL,
@@ -78,8 +79,10 @@ scientific journal palettes from ggsci R package, e.g.: "npg", "aaas",
 \item{plot_type}{plot type. Allowed values are one of "b" for both line and point;
 "l" for line only; and "p" for point only. Default is "b".}
 
-\item{size}{Numeric value (e.g.: size = 1). change the size of points and
-outlines.}
+\item{size}{line size. Deprecated in ggplot2 v >= 3.4.0, use \code{linewidth} instead.}
+
+\item{linewidth}{line width. Default is 0.5. Recommended parameter for
+ggplot2 version >= 3.4.0. If both \code{size} and \code{linewidth} are specified, an error is thrown.}
 
 \item{shape}{point shapes.}
 
@@ -159,10 +162,18 @@ text, making it easier to read.}
 
 \item{show.line.label}{logical value. If TRUE, shows line labels.}
 
-\item{position}{Position adjustment, either as a string naming the adjustment
-(e.g. \code{"jitter"} to use \code{position_jitter}), or the result of a call to a
-position adjustment function. Use the latter if you need to change the
-settings of the adjustment.}
+\item{position}{A position adjustment to use on the data for this layer. This
+can be used in various ways, including to prevent overplotting and
+improving the display. The \code{position} argument accepts the following:
+\itemize{
+\item The result of calling a position function, such as \code{position_jitter()}.
+This method allows for passing extra arguments to the position.
+\item A string naming the position adjustment. To give the position as a
+string, strip the function name of the \code{position_} prefix. For example,
+to use \code{position_jitter()}, give the position as \code{"jitter"}.
+\item For more information and other ways to specify the position, see the
+\link[ggplot2:layer_positions]{layer position} documentation.
+}}
 
 \item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),

@@ -176,3 +176,47 @@ keep_only_tbl_df_classes <- function(x){
   }
   x
 }
+
+
+
+# The dot-dot notation (`..p.signif..`) was deprecated in ggplot2 3.4.0.
+# after_stat(p.signif) should be used. This function makes automatic
+# conversion if user specified ..p.signif..
+convert_label_dotdot_notation_to_after_stat <- function(mapping){
+  if (!is.null(mapping) ){
+    label <- mapping$label
+    if (!is.null(mapping$label)) {
+
+      label <-  rlang::as_label(mapping$label)
+      dot_dot_labels <- c(
+        "p.signif", "p.adj.signif", "p.format", "p", "p.adj",
+        "eq.label", "adj.rr.label", "rr.label", "AIC.label", "BIC.label"
+      )
+      for (dot_dot_label in dot_dot_labels) {
+        # Escape dots in the label name for regex matching
+        escaped_label <- gsub("\\.", "\\\\.", dot_dot_label)
+        # Use word boundaries that ensure the pattern is not part of a larger identifier
+        # (?<![a-zA-Z0-9_.]) ensures no alphanumeric, underscore, or dot before
+        # (?![a-zA-Z0-9_.]) ensures no alphanumeric, underscore, or dot after
+        label <- gsub(
+          pattern = paste0("(?<![a-zA-Z0-9_.])\\.\\.", escaped_label, "\\.\\.", "(?![a-zA-Z0-9_.])"),
+          replacement = paste0("ggplot2::after_stat(", dot_dot_label, ")"),
+          x = label,
+          perl = TRUE
+        )
+      }
+      # Only qualify unqualified after_stat() calls using negative lookbehind
+      # This correctly handles mixed qualified and unqualified cases
+      # replace after_stat() with ggplot2::after_stat()
+      label <- gsub(
+        pattern = "(?<!ggplot2::)after_stat\\s*\\(",
+        replacement = "ggplot2::after_stat(",
+        x = label,
+        perl = TRUE
+      )
+
+      mapping$label <- parse(text = label)[[1]]
+    }
+  }
+  mapping
+}

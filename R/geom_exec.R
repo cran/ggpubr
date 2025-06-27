@@ -26,13 +26,13 @@ geom_exec <- function (geomfunc = NULL, data = NULL,
 
   allowed_options <- c(
     # general
-    "x", "y", "color", "colour", "linetype", "fill", "size", "shape", "width",
+    "x", "y", "color", "colour", "linetype", "fill", "size", "linewidth", "shape", "width",
     "alpha", "na.rm", "lwd", "pch", "cex", "position", "stat", "geom",
     "show.legend", "inherit.aes", "fun.args", "fontface",
     # point
     "stroke",
     # boxplot
-    "outlier.colour", "outlier.shape", "outlier.size",
+    "outlier.colour", "outlier.shape", "outlier.size", "outliers",
     "outlier.stroke", "notch", "notchwidth", "varwidth",
     # dot plot
     "binwidth", "binaxis", "method", "binpositions",
@@ -57,7 +57,7 @@ geom_exec <- function (geomfunc = NULL, data = NULL,
     # segment
     "arrow", "xend", "yend",
     # stat_summary,
-    "fun.data", "fun.y", "fun.ymin", "fun.ymax",
+    "fun.data", "fun", "fun.min", "fun.max", 
     # bracket
     "y.position", "tip.length", "label.size", "step.increase",
     "bracket.nudge.y", "bracket.shorten", "coord.flip"

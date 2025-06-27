@@ -1,3 +1,38 @@
+# ggpubr 0.6.1
+
+## New features
+
+- Added `outliers` parameter to `ggboxplot()` to control the display of outlier points. Set `outliers = FALSE` to remove the black dots representing outliers from box plots (#614, @hswl1314).
+
+## Minor changes
+
+- Enhanced automatic conversion of deprecated dot-dot notation (`..p.signif..`, `..eq.label..`) to modern `after_stat()` calls with proper namespace qualification.
+-  Enhanced `ggline()` parameter handling for ggplot2 3.4.0+ compatibility:
+    - Added `linewidth` parameter for line width 
+    - Deprecated `size` parameter for lines with helpful warning message
+    - Maintained backward compatibility with existing `size` parameter
+    - Prevents conflicts when both parameters are specified
+  
+
+## Bug fixes
+
+- Fixed namespace resolution issues with `after_stat()` calls that were causing failures in reverse dependency packages (`bSi`, `PopComm`). The `convert_label_dotdot_notation_to_after_stat()` function now properly handles namespace qualification while maintaining backward compatibility (#638).
+- Improved evaluation environment setup to ensure `ggplot2::after_stat()` is accessible during plot building, resolving "could not find function after_stat" errors in downstream packages.
+- Fixed equation format in `stat_regline_equation()` to display in standard mathematical convention "y = mx + b" instead of "y = b + mx" (#559, @tshates, @mwaak).
+- Fixed compatibility with ggplot2 4.0.0. Updated `gghistogram()` tests to handle changes in binning standardization introduced in ggplot2 4.0.0 (#635, @teunbrand).
+- Fixed `stat_pvalue_manual()` failing when `fill` or other aesthetics are provided in the parent ggplot layer. The function now sets `inherit.aes = FALSE` by default to prevent conflicts between parent plot aesthetics and the p-value annotation data (#621, @fncokg).
+- Fixed deprecation warnings for newer package versions:
+  - Replaced deprecated `ggplot2::is.ggplot()` with `ggplot2::is_ggplot()` in `ggpar()` 
+  - Updated `.data$column` syntax to quoted column names in `geom_pwc()` for tidyselect 1.2.0+ compatibility
+  - Added `all_of()` wrapper in `unnest()` utility function for tidyselect compatibility
+  - Replaced the option `size` by `linewidth` in ggplot2 element_line() and element_trect() functions.
+- Fixed deprecation warning in `stat_regline_equation()`  by automatically converting deprecated dot-dot notation (`..eq.label..`, `..adj.rr.label..`, `..p.signif..`, etc.) to `after_stat()` syntax for ggplot2 3.4.0+ compatibility (#623, @hinkyisme).
+-  Fixed deprecation warnings in `add_summary()` and `ggerrorplot()` for ggplot2 compatibility:
+    - Updated internal `stat_summary()` parameters to use `fun`, `fun.min`, and `fun.max` instead of deprecated `fun.y`, `fun.ymin`, and `fun.ymax` (#587, @vlonde).
+    - Fixed line aesthetic parameters by using `linewidth` instead of `size` for line-based error plots
+
+
+
 # ggpubr 0.6.0
 
 ## New features

@@ -56,8 +56,17 @@ NULL
 #'  column name available in the data.
 #'@param position position adjustment, either as a string, or the result of a
 #'  call to a position adjustment function.
+#'@param inherit.aes If \code{FALSE} (the default), overrides the default aesthetics,
+#'  rather than combining with them. This is most useful for helper functions
+#'  that define both data and aesthetics and shouldn't inherit behaviour from
+#'  the default plot specification, e.g. \code{stat_pvalue_manual()}. Most layers should use 
+#'  \code{TRUE} (the \pkg{ggplot2} default), but \code{stat_pvalue_manual()} uses 
+#'  its own data with different column names than the parent plot data, so 
+#'  \code{FALSE} avoids conflicts between parent plot aesthetics (like \code{fill} or 
+#'  \code{color}) and the p-value annotation data.
 #'@param ... other arguments passed to the function \code{geom_bracket()} or
 #'  \code{geom_text()}
+#'@rdname stat_pvalue_manual
 #'@seealso \code{\link{stat_compare_means}}
 #'@examples
 #'
@@ -118,7 +127,7 @@ stat_pvalue_manual <- function(
   bracket.nudge.y = 0, bracket.shorten = 0,
   color = "black", linetype = 1, tip.length = 0.03,
   remove.bracket = FALSE, step.increase = 0, step.group.by = NULL,
-  hide.ns = FALSE, vjust = 0, coord.flip = FALSE, position = "identity", ...
+  hide.ns = FALSE, vjust = 0, coord.flip = FALSE, position = "identity", inherit.aes = FALSE, ...
 )
 {
   if(is.null(label)){
@@ -229,7 +238,7 @@ stat_pvalue_manual <- function(
       label.size = label.size, size = bracket.size,
       bracket.nudge.y = bracket.nudge.y, bracket.shorten = bracket.shorten,
       color = color, linetype = linetype, step.increase = step.increase,
-      step.group.by = step.group.by, coord.flip = coord.flip, position = position, ...
+      step.group.by = step.group.by, coord.flip = coord.flip, position = position, inherit.aes=inherit.aes, ...
     )
   }
   else{
@@ -246,7 +255,7 @@ stat_pvalue_manual <- function(
     else{
       mapping <- aes(x = xmin, y = y.position, vjust = vjust, label = label)
     }
-    option <- list(data = data, size = label.size, position = position, ...)
+    option <- list(data = data, size = label.size, position = position, inherit.aes = inherit.aes, ...)
     if(color %in% colnames(data)) mapping$colour <- rlang::ensym(color)
     else option$color <- color
     option[["mapping"]] <- mapping
