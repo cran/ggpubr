@@ -1,6 +1,6 @@
-97856555182cbd462d2ae8356dd40224 *DESCRIPTION
+6d158c0a2096f1358f33c42ce6c04ee4 *DESCRIPTION
 2f42f08b736c0b3beba2bec37f722420 *NAMESPACE
-e29e2e8814e853cf7a3f47c23daa7815 *NEWS.md
+e81098f5dda2abd0c02499bbe26c947d *NEWS.md
 ba7c0b333b32afedbec7d0100d375cc9 *R/add_summary.R
 e57fdcb77fe4dbc9d71b325b47355cae *R/annotate_figure.R
 ba1b7e4e08c2d392a3f13ed55d30a353 *R/as_ggplot.R
@@ -9,7 +9,7 @@ ba1b7e4e08c2d392a3f13ed55d30a353 *R/as_ggplot.R
 c1932e81cf6ceadbadf77bdf1eca857f *R/background_image.R
 9a9b8226b2cc87dcd94a2e59dc15bd29 *R/bgcolor.R
 114cde034f4d99d743db0bfdf5905ed0 *R/border.R
-10364a47e2d425f9f09a2fb7ddcc7ad2 *R/compare_means.R
+bd3f1f70d2360a9a81d43220221d5619 *R/compare_means.R
 a1e91b78bc5db3eb007942de8c39380d *R/create_aes.R
 4c2a11a8d347c27c8ec34e395cd18959 *R/desc_statby.R
 275ec2e7c56ac0480750a2b44a91e7fe *R/diff_express.R
@@ -186,7 +186,7 @@ dd7941a6f7541c9999701585a3dd4280 *man/theme_transparent.Rd
 789a6dd41b32e532db58eacaef787a1f *tests/testthat/test-add_stat_label.R
 db55119e08ff3a3e856bc972717cd000 *tests/testthat/test-as_npc.R
 60850481b80673a7361cef6294573a36 *tests/testthat/test-check_data.R
-e2bae42c6e6709010008fee84ced2717 *tests/testthat/test-compare_means.R
+c8816caef2875b1042d3fc798298a3f4 *tests/testthat/test-compare_means.R
 ce49e26ec6ce95f14966beb72af858f5 *tests/testthat/test-convert_label_dotdot_notation_to_after_stat.R
 857bca413d3676cd0df97cae160a860c *tests/testthat/test-create_aes.R
 64c9506bd39bee98bbda54283d26d7b9 *tests/testthat/test-facet.R
