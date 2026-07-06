@@ -18,9 +18,11 @@ ggarrange(
   align = c("none", "h", "v", "hv"),
   widths = 1,
   heights = 1,
+  byrow = TRUE,
   legend = NULL,
   common.legend = FALSE,
-  legend.grob = NULL
+  legend.grob = NULL,
+  spacing = 0
 )
 }
 \arguments{
@@ -67,20 +69,52 @@ twice as wide as the second column.}
 
 \item{heights}{same as \code{widths} but for column heights.}
 
+\item{byrow}{logical. If \code{TRUE} (default), the plots are filled into the
+grid by row; set to \code{FALSE} to fill by column. Passed to
+\code{\link[cowplot]{plot_grid}()}.}
+
 \item{legend}{character specifying legend position. Allowed values are one of
 c("top", "bottom", "left", "right", "none"). To remove the legend use
 legend = "none".}
 
-\item{common.legend}{logical value. Default is FALSE. If TRUE, a common
-unique legend will be created for arranged plots.}
+\item{common.legend}{logical value, or one or several plot indices. Default is FALSE. If
+\code{TRUE}, a single shared legend is used for all the arranged plots.
+Note that this legend is \strong{not} merged or validated across plots: it
+is simply the legend of the \emph{first} plot, and the other legends are
+dropped. It is therefore only correct when every plot shares the same scale
+(same groups/levels, order and color range). If the first plot's legend is
+not representative - for example a group is missing in the first plot, or a
+continuous color scale spans a different range - the shared legend will
+misrepresent the other plots. In that case you can: (i) give the plots a
+consistent scale yourself (e.g. \code{scale_fill_manual(limits = ...)} or
+\code{scale_color_continuous(limits = ...)}) so a single legend is valid,
+and/or (ii) choose which plot's legend is shown by passing that plot's index,
+e.g. \code{common.legend = 2} to use the second plot's legend (equivalent to
+\code{legend.grob = get_legend(plots[[2]])}). You can also pass several indices,
+e.g. \code{common.legend = c(1, 2)}, to keep and combine the legends of those
+plots into a single shared block (side by side for \code{legend = "top"}/
+\code{"bottom"}, stacked for \code{"left"}/\code{"right"}) - useful when the
+plots genuinely need different legends. Note that (ii) only changes
+\emph{which} legend is displayed; it does not re-map the other plots' color
+scales, so for the legend keys to match every panel you still need a
+consistent scale as in (i). When the plots genuinely cannot be described by a
+single legend (e.g. a discrete fill in one plot and a continuous color bar in
+another), use \code{common.legend = FALSE} to keep a separate legend per plot.}
 
 \item{legend.grob}{a legend grob as returned by the function
 \code{\link{get_legend}()}. If provided, it will be used as the common
 legend.}
+
+\item{spacing}{numeric value giving the margin, in text-line units, set
+uniformly around each plot to increase the gap between the arranged plots.
+Default is 0, which leaves each plot's own margins untouched (existing
+arrangements are unchanged). A positive value sets a uniform margin of that
+many lines around every plot, replacing the plots' default margin; e.g.
+\code{spacing = 1} puts a one-line margin around each plot.}
 }
 \value{
-return an object of class \code{ggarrange}, which is a ggplot or a
-  list of ggplot.
+an object of class \code{ggarrange}, which is a ggplot or a
+  list of ggplots.
 }
 \description{
 Arrange multiple ggplots on the same page. Wrapper around
@@ -97,11 +131,15 @@ df$dose <- as.factor(df$dose)
 # Create some plots
 # ::::::::::::::::::::::::::::::::::::::::::::::::::
 # Box plot
-bxp <- ggboxplot(df, x = "dose", y = "len",
-    color = "dose", palette = "jco")
+bxp <- ggboxplot(df,
+  x = "dose", y = "len",
+  color = "dose", palette = "jco"
+)
 # Dot plot
-dp <- ggdotplot(df, x = "dose", y = "len",
-    color = "dose", palette = "jco")
+dp <- ggdotplot(df,
+  x = "dose", y = "len",
+  color = "dose", palette = "jco"
+)
 # Density plot
 dens <- ggdensity(df, x = "len", fill = "dose", palette = "jco")
 
@@ -109,13 +147,12 @@ dens <- ggdensity(df, x = "len", fill = "dose", palette = "jco")
 # ::::::::::::::::::::::::::::::::::::::::::::::::::
 ggarrange(bxp, dp, dens, ncol = 2, nrow = 2)
 # Use a common legend for multiple plots
-ggarrange(bxp, dp,  common.legend = TRUE)
-
+ggarrange(bxp, dp, common.legend = TRUE)
 
 }
 \seealso{
 \code{\link{annotate_figure}()}
 }
 \author{
-Alboukadel Kassambara \email{alboukadel.kassambara@gmail.com}
+Laszlo Erdey \email{erdey.laszlo@econ.unideb.hu}
 }

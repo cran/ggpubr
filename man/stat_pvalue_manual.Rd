@@ -2,7 +2,7 @@
 % Please edit documentation in R/stat_pvalue_manual.R
 \name{stat_pvalue_manual}
 \alias{stat_pvalue_manual}
-\title{Add Manually P-values to a ggplot}
+\title{Add P-values Manually to a ggplot}
 \usage{
 stat_pvalue_manual(
   data,
@@ -13,12 +13,18 @@ stat_pvalue_manual(
   x = NULL,
   size = 3.88,
   label.size = size,
+  p.digits = 3,
+  p.format.style = "default",
+  p.leading.zero = NULL,
+  p.min.threshold = NULL,
+  p.decimal.mark = NULL,
   bracket.size = 0.3,
   bracket.nudge.y = 0,
   bracket.shorten = 0,
   color = "black",
   linetype = 1,
   tip.length = 0.03,
+  tip.length.ref = c("data", "axis"),
   remove.bracket = FALSE,
   step.increase = 0,
   step.group.by = NULL,
@@ -31,7 +37,7 @@ stat_pvalue_manual(
 )
 }
 \arguments{
-\item{data}{a data frame containing statitistical test results. The expected
+\item{data}{a data frame containing statistical test results. The expected
 default format should contain the following columns: \code{group1 | group2 |
 p | y.position | etc}. \code{group1} and \code{group2} are the groups that
 have been compared. \code{p} is the resulting p-value. \code{y.position} is
@@ -41,7 +47,11 @@ the y coordinates of the p-values in the plot.}
 "p.adj"), where \code{p} is the p-value. Can be also an expression that can
 be formatted by the \code{\link[glue]{glue}()} package. For example, when
 specifying label = "t-test, p = \{p\}", the expression \{p\} will be
-replaced by its value.}
+replaced by its value. Values inserted through a glue expression are taken
+from the raw data column and are \strong{not} rounded by \code{p.digits}; to
+round within a glue expression, wrap the value, e.g.
+\code{label = "p = \{signif(p, 3)\}"} (or \code{\{format_p_value(p)\}} for the
+p-value house style).}
 
 \item{y.position}{column containing the coordinates (in data units) to be used
 for absolute positioning of the label. Default value is "y.position". Can be
@@ -59,6 +69,43 @@ p-value as text (without brackets).}
 
 \item{size, label.size}{size of label text.}
 
+\item{p.digits}{integer indicating the number of digits used to
+format recognized \strong{numeric} p-value label columns (\code{label} is one
+of \code{"p"}, \code{"p.adj"}, \code{"p.value"}, \code{"p.val"},
+\code{"pval"}, \code{"padj"}). Default is 3. Set to \code{NULL} to print the
+raw value without rounding (this also disables \code{p.format.style} and the
+related formatting arguments). All other labels are left unchanged: other
+numeric columns (e.g. \code{"statistic"}, \code{"n"}, effect sizes),
+significance symbols (\code{"p.signif"}, \code{"p.adj.signif"}),
+already-formatted strings, and \code{\link[glue]{glue}} expressions. A
+p-named column whose values fall outside \code{[0, 1]} is also left as-is.
+Uses the same formatting engine (\code{\link{format_p_value}()}) as
+\code{\link{stat_anova_test}()} for consistency across layers. The style of
+this formatting is further controlled by \code{p.format.style},
+\code{p.leading.zero}, \code{p.min.threshold} and \code{p.decimal.mark}
+(same arguments as \code{\link{stat_compare_means}()}).}
+
+\item{p.format.style}{character string specifying the p-value formatting style
+applied to recognized numeric p-value label columns (see \code{p.digits}).
+One of: \code{"default"} (backward compatible, uses scientific notation),
+\code{"apa"} (APA style, no leading zero), \code{"nejm"} (NEJM style),
+\code{"lancet"} (Lancet style), \code{"ama"} (AMA style), \code{"graphpad"}
+(GraphPad style), or \code{"scientific"} (scientific notation for GWAS). See
+\code{\link{list_p_format_styles}} for details. Default is \code{"default"},
+which leaves the rendered p-value labels unchanged.}
+
+\item{p.leading.zero}{logical indicating whether to include the leading zero
+before the decimal point (e.g., "0.05" vs ".05"). If provided, overrides the
+style default.}
+
+\item{p.min.threshold}{numeric specifying the minimum p-value to display
+exactly. Values below this threshold are shown as "< threshold" (e.g.
+\code{p.min.threshold = 0.001} renders very small p-values as "< 0.001"). If
+provided, overrides the style default.}
+
+\item{p.decimal.mark}{character string to use as the decimal mark. If
+\code{NULL}, uses \code{getOption("OutDec")}.}
+
 \item{bracket.size}{Width of the lines of the bracket.}
 
 \item{bracket.nudge.y}{Vertical adjustment to nudge brackets by. Useful to
@@ -72,8 +119,15 @@ of bracket.}
 
 \item{linetype}{linetype. Can be variable name in the data for changing linetype by groups.}
 
-\item{tip.length}{numeric vector with the fraction of total height that the
-bar goes down to indicate the precise column. Default is 0.03.}
+\item{tip.length}{numeric vector with the fraction that the bracket tips go
+down to indicate the precise column. Interpreted relative to the reference set
+by \code{tip.length.ref}. Default is 0.03.}
+
+\item{tip.length.ref}{character string specifying what \code{tip.length} is a
+fraction of. Either \code{"data"} (default): fraction of the trained data
+range (tips scale with the data; existing plots unchanged); or \code{"axis"}:
+fraction of the y-axis range (\code{ylim}/\code{scale_y_*}), giving visually
+constant tip lengths across plots with different scales (#362).}
 
 \item{remove.bracket}{logical, if \code{TRUE}, brackets are removed from the
 plot. Considered only in the situation, where comparisons are performed
@@ -108,34 +162,35 @@ call to a position adjustment function.}
 \item{inherit.aes}{If \code{FALSE} (the default), overrides the default aesthetics,
 rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
-the default plot specification, e.g. \code{stat_pvalue_manual()}. Most layers should use 
-\code{TRUE} (the \pkg{ggplot2} default), but \code{stat_pvalue_manual()} uses 
-its own data with different column names than the parent plot data, so 
-\code{FALSE} avoids conflicts between parent plot aesthetics (like \code{fill} or 
+the default plot specification, e.g. \code{stat_pvalue_manual()}. Most layers should use
+\code{TRUE} (the \pkg{ggplot2} default), but \code{stat_pvalue_manual()} uses
+its own data with different column names than the parent plot data, so
+\code{FALSE} avoids conflicts between parent plot aesthetics (like \code{fill} or
 \code{color}) and the p-value annotation data.}
 
 \item{...}{other arguments passed to the function \code{geom_bracket()} or
 \code{geom_text()}}
 }
 \description{
-Add manually p-values to a ggplot, such as box blots, dot plots
+Add p-values manually to a ggplot, such as box plots, dot plots
  and stripcharts. Frequently asked questions are available on \href{https://www.datanovia.com/en/blog/tag/ggpubr/}{Datanovia ggpubr FAQ page}, for example:
  \itemize{
- \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-onto-basic-ggplots/}{How to Add P-Values onto Basic GGPLOTS}
+ \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-onto-basic-ggplots/}{How to Add P-Values onto Basic GGPlots}
  \item \href{https://www.datanovia.com/en/blog/ggpubr-how-to-add-adjusted-p-values-to-a-multi-panel-ggplot/}{How to Add Adjusted P-values to a Multi-Panel GGPlot}
- \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-to-ggplot-facets/}{How to Add P-values to GGPLOT Facets}
- \item \href{https://www.datanovia.com/en/blog/ggpubr-how-to-add-p-values-generated-elsewhere-to-a-ggplot/}{How to Add P-Values Generated Elsewhere to a GGPLOT}
- \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-onto-a-grouped-ggplot-using-the-ggpubr-r-package/}{How to Add P-Values onto a Grouped GGPLOT using the GGPUBR R Package}
+ \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-to-ggplot-facets/}{How to Add P-values to GGPlot Facets}
+ \item \href{https://www.datanovia.com/en/blog/ggpubr-how-to-add-p-values-generated-elsewhere-to-a-ggplot/}{How to Add P-Values Generated Elsewhere to a GGPlot}
+ \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-onto-a-grouped-ggplot-using-the-ggpubr-r-package/}{How to Add P-Values onto a Grouped GGPlot using the ggpubr R Package}
  \item \href{https://www.datanovia.com/en/blog/how-to-create-stacked-bar-plots-with-error-bars-and-p-values/}{How to Create Stacked Bar Plots with Error Bars and P-values}
- \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-onto-horizontal-ggplots/}{How to Add P-Values onto Horizontal GGPLOTS}
+ \item \href{https://www.datanovia.com/en/blog/how-to-add-p-values-onto-horizontal-ggplots/}{How to Add P-Values onto Horizontal GGPlots}
  }
 }
 \examples{
 
 # T-test
 stat.test <- compare_means(
- len ~ dose, data = ToothGrowth,
- method = "t.test"
+  len ~ dose,
+  data = ToothGrowth,
+  method = "t.test"
 )
 stat.test
 
@@ -145,15 +200,16 @@ p
 
 # Perform a t-test between groups
 stat.test <- compare_means(
- len ~ dose, data = ToothGrowth,
- method = "t.test"
+  len ~ dose,
+  data = ToothGrowth,
+  method = "t.test"
 )
 stat.test
 
-# Add manually p-values from stat.test data
+# Add p-values manually from stat.test data
 # First specify the y.position of each comparison
 stat.test <- stat.test \%>\%
- mutate(y.position = c(29, 35, 39))
+  mutate(y.position = c(29, 35, 39))
 p + stat_pvalue_manual(stat.test, label = "p.adj")
 
 # Customize the label with glue expression
@@ -162,21 +218,25 @@ p + stat_pvalue_manual(stat.test, label = "p = {p.adj}")
 
 
 # Grouped bar plots
-#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%
+# \%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%
 ToothGrowth$dose <- as.factor(ToothGrowth$dose)
 # Comparisons against reference
 stat.test <- compare_means(
-  len ~ dose, data = ToothGrowth, group.by = "supp",
+  len ~ dose,
+  data = ToothGrowth, group.by = "supp",
   method = "t.test", ref.group = "0.5"
 )
 stat.test
 # Plot
-bp <- ggbarplot(ToothGrowth, x = "supp", y = "len",
-                fill = "dose", palette = "jco",
-                add = "mean_sd", add.params = list(group = "dose"),
-                position = position_dodge(0.8))
+bp <- ggbarplot(ToothGrowth,
+  x = "supp", y = "len",
+  fill = "dose", palette = "jco",
+  add = "mean_sd", add.params = list(group = "dose"),
+  position = position_dodge(0.8)
+)
 bp + stat_pvalue_manual(
-  stat.test, x = "supp", y.position = 33,
+  stat.test,
+  x = "supp", y.position = 33,
   label = "p.signif",
   position = position_dodge(0.8)
 )

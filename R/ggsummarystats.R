@@ -1,7 +1,7 @@
 #' @include utilities.R ggpar.R
 #' @importFrom rstatix df_split_by get_summary_stats
 NULL
-#' GGPLOT with Summary Stats Table Under the Plot
+#' GGPlot with Summary Stats Table Under the Plot
 #'
 #' @description Create a ggplot with summary stats (n, median, mean, iqr) table
 #'   under the plot. Read more: \href{https://www.datanovia.com/en/blog/how-to-create-a-beautiful-plots-in-r-with-summary-statistics-labels/}{How to Create a Beautiful Plots in R with Summary Statistics Labels}.
@@ -11,6 +11,8 @@ NULL
 #' @param table.font.size the summary table font size.
 #' @param position Position adjustment, either as a string, or the result of a
 #'   call to a position adjustment function.
+#' @param angle numeric value specifying the rotation angle (in degrees) of the
+#'   summary table text. Default is 0.
 #' @param summaries summary stats to display in the table. Possible values are
 #'   those returned by the function \code{\link[rstatix]{get_summary_stats}()},
 #'   including: \code{"n", "min", "max",  "median",  "q1", "q2", "q3", "mad",
@@ -21,7 +23,7 @@ NULL
 #'   facet.by}.
 #' @param free.panels logical. If TRUE, create free plot panels when the
 #'   argument \code{facet.by} is specified.
-#'@param labeller Character vector. An alternative to the argument
+#' @param labeller Character vector. An alternative to the argument
 #'  \code{short.panel.labs}. Possible values are one of "label_both" (panel
 #'  labelled by both grouping variable names and levels) and "label_value"
 #'  (panel labelled with only grouping levels).
@@ -29,7 +31,7 @@ NULL
 #'   \code{\link{facet}()} or \code{\link{ggarrange}()} when printing the plot.
 #' @examples
 #' # Data preparation
-#' #::::::::::::::::::::::::::::::::::::::::::::::::
+#' # ::::::::::::::::::::::::::::::::::::::::::::::::
 #' data("ToothGrowth")
 #' df <- ToothGrowth
 #' df$dose <- as.factor(df$dose)
@@ -42,7 +44,7 @@ NULL
 #'
 #'
 #' # Basic summary stats
-#' #::::::::::::::::::::::::::::::::::::::::::::::::
+#' # ::::::::::::::::::::::::::::::::::::::::::::::::
 #' # Compute summary statistics
 #' summary.stats <- df %>%
 #'   group_by(dose) %>%
@@ -51,38 +53,43 @@ NULL
 #'
 #' # Visualize summary table
 #' ggsummarytable(
-#'   summary.stats, x = "dose", y = c("n", "median", "iqr"),
+#'   summary.stats,
+#'   x = "dose", y = c("n", "median", "iqr"),
 #'   ggtheme = theme_bw()
 #' )
 #'
 #'
 #' # Create plots with summary table under the plot
-#' #::::::::::::::::::::::::::::::::::::::::::::::::
+#' # ::::::::::::::::::::::::::::::::::::::::::::::::
 #' # Basic plot
 #' ggsummarystats(
-#'   df, x = "dose", y = "len",
+#'   df,
+#'   x = "dose", y = "len",
 #'   ggfunc = ggboxplot, add = "jitter"
 #' )
 #'
 #' # Color by groups
 #' ggsummarystats(
-#'   df, x = "dose", y = "len",
+#'   df,
+#'   x = "dose", y = "len",
 #'   ggfunc = ggboxplot, add = "jitter",
 #'   color = "dose", palette = "npg"
 #' )
 #'
 #' # Create a barplot
 #' ggsummarystats(
-#'   df, x = "dose", y = "len",
+#'   df,
+#'   x = "dose", y = "len",
 #'   ggfunc = ggbarplot, add = c("jitter", "median_iqr"),
 #'   color = "dose", palette = "npg"
 #' )
 #'
 #' # Facet
-#' #::::::::::::::::::::::::::::::::::::::::::::::::
+#' # ::::::::::::::::::::::::::::::::::::::::::::::::
 #' # Specify free.panels = TRUE for free panels
 #' ggsummarystats(
-#'   df, x = "dose", y = "len",
+#'   df,
+#'   x = "dose", y = "len",
 #'   ggfunc = ggboxplot, add = "jitter",
 #'   color = "dose", palette = "npg",
 #'   facet.by = c("supp", "qc"),
@@ -92,8 +99,8 @@ NULL
 #' @describeIn ggsummarystats Create a table of summary stats
 #' @export
 ggsummarytable <- function(data, x, y, digits = 0, size = 3, color = "black", palette = NULL,
-                           facet.by = NULL, labeller = "label_value",  position = "identity",
-                           ggtheme = theme_pubr(), ...) {
+                           facet.by = NULL, labeller = "label_value", position = "identity",
+                           angle = 0, ggtheme = theme_pubr(), ...) {
   if (missing(ggtheme) & !is.null(facet.by)) {
     ggtheme <- theme_pubr(border = TRUE)
   }
@@ -105,8 +112,7 @@ ggsummarytable <- function(data, x, y, digits = 0, size = 3, color = "black", pa
   if (color %in% colnames(df)) {
     if (missing(position)) position <- position_dodge(0.8)
     group <- color
-  }
-  else {
+  } else {
     group <- 1
   }
 
@@ -119,10 +125,10 @@ ggsummarytable <- function(data, x, y, digits = 0, size = 3, color = "black", pa
       geom_text,
       data = df,
       label = "label", size = size, color = color, group = group,
-      position = position
+      position = position, angle = angle
     )
   p <- ggpar(p, ggtheme = ggtheme, palette = palette, xlab = x, ...)
-  if (!is.null(facet.by)) p <- facet(p, facet.by = facet.by, labeller = labeller,  ...)
+  if (!is.null(facet.by)) p <- facet(p, facet.by = facet.by, labeller = labeller, ...)
   p + rremove("ylab")
 }
 
@@ -142,12 +148,10 @@ ggsummarystats <- function(data, x, y, summaries = c("n", "median", "iqr"),
   env <- c(as.list(environment()), list(...))
   if (is.null(facet.by)) {
     results <- do.call(ggsummarystats_core, env)
-  }
-  else {
+  } else {
     if (free.panels) {
       results <- do.call(ggsummarystats_free_facet, env)
-    }
-    else {
+    } else {
       results <- do.call(ggsummarystats_core, env)
     }
   }
@@ -161,7 +165,7 @@ ggsummarystats <- function(data, x, y, summaries = c("n", "median", "iqr"),
 #'   main and the summary table, respectively.
 #' @rdname ggsummarystats
 #' @export
-print.ggsummarystats <- function(x, heights = c(0.80, 0.20), ...){
+print.ggsummarystats <- function(x, heights = c(0.80, 0.20), ...) {
   res <- ggarrange(plotlist = x, heights = heights, align = "v", ncol = 1)
   print(res)
   invisible(res)
@@ -174,24 +178,25 @@ print.ggsummarystats <- function(x, heights = c(0.80, 0.20), ...){
 #' @param x a list of \code{ggsummarystats}.
 #' @rdname ggsummarystats
 #' @export
-print.ggsummarystats_list <- function(x, heights = c(0.80, 0.20), legend = NULL, ...){
-
+print.ggsummarystats_list <- function(x, heights = c(0.80, 0.20), legend = NULL, ...) {
   # Create a common legend, if legend exists
   legend.grob <- get_legend(x[[1]]$main.plot, position = legend)
   has.legend <- !is.null(legend.grob)
-  remove_legend <- function(ggsummarystats){
+  remove_legend <- function(ggsummarystats) {
     ggsummarystats[[1]] <- ggsummarystats[[1]] + theme(legend.position = "none")
     ggsummarystats
   }
-  if(has.legend){
+  if (has.legend) {
     x <- map(x, remove_legend)
   }
   # Combining each ggsummarystats
   x <- x %>%
     map(
-      function(x, ...) {ggarrange(plotlist = x, ...)},
+      function(x, ...) {
+        ggarrange(plotlist = x, ...)
+      },
       heights = heights, align = "v", ncol = 1
-      )
+    )
   # Combine the list of ggsumarystats
   res <- ggarrange(plotlist = x, legend = legend, legend.grob = legend.grob)
   # Add legend if exist
@@ -205,16 +210,18 @@ ggsummarystats_core <- function(data, x, y, summaries = c("n", "median", "iqr"),
                                 color = "black", fill = "white", palette = NULL,
                                 ggtheme = theme_pubr(), heights = c(0.80, 0.20),
                                 facet.by = NULL, free.panels = FALSE, labeller = "label_value",
-                                digits = 0, table.font.size = 3,...) {
+                                digits = 0, table.font.size = 3, ...) {
   groups <- c(x, color, fill, facet.by) %>%
     unique() %>%
     intersect(colnames(data))
-  summary.stats <- data %>%
-    group_by(!!!syms(groups)) %>%
-    get_summary_stats(!!y)
+  summary.stats <- suppressWarnings(
+    data %>%
+      group_by(!!!syms(groups)) %>%
+      get_summary_stats(!!y)
+  )
   # No need to repeat the panel label on the table
   table.facet.by <- facet.by
-  if(free.panels) table.facet.by <- NULL
+  if (free.panels) table.facet.by <- NULL
 
   main.plot <- ggfunc(
     data,
@@ -237,14 +244,13 @@ ggsummarystats_core <- function(data, x, y, summaries = c("n", "median", "iqr"),
     main.plot = main.plot,
     summary.plot = summary.plot
   )
-  class(plots) <- c("ggsummarystats",  "list")
+  class(plots) <- c("ggsummarystats", "list")
   plots
 }
 
 
-ggsummarystats_free_facet <- function(data, x, y, facet.by, labeller =  "label_value",  ...)
-  {
-  labeller_func <- switch (labeller,
+ggsummarystats_free_facet <- function(data, x, y, facet.by, labeller = "label_value", ...) {
+  labeller_func <- switch(labeller,
     label_both = rstatix::df_label_both,
     label_value = rstatix::df_label_value
   )
@@ -259,8 +265,3 @@ ggsummarystats_free_facet <- function(data, x, y, facet.by, labeller =  "label_v
   class(plots) <- c("ggsummarystats_list", "list")
   plots
 }
-
-
-
-
-

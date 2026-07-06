@@ -6,31 +6,44 @@
 [![Total
 Downloads](https://cranlogs.r-pkg.org/badges/grand-total/ggpubr?color=orange)](https://cran.r-project.org/package=ggpubr)
 
-# ggpubr: ‘ggplot2’ Based Publication Ready Plots
+# ggpubr: 'ggplot2' Based Publication Ready Plots
 
 [ggplot2, by Hadley Wickham,](https://ggplot2.tidyverse.org/) is an
 excellent and flexible package for elegant data visualization in R.
-However the default generated plots requires some formatting before we
+However the default generated plots require some formatting before we
 can send them for publication. Furthermore, to customize a ggplot, the
 syntax is opaque and this raises the level of difficulty for researchers
 with no advanced R programming skills.
 
-The ‘ggpubr’ package provides some easy-to-use functions for creating
-and customizing ‘ggplot2’- based publication ready plots.
+The 'ggpubr' package provides some easy-to-use functions for creating
+and customizing 'ggplot2'-based publication ready plots.
 
 Find out more at <https://rpkgs.datanovia.com/ggpubr/>.
+
+## Highlights in the development version
+
+- Modern compatibility updates for current `ggplot2`, `dplyr`, and
+  `tidyr`.
+- New p-value formatting helpers: `format_p_value()`,
+  `get_p_format_style()`, `list_p_format_styles()`.
+- Extended p-value formatting parameters across statistical layers:
+  `p.format.style`, `p.digits`, `p.leading.zero`, `p.min.threshold`,
+  `p.decimal.mark`.
+- Sparse grouped subsets are handled robustly in `stat_compare_means()`
+  and `geom_pwc()`: non-comparable subsets are skipped while valid
+  comparisons are kept (#663).
 
 ## Installation and loading
 
 - Install from [CRAN](https://cran.r-project.org/package=ggpubr) as
-  follow:
+  follows:
 
 ``` r
 install.packages("ggpubr")
 ```
 
 - Or, install the latest version from
-  [GitHub](https://github.com/kassambara/ggpubr) as follow:
+  [GitHub](https://github.com/kassambara/ggpubr) as follows:
 
 ``` r
 # Install
@@ -108,7 +121,7 @@ head(df, 4)
 ![](tools/README-ggpubr-box-plot-dot-plots-strip-charts-1.png)<!-- -->
 
 ``` r
- 
+
  # Add p-values comparing groups
  # Specify the comparisons you want
 my_comparisons <- list( c("0.5", "1"), c("1", "2"), c("0.5", "2") )
@@ -120,7 +133,7 @@ p + stat_compare_means(comparisons = my_comparisons)+ # Add pairwise comparisons
 
 ``` r
 
- 
+
 # Violin plots with box plots inside
 # :::::::::::::::::::::::::::::::::::::::::::::::::::
 # Change fill color by groups: dose
@@ -129,7 +142,7 @@ ggviolin(df, x = "dose", y = "len", fill = "dose",
          palette = c("#00AFBB", "#E7B800", "#FC4E07"),
          add = "boxplot", add.params = list(fill = "white"))+
   stat_compare_means(comparisons = my_comparisons, label = "p.signif")+ # Add significance levels
-  stat_compare_means(label.y = 50)                                      # Add global the p-value 
+  stat_compare_means(label.y = 50)                                      # Add global the p-value
 ```
 
 ![](tools/README-ggpubr-box-plot-dot-plots-strip-charts-3.png)<!-- -->
@@ -161,15 +174,15 @@ head(dfm[, c("name", "wt", "mpg", "cyl")])
 
 ### Ordered bar plots
 
-Change the fill color by the grouping variable “cyl”. Sorting will be
+Change the fill color by the grouping variable "cyl". Sorting will be
 done globally, but not by groups.
 
 ``` r
 ggbarplot(dfm, x = "name", y = "mpg",
           fill = "cyl",               # change fill color by cyl
           color = "white",            # Set bar border colors to white
-          palette = "jco",            # jco journal color palett. see ?ggpar
-          sort.val = "desc",          # Sort the value in dscending order
+          palette = "jco",            # jco journal color palette. see ?ggpar
+          sort.val = "desc",          # Sort the value in descending order
           sort.by.groups = FALSE,     # Don't sort inside each group
           x.text.angle = 90           # Rotate vertically x axis texts
           )
@@ -183,8 +196,8 @@ Sort bars inside each group. Use the argument **sort.by.groups = TRUE**.
 ggbarplot(dfm, x = "name", y = "mpg",
           fill = "cyl",               # change fill color by cyl
           color = "white",            # Set bar border colors to white
-          palette = "jco",            # jco journal color palett. see ?ggpar
-          sort.val = "asc",           # Sort the value in dscending order
+          palette = "jco",            # jco journal color palette. see ?ggpar
+          sort.val = "asc",           # Sort the value in ascending order
           sort.by.groups = TRUE,      # Sort inside each group
           x.text.angle = 90           # Rotate vertically x axis texts
           )
@@ -194,8 +207,8 @@ ggbarplot(dfm, x = "name", y = "mpg",
 
 ### Deviation graphs
 
-The deviation graph shows the deviation of quantitatives values to a
-reference value. In the R code below, we’ll plot the mpg z-score from
+The deviation graph shows the deviation of quantitative values to a
+reference value. In the R code below, we'll plot the mpg z-score from
 the mtcars dataset.
 
 Calculate the z-score of the mpg data:
@@ -203,7 +216,7 @@ Calculate the z-score of the mpg data:
 ``` r
 # Calculate the z-score of the mpg data
 dfm$mpg_z <- (dfm$mpg -mean(dfm$mpg))/sd(dfm$mpg)
-dfm$mpg_grp <- factor(ifelse(dfm$mpg_z < 0, "low", "high"), 
+dfm$mpg_grp <- factor(ifelse(dfm$mpg_z < 0, "low", "high"),
                      levels = c("low", "high"))
 # Inspect the data
 head(dfm[, c("name", "wt", "mpg", "mpg_z", "mpg_grp", "cyl")])
@@ -222,7 +235,7 @@ Create an ordered barplot, colored according to the level of mpg:
 ggbarplot(dfm, x = "name", y = "mpg_z",
           fill = "mpg_grp",           # change fill color by mpg_level
           color = "white",            # Set bar border colors to white
-          palette = "jco",            # jco journal color palett. see ?ggpar
+          palette = "jco",            # jco journal color palette. see ?ggpar
           sort.val = "asc",           # Sort the value in ascending order
           sort.by.groups = FALSE,     # Don't sort inside each group
           x.text.angle = 90,          # Rotate vertically x axis texts
@@ -234,13 +247,13 @@ ggbarplot(dfm, x = "name", y = "mpg_z",
 
 ![](tools/README-deviation-graphs-1.png)<!-- -->
 
-Rotate the plot: use rotate = TRUE and sort.val = “desc”
+Rotate the plot: use rotate = TRUE and sort.val = "desc"
 
 ``` r
 ggbarplot(dfm, x = "name", y = "mpg_z",
           fill = "mpg_grp",           # change fill color by mpg_level
           color = "white",            # Set bar border colors to white
-          palette = "jco",            # jco journal color palett. see ?ggpar
+          palette = "jco",            # jco journal color palette. see ?ggpar
           sort.val = "desc",          # Sort the value in descending order
           sort.by.groups = FALSE,     # Don't sort inside each group
           x.text.angle = 90,          # Rotate vertically x axis texts
@@ -260,7 +273,7 @@ ggbarplot(dfm, x = "name", y = "mpg_z",
 Lollipop chart is an alternative to bar plots, when you have a large set
 of values to visualize.
 
-Lollipop chart colored by the grouping variable “cyl”:
+Lollipop chart colored by the grouping variable "cyl":
 
 ``` r
 ggdotchart(dfm, x = "name", y = "mpg",
@@ -274,11 +287,11 @@ ggdotchart(dfm, x = "name", y = "mpg",
 
 ![](tools/README-lollipop-chart-1.png)<!-- -->
 
-- Sort in decending order. **sorting = “descending”**.
+- Sort in descending order. **sorting = "descending"**.
 - Rotate the plot vertically, using **rotate = TRUE**.
-- Sort the mpg value inside each group by using **group = “cyl”**.
+- Sort the mpg value inside each group by using **group = "cyl"**.
 - Set **dot.size** to 6.
-- Add mpg values as label. **label = “mpg”** or **label =
+- Add mpg values as label. **label = "mpg"** or **label =
   round(dfm\$mpg)**.
 
 ``` r
@@ -291,7 +304,7 @@ ggdotchart(dfm, x = "name", y = "mpg",
            group = "cyl",                                # Order by groups
            dot.size = 6,                                 # Large dot size
            label = round(dfm$mpg),                        # Add mpg values as dot labels
-           font.label = list(color = "white", size = 9, 
+           font.label = list(color = "white", size = 9,
                              vjust = 0.5),               # Adjust label parameters
            ggtheme = theme_pubr()                        # ggplot2 theme
            )
@@ -301,8 +314,8 @@ ggdotchart(dfm, x = "name", y = "mpg",
 
 Deviation graph:
 
-- Use y = “mpg_z”
-- Change segment color and size: add.params = list(color = “lightgray”,
+- Use y = "mpg_z"
+- Change segment color and size: add.params = list(color = "lightgray",
   size = 2)
 
 ``` r
@@ -315,7 +328,7 @@ ggdotchart(dfm, x = "name", y = "mpg_z",
            group = "cyl",                                # Order by groups
            dot.size = 6,                                 # Large dot size
            label = round(dfm$mpg_z,1),                        # Add mpg values as dot labels
-           font.label = list(color = "white", size = 9, 
+           font.label = list(color = "white", size = 9,
                              vjust = 0.5),               # Adjust label parameters
            ggtheme = theme_pubr()                        # ggplot2 theme
            )+
@@ -324,7 +337,7 @@ ggdotchart(dfm, x = "name", y = "mpg_z",
 
 ![](tools/README-lollipop-chart-deviation-1.png)<!-- -->
 
-### Cleveland’s dot plot
+### Cleveland's dot plot
 
 Color y text by groups. Use y.text.col = TRUE.
 

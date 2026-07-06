@@ -11,6 +11,7 @@ ggdonutchart(
   lab.pos = c("out", "in"),
   lab.adjust = 0,
   lab.font = c(4, "plain", "black"),
+  label.repel = FALSE,
   font.family = "",
   color = "black",
   fill = "white",
@@ -38,6 +39,11 @@ are "out" (for outside) or "in" (for inside).}
 color (e.g.: "red") of label font. For example \emph{lab.font= c(4, "bold",
 "red")}.}
 
+\item{label.repel}{logical. Default is FALSE. If TRUE, the slice labels are
+placed around the chart with \code{ggrepel::geom_text_repel()} and connected
+to their slice with leader lines, so that the labels of many small slices no
+longer overlap. When TRUE, \code{lab.pos} is ignored.}
+
 \item{font.family}{character vector specifying font family.}
 
 \item{color, fill}{outline and fill colors.}
@@ -51,7 +57,7 @@ scientific journal palettes from ggsci R package, e.g.: "npg", "aaas",
 \item{size}{Numeric value (e.g.: size = 1). change the size of points and
 outlines.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
+\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr(). Set ggtheme = NULL to skip applying a ggpubr theme, so the plot keeps ggplot2 default theme or the theme set globally via theme_set().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
 
@@ -75,8 +81,9 @@ The plot can be easily customized using the function ggpar(). Read
 # +++++++++++++++++++++++++++++++
 
 df <- data.frame(
- group = c("Male", "Female", "Child"),
-  value = c(25, 25, 50))
+  group = c("Male", "Female", "Child"),
+  value = c(25, 25, 50)
+)
 
 head(df)
 
@@ -93,9 +100,11 @@ ggdonutchart(df, "value", label = "group")
 # Change fill color by group
 # set line color to white
 # Use custom color palette
- ggdonutchart(df, "value", label = "group",
-      fill = "group", color = "white",
-       palette = c("#00AFBB", "#E7B800", "#FC4E07") )
+ggdonutchart(df, "value",
+  label = "group",
+  fill = "group", color = "white",
+  palette = c("#00AFBB", "#E7B800", "#FC4E07")
+)
 
 
 # Change label
@@ -103,17 +112,19 @@ ggdonutchart(df, "value", label = "group")
 
 # Show group names and value as labels
 labs <- paste0(df$group, " (", df$value, "\%)")
-ggdonutchart(df, "value", label = labs,
-   fill = "group", color = "white",
-   palette = c("#00AFBB", "#E7B800", "#FC4E07"))
+ggdonutchart(df, "value",
+  label = labs,
+  fill = "group", color = "white",
+  palette = c("#00AFBB", "#E7B800", "#FC4E07")
+)
 
 # Change the position and font color of labels
-ggdonutchart(df, "value", label = labs,
-   lab.pos = "in", lab.font = "white",
-   fill = "group", color = "white",
-   palette = c("#00AFBB", "#E7B800", "#FC4E07"))
-
-
+ggdonutchart(df, "value",
+  label = labs,
+  lab.pos = "in", lab.font = "white",
+  fill = "group", color = "white",
+  palette = c("#00AFBB", "#E7B800", "#FC4E07")
+)
 
 }
 \seealso{

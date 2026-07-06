@@ -38,6 +38,7 @@ ggbarplot(
   sort.by.groups = TRUE,
   top = Inf,
   position = position_stack(),
+  numeric.x.axis = FALSE,
   ggtheme = theme_pubr(),
   ...
 )
@@ -68,7 +69,7 @@ scientific journal palettes from ggsci R package, e.g.: "npg", "aaas",
 \item{size}{Numeric value (e.g.: size = 1). change the size of points and
 outlines.}
 
-\item{width}{numeric value between 0 and 1 specifying box width.}
+\item{width}{numeric value between 0 and 1 specifying the width of the plot elements.}
 
 \item{title}{plot main title.}
 
@@ -115,7 +116,7 @@ when add != "none" and add contains one "mean_*" or "med_*" where "*" = sd,
 se, ....}
 
 \item{label}{specify whether to add labels on the bar plot. Allowed values
-are: \itemize{ \item \strong{logical value}: If TRUE, y values is added as
+are: \itemize{ \item \strong{logical value}: If TRUE, y values are added as
 labels on the bar plot \item \strong{character vector}: Used as text
 labels; must be the same length as y. }}
 
@@ -141,20 +142,17 @@ Used only when sort.val != "none".}
 
 \item{top}{a numeric value specifying the number of top elements to be shown.}
 
-\item{position}{A position adjustment to use on the data for this layer. This
-can be used in various ways, including to prevent overplotting and
-improving the display. The \code{position} argument accepts the following:
-\itemize{
-\item The result of calling a position function, such as \code{position_jitter()}.
-This method allows for passing extra arguments to the position.
-\item A string naming the position adjustment. To give the position as a
-string, strip the function name of the \code{position_} prefix. For example,
-to use \code{position_jitter()}, give the position as \code{"jitter"}.
-\item For more information and other ways to specify the position, see the
-\link[ggplot2:layer_positions]{layer position} documentation.
-}}
+\item{position}{position adjustment, either as a string, or the result of a
+call to a position adjustment function (e.g. \code{position_dodge(0.8)}).
+Used to control the spacing between grouped elements.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
+\item{numeric.x.axis}{logical. If TRUE, x axis will be treated as numeric.
+Default is FALSE. Useful, for example, to plot bars at their numeric x
+positions (e.g. a time axis) instead of at equally-spaced discrete
+categories. Ignored when \code{order} is set or \code{sort.val != "none"},
+which require a discrete x axis.}
+
+\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr(). Set ggtheme = NULL to skip applying a ggpubr theme, so the plot keeps ggplot2 default theme or the theme set globally via theme_set().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
 
@@ -172,16 +170,32 @@ The plot can be easily customized using the function ggpar(). Read
   labels and position: legend = "right" \item plot orientation : orientation
   = c("vertical", "horizontal", "reverse") }
 }
+\section{Faceting a summarized bar plot}{
+
+When the bars show a computed summary (e.g. \code{add = "mean_se"}), facet the
+plot with the \code{facet.by} argument - \strong{not} by appending
+\code{+ facet_wrap()} / \code{+ facet_grid()}. The summaries are pre-computed,
+grouping by \code{x}, \code{color}/\code{fill} and \code{facet.by}; a facet added
+afterwards is not part of that grouping, so the bars (and, for stacked bars, the
+error bars) are pooled over the whole data set and repeated identically in every
+panel. Use \code{ggbarplot(..., facet.by = "group")} for correct per-panel
+summaries.
+}
+
 \examples{
 # Data
-df <- data.frame(dose=c("D0.5", "D1", "D2"),
-   len=c(4.2, 10, 29.5))
+df <- data.frame(
+  dose = c("D0.5", "D1", "D2"),
+  len = c(4.2, 10, 29.5)
+)
 print(df)
 
 # Basic plot with label outsite
 # +++++++++++++++++++++++++++
-ggbarplot(df, x = "dose", y = "len",
-  label = TRUE, label.pos = "out")
+ggbarplot(df,
+  x = "dose", y = "len",
+  label = TRUE, label.pos = "out"
+)
 
 # Change width
 ggbarplot(df, x = "dose", y = "len", width = 0.5)
@@ -191,7 +205,8 @@ ggbarplot(df, "dose", "len", orientation = "horiz")
 
 # Change the default order of items
 ggbarplot(df, "dose", "len",
-   order = c("D2", "D1", "D0.5"))
+  order = c("D2", "D1", "D0.5")
+)
 
 
 # Change colors
@@ -200,40 +215,48 @@ ggbarplot(df, "dose", "len",
 # Change fill and outline color
 # add labels inside bars
 ggbarplot(df, "dose", "len",
- fill = "steelblue", color = "steelblue",
- label = TRUE, lab.pos = "in", lab.col = "white")
+  fill = "steelblue", color = "steelblue",
+  label = TRUE, lab.pos = "in", lab.col = "white"
+)
 
 # Change colors by groups: dose
 # Use custom color palette
- ggbarplot(df, "dose", "len", color = "dose",
-   palette = c("#00AFBB", "#E7B800", "#FC4E07"))
+ggbarplot(df, "dose", "len",
+  color = "dose",
+  palette = c("#00AFBB", "#E7B800", "#FC4E07")
+)
 
 # Change fill and outline colors by groups
- ggbarplot(df, "dose", "len",
-   fill = "dose", color = "dose",
-   palette = c("#00AFBB", "#E7B800", "#FC4E07"))
+ggbarplot(df, "dose", "len",
+  fill = "dose", color = "dose",
+  palette = c("#00AFBB", "#E7B800", "#FC4E07")
+)
 
 
 # Plot with multiple groups
 # +++++++++++++++++++++
 
 # Create some data
-df2 <- data.frame(supp=rep(c("VC", "OJ"), each=3),
-   dose=rep(c("D0.5", "D1", "D2"),2),
-   len=c(6.8, 15, 33, 4.2, 10, 29.5))
+df2 <- data.frame(
+  supp = rep(c("VC", "OJ"), each = 3),
+  dose = rep(c("D0.5", "D1", "D2"), 2),
+  len = c(6.8, 15, 33, 4.2, 10, 29.5)
+)
 print(df2)
 
 # Plot "len" by "dose" and change color by a second group: "supp"
 # Add labels inside bars
 ggbarplot(df2, "dose", "len",
   fill = "supp", color = "supp", palette = "Paired",
-  label = TRUE, lab.col = "white", lab.pos = "in")
+  label = TRUE, lab.col = "white", lab.pos = "in"
+)
 
 # Change position: Interleaved (dodged) bar plot
 ggbarplot(df2, "dose", "len",
   fill = "supp", color = "supp", palette = "Paired",
   label = TRUE,
-  position = position_dodge(0.9))
+  position = position_dodge(0.9)
+)
 
 # Add points and errors
 # ++++++++++++++++++++++++++
@@ -247,36 +270,50 @@ head(df3, 10)
 ggbarplot(df3, x = "dose", y = "len")
 
 # Visualize the mean of each group
-ggbarplot(df3, x = "dose", y = "len",
- add = "mean")
+ggbarplot(df3,
+  x = "dose", y = "len",
+  add = "mean"
+)
 
 # Add error bars: mean_se
 # (other values include: mean_sd, mean_ci, median_iqr, ....)
 # Add labels
-ggbarplot(df3, x = "dose", y = "len",
- add = "mean_se", label = TRUE, lab.vjust = -1.6)
+ggbarplot(df3,
+  x = "dose", y = "len",
+  add = "mean_se", label = TRUE, lab.vjust = -1.6
+)
 
 # Use only "upper_errorbar"
-ggbarplot(df3, x = "dose", y = "len",
- add = "mean_se", error.plot = "upper_errorbar")
+ggbarplot(df3,
+  x = "dose", y = "len",
+  add = "mean_se", error.plot = "upper_errorbar"
+)
 
 # Change error.plot to "pointrange"
-ggbarplot(df3, x = "dose", y = "len",
- add = "mean_se", error.plot = "pointrange")
+ggbarplot(df3,
+  x = "dose", y = "len",
+  add = "mean_se", error.plot = "pointrange"
+)
 
 # Add jitter points and errors (mean_se)
-ggbarplot(df3, x = "dose", y = "len",
- add = c("mean_se", "jitter"))
+ggbarplot(df3,
+  x = "dose", y = "len",
+  add = c("mean_se", "jitter")
+)
 
 # Add dot and errors (mean_se)
-ggbarplot(df3, x = "dose", y = "len",
- add = c("mean_se", "dotplot"))
+ggbarplot(df3,
+  x = "dose", y = "len",
+  add = c("mean_se", "dotplot")
+)
 
 # Multiple groups with error bars and jitter point
-ggbarplot(df3, x = "dose", y = "len", color = "supp",
- add = "mean_se", palette = c("#00AFBB", "#E7B800"),
- position = position_dodge())
-
+ggbarplot(df3,
+  x = "dose", y = "len", color = "supp",
+  add = "mean_se", palette = c("#00AFBB", "#E7B800"),
+  position = position_dodge()
+)
+#
 
 }
 \seealso{

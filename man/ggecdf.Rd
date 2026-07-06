@@ -71,7 +71,7 @@ for example panel.labs = list(sex = c("Male", "Female"), rx = c("Obs",
 labels for panels by omitting variable names; in other words panels will be
 labelled only by variable grouping levels.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
+\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr(). Set ggtheme = NULL to skip applying a ggpubr theme, so the plot keeps ggplot2 default theme or the theme set globally via theme_set().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
 
@@ -93,9 +93,10 @@ The plot can be easily customized using the function ggpar(). Read
 \examples{
 # Create some data format
 set.seed(1234)
-wdata = data.frame(
-   sex = factor(rep(c("F", "M"), each=200)),
-   weight = c(rnorm(200, 55), rnorm(200, 58)))
+wdata <- data.frame(
+  sex = factor(rep(c("F", "M"), each = 200)),
+  weight = c(rnorm(200, 55), rnorm(200, 58))
+)
 
 head(wdata, 4)
 
@@ -104,9 +105,11 @@ ggecdf(wdata, x = "weight")
 
 # Change colors and linetype by groups ("sex")
 # Use custom palette
-ggecdf(wdata, x = "weight",
-   color = "sex", linetype = "sex",
-   palette = c("#00AFBB", "#E7B800"))
+ggecdf(wdata,
+  x = "weight",
+  color = "sex", linetype = "sex",
+  palette = c("#00AFBB", "#E7B800")
+)
 
 }
 \seealso{

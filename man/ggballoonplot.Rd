@@ -2,7 +2,7 @@
 % Please edit documentation in R/ggballoonplot.R
 \name{ggballoonplot}
 \alias{ggballoonplot}
-\title{Ballon plot}
+\title{Balloon plot}
 \usage{
 ggballoonplot(
   data,
@@ -26,9 +26,9 @@ ggballoonplot(
 contingency table} formed by two categorical variables: a data frame with
 row names and column names. The categories of the first variable are
 columns and the categories of the second variable are rows. \item \bold{a
-streched contingency table}: a data frame containing at least three columns
+stretched contingency table}: a data frame containing at least three columns
 corresponding, respectively, to (1) the categories of the first variable,
-(2) the categories of the second varible, (3) the frequency value. In this
+(2) the categories of the second variable, (3) the frequency value. In this
 case, you should specify the argument x and y in the function
 \code{ggballoonplot()}}.}
 
@@ -47,7 +47,7 @@ faceting the plot into multiple panels. Should be in the data.}
 maximum size of the plotting symbol. Default values are \code{size.range =
 c(1, 10)}.}
 
-\item{shape}{points shape. The default value is 21. Alternaive values include
+\item{shape}{points shape. The default value is 21. Alternative values include
 22, 23, 24, 25.}
 
 \item{color}{point border line color.}
@@ -64,11 +64,12 @@ the color (e.g.: "red") of point labels. For example font.label = c(14,
 "bold", "red"). To specify only the size and the style, use font.label =
 c(14, "plain").}
 
-\item{rotate.x.text}{logica. If TRUE (default), rotate the x axis text.}
+\item{rotate.x.text}{logical. If TRUE (default), rotate the x axis text.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
-Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
-theme_minimal(), theme_classic(), theme_void(), ....}
+\item{ggtheme}{function, ggplot2 theme name. Default value is
+\code{theme_minimal()}. Set \code{ggtheme = NULL} to skip applying a ggpubr
+theme, so the plot keeps ggplot2 default theme or the theme set globally via
+\code{theme_set()}.}
 
 \item{...}{other arguments passed to the function \code{\link{ggpar}}}
 }
@@ -79,17 +80,19 @@ Plot a graphical matrix where each cell contains a dot whose
 }
 \examples{
 # Define color palette
-my_cols <- c("#0D0887FF", "#6A00A8FF", "#B12A90FF",
-"#E16462FF", "#FCA636FF", "#F0F921FF")
+my_cols <- c(
+  "#0D0887FF", "#6A00A8FF", "#B12A90FF",
+  "#E16462FF", "#FCA636FF", "#F0F921FF"
+)
 
 # Standard contingency table
-#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # Read a contingency table: housetasks
 # Repartition of 13 housetasks in the couple
 data <- read.delim(
   system.file("demo-data/housetasks.txt", package = "ggpubr"),
   row.names = 1
-  )
+)
 data
 
 # Basic ballon plot
@@ -100,58 +103,65 @@ ggballoonplot(data, color = "#0073C2FF", fill = "#0073C2FF")
 
 
 # Change color according to the value of table cells
-ggballoonplot(data, fill = "value")+
-   scale_fill_gradientn(colors = my_cols)
+ggballoonplot(data, fill = "value") +
+  scale_fill_gradientn(colors = my_cols)
 
 # Change the plotting symbol shape
-ggballoonplot(data, fill = "value",  shape = 23)+
+ggballoonplot(data, fill = "value", shape = 23) +
   gradient_fill(c("blue", "white", "red"))
 
 
 # Set points size to 8, but change fill color by values
 # Sow labels
-ggballoonplot(data, fill = "value", color = "lightgray",
-              size = 10, show.label = TRUE)+
+ggballoonplot(data,
+  fill = "value", color = "lightgray",
+  size = 10, show.label = TRUE
+) +
   gradient_fill(c("blue", "white", "red"))
 
-# Streched contingency table
-#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# Stretched contingency table
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 # Create an Example Data Frame Containing Car x Color data
-carnames <- c("bmw","renault","mercedes","seat")
-carcolors <- c("red","white","silver","green")
-datavals <- round(rnorm(16, mean=100, sd=60),1)
-car_data <- data.frame(Car = rep(carnames,4),
-                   Color = rep(carcolors, c(4,4,4,4) ),
-                   Value=datavals )
+carnames <- c("bmw", "renault", "mercedes", "seat")
+carcolors <- c("red", "white", "silver", "green")
+datavals <- round(rnorm(16, mean = 100, sd = 60), 1)
+car_data <- data.frame(
+  Car = rep(carnames, 4),
+  Color = rep(carcolors, c(4, 4, 4, 4)),
+  Value = datavals
+)
 
 car_data
 
-ggballoonplot(car_data, x = "Car", y = "Color",
-              size = "Value", fill = "Value") +
-   scale_fill_gradientn(colors = my_cols) +
+ggballoonplot(car_data,
+  x = "Car", y = "Color",
+  size = "Value", fill = "Value"
+) +
+  scale_fill_gradientn(colors = my_cols) +
   guides(size = "none")
 
 
 # Grouped frequency table
-#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 data("Titanic")
 dframe <- as.data.frame(Titanic)
 head(dframe)
 ggballoonplot(
- dframe, x = "Class", y = "Sex",
- size = "Freq", fill = "Freq",
- facet.by = c("Survived", "Age"),
- ggtheme = theme_bw()
-)+
+  dframe,
+  x = "Class", y = "Sex",
+  size = "Freq", fill = "Freq",
+  facet.by = c("Survived", "Age"),
+  ggtheme = theme_bw()
+) +
   scale_fill_gradientn(colors = my_cols)
 
 # Hair and Eye Color of Statistics Students
 data(HairEyeColor)
-ggballoonplot( as.data.frame(HairEyeColor),
-              x = "Hair", y = "Eye", size = "Freq",
-              ggtheme = theme_gray()) \%>\%
- facet("Sex")
-
+ggballoonplot(as.data.frame(HairEyeColor),
+  x = "Hair", y = "Eye", size = "Freq",
+  ggtheme = theme_gray()
+) \%>\%
+  facet("Sex")
 
 }

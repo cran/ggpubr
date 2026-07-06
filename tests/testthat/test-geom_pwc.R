@@ -145,9 +145,10 @@ test_that("Grouped plots: grouping by legend var and comparing x-axis groups", {
 test_that("Grouped plots: grouping by legend var and comparing x-axis groups, using dodge=0 and bracket.group.by = 'legend.var'", {
   bxp <- ggboxplot(df, x = "dose", y = "len", color = "supp") +
     geom_pwc(
-      aes(group = supp, color = supp), group.by = "legend.var",
+      aes(group = supp, color = supp),
+      group.by = "legend.var",
       dodge = 0, bracket.group.by = "legend.var"
-      )
+    )
   bxp_build <- ggplot2::ggplot_build(bxp)
   stat.test <- bxp_build$data[[2]]
   label_coords <- as.data.frame(get_pwc_label_coords(stat.test))
@@ -244,32 +245,40 @@ test_that("Grouped plots: test that geom_pwc() works with different number of gr
   # https://github.com/kassambara/ggpubr/issues/326
   demo_data <- data.frame(
     stringsAsFactors = FALSE,
-    Study = c("A","A","A","A","A","A",
-              "A","A","A","A","B","B","B","B","B","B","B","B",
-              "B","B","C","C","C","C","C","C","C","C","C",
-              "C","C","C","C","C","C","D","D","D","D","D",
-              "D","D","D","D","D","D","D","D","D","D"),
-    Studytype = c("X","X","X","X","X","X",
-                  "X","X","X","X","X","X","X","X","X","X","X","X",
-                  "X","X","Y","Y","Y","Y","Y","Y","Y","Y","Y",
-                  "Y","Y","Y","Y","Y","Y","Y","Y","Y","Y","Y",
-                  "Y","Y","Y","Y","Y","Y","Y","Y","Y","Y"),
-    Values = c(4469L,4797L,5101L,5397L,
-               4542L,2780L,4326L,3396L,3657L,3199L,9221L,10176L,
-               9277L,10500L,9707L,7406L,7756L,7601L,7586L,7353L,
-               1811L,1485L,3003L,1629L,2495L,4207L,4265L,3629L,
-               4157L,3495L,2075L,2112L,2973L,3086L,2943L,5664L,6690L,
-               3538L,5741L,7880L,5848L,6390L,6569L,6114L,6520L,
-               7389L,6843L,7611L,6621L,7340L),
-    Group = as.factor(c("CTR",
-                        "CTR","CTR","CTR","CTR","Dis1","Dis1","Dis1",
-                        "Dis1","Dis1","CTR","CTR","CTR","CTR",
-                        "CTR","Dis1","Dis1","Dis1","Dis1","Dis1",
-                        "CTR","CTR","CTR","CTR","CTR","Dis2","Dis2",
-                        "Dis2","Dis2","Dis2","Dis3","Dis3",
-                        "Dis3","Dis3","Dis3","CTR","CTR","CTR","CTR",
-                        "CTR","Dis2","Dis2","Dis2","Dis2","Dis2",
-                        "Dis3","Dis3","Dis3","Dis3","Dis3"))
+    Study = c(
+      "A", "A", "A", "A", "A", "A",
+      "A", "A", "A", "A", "B", "B", "B", "B", "B", "B", "B", "B",
+      "B", "B", "C", "C", "C", "C", "C", "C", "C", "C", "C",
+      "C", "C", "C", "C", "C", "C", "D", "D", "D", "D", "D",
+      "D", "D", "D", "D", "D", "D", "D", "D", "D", "D"
+    ),
+    Studytype = c(
+      "X", "X", "X", "X", "X", "X",
+      "X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X", "X",
+      "X", "X", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y",
+      "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y",
+      "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y", "Y"
+    ),
+    Values = c(
+      4469L, 4797L, 5101L, 5397L,
+      4542L, 2780L, 4326L, 3396L, 3657L, 3199L, 9221L, 10176L,
+      9277L, 10500L, 9707L, 7406L, 7756L, 7601L, 7586L, 7353L,
+      1811L, 1485L, 3003L, 1629L, 2495L, 4207L, 4265L, 3629L,
+      4157L, 3495L, 2075L, 2112L, 2973L, 3086L, 2943L, 5664L, 6690L,
+      3538L, 5741L, 7880L, 5848L, 6390L, 6569L, 6114L, 6520L,
+      7389L, 6843L, 7611L, 6621L, 7340L
+    ),
+    Group = as.factor(c(
+      "CTR",
+      "CTR", "CTR", "CTR", "CTR", "Dis1", "Dis1", "Dis1",
+      "Dis1", "Dis1", "CTR", "CTR", "CTR", "CTR",
+      "CTR", "Dis1", "Dis1", "Dis1", "Dis1", "Dis1",
+      "CTR", "CTR", "CTR", "CTR", "CTR", "Dis2", "Dis2",
+      "Dis2", "Dis2", "Dis2", "Dis3", "Dis3",
+      "Dis3", "Dis3", "Dis3", "CTR", "CTR", "CTR", "CTR",
+      "CTR", "Dis2", "Dis2", "Dis2", "Dis2", "Dis2",
+      "Dis3", "Dis3", "Dis3", "Dis3", "Dis3"
+    ))
   )
   bxp <- ggboxplot(demo_data, x = "Study", y = "Values", fill = "Group") +
     geom_pwc(aes(group = Group), dodge = 0.8, label = "p", ref.group = 1)
@@ -296,4 +305,216 @@ test_that("Grouped plots: test that geom_pwc() works with different number of gr
   expect_equal(stat.test$y, c(10680.3, 10680.3, 10680.3, 11762.1, 10680.3, 11762.1, 10950.75, 10950.75, 10950.75, 12032.55, 10950.75, 12032.55, 10950.75, 10950.75, 10950.75, 12032.55, 10950.75, 12032.55))
   expect_equal(stat.test$yend, c(10950.75, 10950.75, 10950.75, 12032.55, 10950.75, 12032.55, 10950.75, 10950.75, 10950.75, 12032.55, 10950.75, 12032.55, 10680.3, 10680.3, 10680.3, 11762.1, 10680.3, 11762.1))
   expect_equal(label_coords, label_coords_expected)
+})
+
+test_that("geom_pwc skips non-comparable grouped subsets and keeps valid ones", {
+  set.seed(100)
+  dat <- data.frame(
+    x = factor(c(rep("A", 8), rep("B", 8), rep("C", 8))),
+    y = rnorm(24),
+    grp = factor(
+      c(rep("M", 8), rep(c("M", "F"), each = 4), rep("F", 8)),
+      levels = c("M", "F")
+    )
+  )
+
+  p <- ggboxplot(dat, x = "x", y = "y", color = "grp") +
+    geom_pwc(aes(group = grp), method = "t_test")
+
+  expect_no_warning(
+    expect_message(
+      b <- ggplot2::ggplot_build(p),
+      "geom_pwc\\(\\): skipped .*<2 comparison levels"
+    )
+  )
+  expect_gte(nrow(b$data[[2]]), 1)
+})
+
+test_that("geom_pwc returns empty layer when no grouped subset is comparable", {
+  set.seed(101)
+  dat <- data.frame(
+    x = factor(rep(c("A", "B", "C"), each = 8)),
+    y = rnorm(24),
+    grp = factor(
+      c(rep("M", 8), rep("F", 8), rep("M", 8)),
+      levels = c("M", "F")
+    )
+  )
+
+  p <- ggboxplot(dat, x = "x", y = "y", color = "grp") +
+    geom_pwc(aes(group = grp), method = "t_test")
+
+  expect_no_warning(
+    expect_message(
+      b <- ggplot2::ggplot_build(p),
+      "geom_pwc\\(\\): skipped 3 grouped subset\\(s\\)"
+    )
+  )
+  expect_equal(nrow(b$data[[2]]), 0)
+})
+
+test_that("geom_pwc skips grouped subsets missing ref.group and keeps valid ones", {
+  set.seed(102)
+  dat <- data.frame(
+    x = factor(
+      c(rep("A", 8), rep("B", 8), rep("B", 8), rep("C", 8)),
+      levels = c("A", "B", "C")
+    ),
+    y = rnorm(32),
+    grp = factor(
+      c(rep("M", 8), rep("M", 8), rep("F", 8), rep("F", 8)),
+      levels = c("M", "F")
+    )
+  )
+
+  # group.by = "legend.var" compares x levels within each legend group.
+  # grp == "F" has no "A", so it should be skipped when ref.group = "A".
+  p <- ggboxplot(dat, x = "x", y = "y", color = "grp") +
+    geom_pwc(
+      aes(group = grp),
+      group.by = "legend.var",
+      method = "t_test",
+      ref.group = "A"
+    )
+
+  expect_no_warning(
+    expect_message(
+      b <- ggplot2::ggplot_build(p),
+      "geom_pwc\\(\\): skipped .*missing ref\\.group='A'"
+    )
+  )
+  expect_gte(nrow(b$data[[2]]), 1)
+})
+
+# Per-comparison survival with explicit comparisons (#542) ----------------
+test_that("geom_pwc keeps valid explicit comparisons when one pair is untestable (#542)", {
+  set.seed(1)
+  # Group D is entirely NA and B has a single finite value, so the B-D
+  # comparison cannot be tested; A-C and C-E remain valid and must survive.
+  dat <- data.frame(
+    Cond = factor(rep(c("A", "B", "C", "D", "E"), each = 3)),
+    Value = c(runif(3, 10, 12), c(NA, 11, NA), runif(3, 8, 13),
+              c(NA, NA, NA), runif(3, 10, 15))
+  )
+  p <- ggboxplot(dat, x = "Cond", y = "Value") +
+    geom_pwc(
+      method = "t_test",
+      method.args = list(comparisons = list(c(1, 3), c(3, 5), c(2, 4)))
+    )
+  expect_message(
+    b <- ggplot2::ggplot_build(p),
+    "geom_pwc\\(\\): skipped 1 untestable comparison\\(s\\): 2 vs 4"
+  )
+  stat.test <- b$data[[2]]
+  # only the two valid comparisons survive (A-C at x 1-3, C-E at x 3-5)
+  surviving <- unique(stat.test[, c("xmin", "xmax", "p", "p.adj")])
+  expect_equal(nrow(surviving), 2)
+  expect_true(all(paste(surviving$xmin, surviving$xmax) %in% c("1 3", "3 5")))
+  expect_false(any(paste(surviving$xmin, surviving$xmax) == "2 4"))
+
+  # The surviving comparisons must be multiplicity-corrected TOGETHER, exactly as
+  # if only those two comparisons had been requested (not left with the raw,
+  # unadjusted p as p.adj). Otherwise p.adj / p.adj.signif would be wrong (#542).
+  clean <- ggboxplot(dat, x = "Cond", y = "Value") +
+    geom_pwc(
+      method = "t_test",
+      method.args = list(comparisons = list(c(1, 3), c(3, 5)))
+    )
+  clean.test <- suppressMessages(ggplot2::ggplot_build(clean))$data[[2]]
+  key <- function(d) paste(d$xmin, d$xmax)
+  ord.s <- order(key(surviving))
+  ord.c <- order(key(unique(clean.test[, c("xmin", "xmax", "p", "p.adj")])))
+  clean.u <- unique(clean.test[, c("xmin", "xmax", "p", "p.adj")])
+  expect_equal(surviving$p[ord.s], clean.u$p[ord.c])
+  expect_equal(surviving$p.adj[ord.s], clean.u$p.adj[ord.c])
+})
+
+test_that("geom_pwc drops only the untestable pair per facet, keeping valid ones (#542 faceted)", {
+  set.seed(1)
+  # Reporter's scenario: two facets; in Sample2 group D is all-NA and B has a
+  # single value, so B-D is untestable there but A-C / C-E are valid. Sample1 is
+  # fully testable. Each facet must keep its own valid comparisons.
+  dataset <- data.frame(
+    Sample = rep(c("Sample1", "Sample2"), each = 15),
+    Cond = factor(rep(rep(c("A", "B", "C", "D", "E"), each = 3), 2)),
+    Value = c(runif(3, 10, 12), runif(3, 11, 14), runif(3, 8, 13),
+              runif(3, 7, 10), runif(3, 10, 15),
+              runif(3, 10, 12), c(NA, 11, NA), runif(3, 8, 13),
+              c(NA, NA, NA), runif(3, 10, 15))
+  )
+  p <- ggplot2::ggplot(dataset, ggplot2::aes(Cond, Value)) +
+    ggplot2::geom_jitter(width = 0.2) +
+    ggplot2::facet_wrap(~Sample) +
+    geom_pwc(
+      method = "t_test",
+      method.args = list(comparisons = list(c(1, 3), c(3, 5), c(2, 4)))
+    )
+  expect_message(
+    b <- ggplot2::ggplot_build(p),
+    "geom_pwc\\(\\): skipped 1 untestable comparison\\(s\\): 2 vs 4"
+  )
+  stat.test <- b$data[[2]]
+  by.panel <- split(stat.test, stat.test$PANEL)
+  pair.set <- function(d) sort(unique(paste(d$xmin, d$xmax)))
+  # Sample1 (PANEL 1): all three comparisons; Sample2 (PANEL 2): 2 vs 4 dropped.
+  expect_equal(pair.set(by.panel[["1"]]), c("1 3", "2 4", "3 5"))
+  expect_equal(pair.set(by.panel[["2"]]), c("1 3", "3 5"))
+})
+
+test_that("geom_pwc explicit comparisons are unchanged when all pairs are testable (#542 no-regression)", {
+  # Same call but on data with no untestable pair: no skip message, and all
+  # three requested comparisons are drawn (byte-identical to previous behavior).
+  df2 <- ToothGrowth
+  df2$dose <- as.factor(df2$dose)
+  p <- ggboxplot(df2, x = "dose", y = "len") +
+    geom_pwc(
+      method = "t_test",
+      method.args = list(comparisons = list(c(1, 2), c(2, 3), c(1, 3)))
+    )
+  expect_no_message(
+    b <- ggplot2::ggplot_build(p),
+    message = "geom_pwc\\(\\): skipped"
+  )
+  stat.test <- b$data[[2]]
+  expect_equal(nrow(unique(stat.test[, c("xmin", "xmax")])), 3)
+})
+
+# All-NA group placement (#575) -----------------------------------
+test_that("geom_pwc places brackets over the correct groups when a group is all-NA (#575)", {
+  # Group "a" is entirely NA; its rows are dropped before the stat runs, so the
+  # only comparison is b vs c. The bracket must sit over b (x=2) and c (x=3),
+  # not shift left to a-b (x=1,2). See #575.
+  test <- data.frame(
+    x = rep(c("a", "b", "c"), each = 4),
+    y = c(NA, NA, NA, NA, 5:12)
+  )
+  p <- ggplot(test, aes(x, y)) +
+    ggplot2::geom_point() +
+    geom_pwc()
+  b <- ggplot2::ggplot_build(p)
+  st <- b$data[[which(vapply(
+    b$data, function(d) all(c("xmin", "xmax") %in% colnames(d)), logical(1)
+  ))[1]]]
+  st <- unique(st[, c("group1", "group2", "xmin", "xmax")])
+  expect_equal(nrow(st), 1L)
+  expect_equal(as.character(st$group1), "2")
+  expect_equal(as.character(st$group2), "3")
+  expect_equal(as.numeric(st$xmin), 2)
+  expect_equal(as.numeric(st$xmax), 3)
+})
+
+test_that("geom_pwc all-NA fix leaves the fully-populated case unchanged (#575)", {
+  # No NA groups: every pairwise bracket keeps its natural position.
+  tn <- data.frame(x = rep(c("a", "b", "c"), each = 4), y = 1:12)
+  p <- ggplot(tn, aes(x, y)) + ggplot2::geom_point() + geom_pwc()
+  b <- ggplot2::ggplot_build(p)
+  st <- b$data[[which(vapply(
+    b$data, function(d) all(c("xmin", "xmax") %in% colnames(d)), logical(1)
+  ))[1]]]
+  st <- unique(st[, c("xmin", "xmax")])
+  st$xmin <- as.numeric(st$xmin)
+  st$xmax <- as.numeric(st$xmax)
+  st <- st[order(st$xmin, st$xmax), ]
+  expect_equal(st$xmin, c(1, 1, 2))
+  expect_equal(st$xmax, c(2, 3, 3))
 })

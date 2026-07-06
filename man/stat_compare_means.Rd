@@ -9,6 +9,7 @@ stat_compare_means(
   data = NULL,
   method = NULL,
   paired = FALSE,
+  id = NULL,
   method.args = list(),
   ref.group = NULL,
   comparisons = NULL,
@@ -24,6 +25,16 @@ stat_compare_means(
   bracket.size = 0.3,
   step.increase = 0,
   symnum.args = list(),
+  p.format.style = "default",
+  p.digits = NULL,
+  p.leading.zero = NULL,
+  p.min.threshold = NULL,
+  p.decimal.mark = NULL,
+  signif.cutoffs = NULL,
+  signif.symbols = NULL,
+  ns.symbol = "ns",
+  use.four.stars = FALSE,
+  show.signif = TRUE,
   geom = "text",
   position = "identity",
   na.rm = FALSE,
@@ -59,6 +70,14 @@ comparing means.}
 \item{paired}{a logical indicating whether you want a paired test. Used only
 in \code{\link[stats]{t.test}} and in \link[stats]{wilcox.test}.}
 
+\item{id}{optional character string naming a column that identifies matched
+subjects for a \strong{paired} comparison (\code{paired = TRUE}, with
+\code{method = "t.test"} or \code{"wilcox.test"}, and without
+\code{comparisons}). Without it the paired test pairs observations by row
+order, so the p-value is wrong when the data are not sorted so that the
+compared groups align by subject. Providing \code{id} pairs the observations
+by subject id instead (row-order independent); see \code{\link{compare_means}}.}
+
 \item{method.args}{a list of additional arguments used for the test method.
 For example one might use \code{method.args = list(alternative = "greater")}
 for wilcoxon test.}
@@ -71,18 +90,25 @@ for wilcoxon test.}
  grouping variable levels is compared to all (i.e. basemean).}
 
 \item{comparisons}{A list of length-2 vectors. The entries in the vector are
-either the names of 2 values on the x-axis or the 2 integers that correspond
-to the index of the groups of interest, to be compared.}
+ either the names of 2 values on the x-axis or the 2 integers that correspond
+ to the index of the groups of interest, to be compared.
+
+ Note: when \code{comparisons} is specified, each pairwise test is computed
+ independently and the displayed p-values are \strong{not} adjusted for
+ multiple comparisons. For p-values corrected for multiple testing, use
+ \code{\link{geom_pwc}()}, or \code{\link{stat_pvalue_manual}()} together with
+ \code{\link{compare_means}(..., p.adjust.method = )}.}
 
 \item{hide.ns}{logical value. If TRUE, hide ns symbol when displaying
 significance levels.}
 
 \item{label.sep}{a character string to separate the terms. Default is ", ", to
-separate the correlation coefficient and the p.value.}
+separate the test method name and the p-value.}
 
 \item{label}{character string specifying label type. Allowed values include
-"p.signif" (shows the significance levels), "p.format" (shows the formatted
-p value).}
+\code{"p.signif"} (shows the significance levels), \code{"p.format"} (shows
+the formatted p-value), and \code{"p.format.signif"} (shows the formatted
+p-value followed by significance stars, e.g., "p = 0.01 **").}
 
 \item{label.x.npc, label.y.npc}{can be \code{numeric} or \code{character}
 vector of the same length as the number of groups and/or panels. If too
@@ -98,12 +124,22 @@ for absolute positioning of the label. If too short they will be recycled.}
 
 \item{vjust}{move the text up or down relative to the bracket.}
 
-\item{tip.length}{numeric vector with the fraction of total height that the
- bar goes down to indicate the precise column. Default is 0.03. Can be of
+\item{tip.length}{numeric vector with the fraction that the bracket tips go
+ down to indicate the precise column. Default is 0.03. Can be of
  same length as the number of comparisons to adjust specifically the tip
- lenth of each comparison. For example tip.length = c(0.01, 0.03).
+ length of each comparison. For example tip.length = c(0.01, 0.03).
 
- If too short they will be recycled.}
+ If too short they will be recycled.
+
+ Note: when \code{comparisons} is set, brackets are drawn via
+ \code{ggsignif::geom_signif()} and \code{tip.length} is a fraction of the
+ trained data range, so the absolute tip length scales with your data (plots
+ with different scales get different tip lengths). To obtain visually constant
+ tip lengths across plots, compute the tests with \code{\link{compare_means}()}
+ and draw them with \code{\link{stat_pvalue_manual}(..., tip.length.ref = "axis")}
+ (which makes \code{tip.length} a fraction of the y-axis range). Passing
+ \code{tip.length.ref} directly to \code{stat_compare_means()} has no effect
+ and emits an informative message.}
 
 \item{bracket.size}{Width of the lines of the bracket.}
 
@@ -117,7 +153,50 @@ height for every additional comparison to minimize overlap.}
 
  In other words, we use the following convention for symbols indicating
  statistical significance: \itemize{ \item \code{ns}: p > 0.05 \item
- \code{*}: p <= 0.05 \item \code{**}: p <= 0.01 \item \code{***}: p <= 0.001 \item \code{****}:  p <= 0.0001 }}
+ \code{*}: p <= 0.05 \item \code{**}: p <= 0.01 \item \code{***}: p <= 0.001 \item \code{****}:  p <= 0.0001 }
+
+ Note: If \code{signif.cutoffs} is provided, it takes precedence over
+ \code{symnum.args}.}
+
+\item{p.format.style}{character string specifying the p-value formatting style.
+One of: \code{"default"} (backward compatible, uses scientific notation),
+\code{"apa"} (APA style, no leading zero), \code{"nejm"} (NEJM style),
+\code{"lancet"} (Lancet style), \code{"ama"} (AMA style), \code{"graphpad"}
+(GraphPad style), or \code{"scientific"} (scientific notation for GWAS).
+See \code{\link{list_p_format_styles}} for details.}
+
+\item{p.digits}{integer specifying the number of decimal places for p-values.
+If provided, overrides the style default.}
+
+\item{p.leading.zero}{logical indicating whether to include leading zero before
+decimal point (e.g., "0.05" vs ".05"). If provided, overrides the style default.}
+
+\item{p.min.threshold}{numeric specifying the minimum p-value to display exactly.
+Values below this threshold are shown as "< threshold". If provided, overrides
+the style default.}
+
+\item{p.decimal.mark}{character string to use as the decimal mark. If NULL,
+uses \code{getOption("OutDec")}.}
+
+\item{signif.cutoffs}{numeric vector of p-value cutoffs in descending order
+for assigning significance symbols. For example, \code{c(0.10, 0.05, 0.01)}
+means p < 0.10 gets "*", p < 0.05 gets "**", p < 0.01 gets "***".
+If \code{use.four.stars = TRUE}, can include a fourth level.
+Default is NULL, which uses the package defaults.}
+
+\item{signif.symbols}{character vector of symbols corresponding to
+\code{signif.cutoffs}. If NULL, auto-generated as "*", "**", "***"
+(and "****" if \code{use.four.stars = TRUE}).}
+
+\item{ns.symbol}{character string for non-significant results. Default is "ns".
+Use "" (empty string) to show nothing.}
+
+\item{use.four.stars}{logical. If TRUE, allows four stars (****) for the most
+significant level. Default is FALSE.}
+
+\item{show.signif}{logical. If TRUE (default), shows significance symbols when
+using \code{label = "p.format.signif"}. If FALSE, falls back to showing only
+the p-value (equivalent to \code{label = "p.format"}) with a warning.}
 
 \item{geom}{The geometric object to use to display the data for this layer.
 When using a \verb{stat_*()} function to construct a layer, the \code{geom} argument
@@ -156,18 +235,24 @@ display. To include legend keys for all levels, even
 when no data exists, use \code{TRUE}.  If \code{NA}, all levels are shown in legend,
 but unobserved levels are omitted.}
 
-\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions), 
-overrides the default aesthetics, rather than combining with them. This is 
-most useful for helper functions that define both data and aesthetics and 
-shouldn't inherit behaviour from the default plot specification. Set to 
+\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions),
+overrides the default aesthetics, rather than combining with them. This is
+most useful for helper functions that define both data and aesthetics and
+shouldn't inherit behaviour from the default plot specification. Set to
 \code{TRUE} to inherit aesthetics from the parent ggplot layer.}
 
 \item{...}{other arguments to pass to \code{\link[ggplot2]{geom_text}} or
 \code{\link[ggplot2:geom_text]{geom_label}}.}
 }
 \description{
-Add mean comparison p-values to a ggplot, such as box blots, dot
+Add mean comparison p-values to a ggplot, such as box plots, dot
  plots and stripcharts.
+}
+\details{
+For grouped plots, if one or more subsets do not contain enough levels
+ to identify the requested comparison, those subsets are skipped and valid
+ subsets are still tested. This avoids fatal layer failures in sparse grouped
+ data settings (Issue #663).
 }
 \examples{
 # Load data
@@ -175,49 +260,69 @@ data("ToothGrowth")
 head(ToothGrowth)
 
 # Two independent groups
-#:::::::::::::::::::::::::::::::::::::::::::::::::
-p <- ggboxplot(ToothGrowth, x = "supp", y = "len",
-  color = "supp", palette = "npg", add = "jitter")
+# :::::::::::::::::::::::::::::::::::::::::::::::::
+p <- ggboxplot(ToothGrowth,
+  x = "supp", y = "len",
+  color = "supp", palette = "npg", add = "jitter"
+)
 
 #  Add p-value
 p + stat_compare_means()
 # Change method
 p + stat_compare_means(method = "t.test")
 
- # Paired samples
- #:::::::::::::::::::::::::::::::::::::::::::::::::
- ggpaired(ToothGrowth, x = "supp", y = "len",
-   color = "supp", line.color = "gray", line.size = 0.4,
-   palette = "npg")+
- stat_compare_means(paired = TRUE)
+# Paired samples
+# :::::::::::::::::::::::::::::::::::::::::::::::::
+ggpaired(ToothGrowth,
+  x = "supp", y = "len",
+  color = "supp", line.color = "gray", line.size = 0.4,
+  palette = "npg"
+) +
+  stat_compare_means(paired = TRUE)
+
+# Paired samples matched by a subject id column (row-order independent):
+# `id` gives the correct p-value even when the rows are not in subject order.
+# :::::::::::::::::::::::::::::::::::::::::::::::::
+tg <- ToothGrowth
+tg$id <- c(1:30, 30:1) # subjects, with the second group in reverse order
+ggpaired(tg, x = "supp", y = "len", color = "supp",
+  line.color = "gray", palette = "npg") +
+  stat_compare_means(paired = TRUE, id = "id")
 
 # More than two groups
-#:::::::::::::::::::::::::::::::::::::::::::::::::
+# :::::::::::::::::::::::::::::::::::::::::::::::::
 # Pairwise comparisons: Specify the comparisons you want
-my_comparisons <- list( c("0.5", "1"), c("1", "2"), c("0.5", "2") )
-ggboxplot(ToothGrowth, x = "dose", y = "len",
-          color = "dose", palette = "npg")+
-# Add pairwise comparisons p-value
-stat_compare_means(comparisons = my_comparisons, label.y = c(29, 35, 40))+
-stat_compare_means(label.y = 45)     # Add global Anova p-value
+my_comparisons <- list(c("0.5", "1"), c("1", "2"), c("0.5", "2"))
+ggboxplot(ToothGrowth,
+  x = "dose", y = "len",
+  color = "dose", palette = "npg"
+) +
+  # Add pairwise comparisons p-value
+  stat_compare_means(comparisons = my_comparisons, label.y = c(29, 35, 40)) +
+  stat_compare_means(label.y = 45) # Add global Anova p-value
 
 # Multiple pairwise test against a reference group
-ggboxplot(ToothGrowth, x = "dose", y = "len",
-    color = "dose", palette = "npg")+
-stat_compare_means(method = "anova", label.y = 40)+ # Add global p-value
-stat_compare_means(aes(label = after_stat(p.signif)),
-                  method = "t.test", ref.group = "0.5")
+ggboxplot(ToothGrowth,
+  x = "dose", y = "len",
+  color = "dose", palette = "npg"
+) +
+  stat_compare_means(method = "anova", label.y = 40) + # Add global p-value
+  stat_compare_means(aes(label = after_stat(p.signif)),
+    method = "t.test", ref.group = "0.5"
+  )
 
 # Multiple grouping variables
-#:::::::::::::::::::::::::::::::::::::::::::::::::
+# :::::::::::::::::::::::::::::::::::::::::::::::::
 # Box plot facetted by "dose"
-p <- ggboxplot(ToothGrowth, x = "supp", y = "len",
-              color = "supp", palette = "npg",
-              add = "jitter",
-              facet.by = "dose", short.panel.labs = FALSE)
+p <- ggboxplot(ToothGrowth,
+  x = "supp", y = "len",
+  color = "supp", palette = "npg",
+  add = "jitter",
+  facet.by = "dose", short.panel.labs = FALSE
+)
 # Use only p.format as label. Remove method name.
 p + stat_compare_means(
- aes(label = paste0("p = ", after_stat(p.format)))
+  aes(label = paste0("p = ", after_stat(p.format)))
 )
 
 }

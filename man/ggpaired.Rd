@@ -31,6 +31,7 @@ ggpaired(
   repel = FALSE,
   label.rectangle = FALSE,
   ggtheme = theme_pubr(),
+  jitter = 0,
   ...
 )
 }
@@ -103,7 +104,7 @@ specifying some labels to show. \item a list containing one or the
 combination of the following components: \itemize{ \item \code{top.up} and
 \code{top.down}: to display the labels  of the top up/down points. For
 example, \code{label.select = list(top.up = 10, top.down = 4)}. \item
-\code{criteria}: to filter, for example, by x and y variabes values, use
+\code{criteria}: to filter, for example, by x and y variables values, use
 this: \code{label.select = list(criteria = "`y` > 2 & `y` < 5 & `x` \%in\%
 c('A', 'B')")}. } }}
 
@@ -113,9 +114,18 @@ text labels or not.}
 \item{label.rectangle}{logical value. If TRUE, add rectangle underneath the
 text, making it easier to read.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
+\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr(). Set ggtheme = NULL to skip applying a ggpubr theme, so the plot keeps ggplot2 default theme or the theme set globally via theme_set().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
+
+\item{jitter}{numeric value (default 0, no jitter) giving the amount of
+horizontal jitter added to the paired points to reduce overlap. Points are
+nudged sideways within \code{[-jitter, jitter]}; each subject (\code{id})
+gets a single offset so its two points move together and the connecting
+line stays intact. Only the horizontal positions change (the values are
+never moved). Typical values are small relative to the box \code{width}
+(e.g. \code{jitter = 0.05} to \code{0.1}). \code{jitter = 0} leaves the plot
+unchanged.}
 
 \item{...}{other arguments to be passed to be passed to \link{ggpar}().}
 }
@@ -125,18 +135,22 @@ Plot paired data.
 \examples{
 
 # Example 1
-#::::::::::::::::::::::::::::::::::::::::::
-before <-c(200.1, 190.9, 192.7, 213, 241.4, 196.9, 172.2, 185.5, 205.2, 193.7)
-after <-c(392.9, 393.2, 345.1, 393, 434, 427.9, 422, 383.9, 392.3, 352.2)
+# ::::::::::::::::::::::::::::::::::::::::::
+before <- c(200.1, 190.9, 192.7, 213, 241.4, 196.9, 172.2, 185.5, 205.2, 193.7)
+after <- c(392.9, 393.2, 345.1, 393, 434, 427.9, 422, 383.9, 392.3, 352.2)
 
 d <- data.frame(before = before, after = after)
-ggpaired(d, cond1 = "before", cond2 = "after",
-    fill = "condition", palette = "jco")
+ggpaired(d,
+  cond1 = "before", cond2 = "after",
+  fill = "condition", palette = "jco"
+)
 
 # Example 2
-#::::::::::::::::::::::::::::::::::::::::::
-ggpaired(ToothGrowth, x = "supp", y = "len",
- color = "supp", line.color = "gray", line.size = 0.4,
- palette = "npg")
+# ::::::::::::::::::::::::::::::::::::::::::
+ggpaired(ToothGrowth,
+  x = "supp", y = "len",
+  color = "supp", line.color = "gray", line.size = 0.4,
+  palette = "npg"
+)
 
 }

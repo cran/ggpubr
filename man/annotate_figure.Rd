@@ -14,7 +14,9 @@ annotate_figure(
   fig.lab.pos = c("top.left", "top", "top.right", "bottom.left", "bottom",
     "bottom.right"),
   fig.lab.size,
-  fig.lab.face
+  fig.lab.face,
+  column.titles = NULL,
+  row.titles = NULL
 )
 }
 \arguments{
@@ -32,6 +34,16 @@ annotate_figure(
 
 \item{fig.lab.face}{optional font face of the figure label. Allowed values
 include: "plain", "bold", "italic", "bold.italic".}
+
+\item{column.titles, row.titles}{optional character vector giving one title per
+column / per row of the arranged figure, adding titles above each column and
+to the left of each row (useful for publication grids, see
+\code{\link{ggarrange}()}). Can also be a list of grobs (e.g. built with
+\code{\link{text_grob}()}) for full control over styling; a character vector
+is rendered in bold using the current theme text settings. The titles are
+evenly spaced and therefore assume equal-sized columns / rows (the
+\code{ggarrange()} default), with one entry per column / row. \code{row.titles}
+are rotated 90 degrees.}
 }
 \description{
 Annotate figures including: i) ggplots, ii) arranged ggplots from
@@ -46,11 +58,15 @@ df$dose <- as.factor(df$dose)
 # Create some plots
 # ::::::::::::::::::::::::::::::::::::::::::::::::::
 # Box plot
-bxp <- ggboxplot(df, x = "dose", y = "len",
-    color = "dose", palette = "jco")
+bxp <- ggboxplot(df,
+  x = "dose", y = "len",
+  color = "dose", palette = "jco"
+)
 # Dot plot
-dp <- ggdotplot(df, x = "dose", y = "len",
-    color = "dose", palette = "jco")
+dp <- ggdotplot(df,
+  x = "dose", y = "len",
+  color = "dose", palette = "jco"
+)
 # Density plot
 dens <- ggdensity(df, x = "len", fill = "dose", palette = "jco")
 
@@ -58,19 +74,28 @@ dens <- ggdensity(df, x = "len", fill = "dose", palette = "jco")
 # ::::::::::::::::::::::::::::::::::::::::::::::::::
 figure <- ggarrange(bxp, dp, dens, ncol = 2, nrow = 2)
 annotate_figure(figure,
-               top = text_grob("Visualizing Tooth Growth", color = "red", face = "bold", size = 14),
-               bottom = text_grob("Data source: \n ToothGrowth data set", color = "blue",
-                                  hjust = 1, x = 1, face = "italic", size = 10),
-               left = text_grob("Figure arranged using ggpubr", color = "green", rot = 90),
-               right = text_grob(bquote("Superscript: ("*kg~NH[3]~ha^-1~yr^-1*")"), rot = 90),
-               fig.lab = "Figure 1", fig.lab.face = "bold"
+  top = text_grob("Visualizing Tooth Growth", color = "red", face = "bold", size = 14),
+  bottom = text_grob("Data source: \n ToothGrowth data set",
+    color = "blue",
+    hjust = 1, x = 1, face = "italic", size = 10
+  ),
+  left = text_grob("Figure arranged using ggpubr", color = "green", rot = 90),
+  right = text_grob(bquote("Superscript: (" * kg ~ NH[3] ~ ha^-1 ~ yr^-1 * ")"), rot = 90),
+  fig.lab = "Figure 1", fig.lab.face = "bold"
 )
 
+# Add a title to each column and each row of an arranged grid
+# ::::::::::::::::::::::::::::::::::::::::::::::::::
+grid <- ggarrange(bxp, dp, dens, bxp, ncol = 2, nrow = 2)
+annotate_figure(grid,
+  column.titles = c("Column 1", "Column 2"),
+  row.titles = c("Row 1", "Row 2")
+)
 
 }
 \seealso{
 \code{\link{ggarrange}()}
 }
 \author{
-Alboukadel Kassambara \email{alboukadel.kassambara@gmail.com}
+Laszlo Erdey \email{erdey.laszlo@econ.unideb.hu}
 }

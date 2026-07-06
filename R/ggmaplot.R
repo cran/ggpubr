@@ -1,13 +1,13 @@
 #' @include utilities.R ggpar.R
 NULL
-#'MA-plot from means and log fold changes
-#'@description Make MA-plot which is a scatter plot of log2 fold changes (M, on
+#' MA-plot from means and log fold changes
+#' @description Make MA-plot which is a scatter plot of log2 fold changes (M, on
 #'  the y-axis) versus the average expression signal (A, on the x-axis). \code{M
 #'  = log2(x/y)} and \code{A = (log2(x) + log2(y))/2 = log2(xy)*1/2}, where x
 #'  and y are respectively the mean of the two groups being compared.
-#'@inheritParams ggboxplot
-#'@inheritParams ggpar
-#'@param data an object of class DESeqResults, get_diff, DE_Results, matrix or
+#' @inheritParams ggboxplot
+#' @inheritParams ggpar
+#' @param data an object of class DESeqResults, get_diff, DE_Results, matrix or
 #'  data frame containing the columns baseMean (or baseMeanLog2),
 #'  log2FoldChange, and padj. Rows are genes.
 #'
@@ -24,145 +24,205 @@ NULL
 #'
 #'  \itemize{ \item baseMean: the mean expression of genes in the two groups.
 #'  \item log2FoldChange: the log2 fold changes of group 2 compared to group 1
-#'  \item padj: the adjusted p-value of the used statiscal test. }
-#'@param fdr Accepted false discovery rate for considering genes as
+#'  \item padj: the adjusted p-value of the used statistical test. }
+#' @param fdr Accepted false discovery rate for considering genes as
 #'  differentially expressed.
-#'@param fc the fold change threshold. Only genes with a fold change >= fc and
+#' @param fc the fold change threshold. Only genes with a fold change >= fc and
 #'  padj <= fdr are considered as significantly differentially expressed.
-#'@param genenames a character vector of length nrow(data) specifying gene names
+#' @param genenames a character vector of length nrow(data) specifying gene names
 #'  corresponding to each row. Used for point labels.
-#'@param detection_call a numeric vector with length = nrow(data), specifying if
+#' @param detection_call a numeric vector with length = nrow(data), specifying if
 #'  the genes is expressed (value = 1) or not (value = 0). For example
 #'  detection_call = c(1, 1, 0, 1, 0, 1). Default is NULL. If detection_call
 #'  column is available in data, it will be used.
-#'@param size points size.
-#'@param alpha numeric value betwenn 0 an 1 specifying point alpha for
+#' @param size points size.
+#' @param alpha numeric value between 0 and 1 specifying point alpha for
 #'  controlling transparency. For example, use alpha = 0.5.
-#'@param seed Random seed passed to \code{set.seed}. if
+#' @param seed Random seed passed to \code{set.seed}. if
 #'  \code{NA}, set.seed will not be called. Default is 42 for reproducibility.
-#'@param font.label a vector of length 3 indicating respectively the size (e.g.:
+#' @param font.label a vector of length 3 indicating respectively the size (e.g.:
 #'  14), the style (e.g.: "plain", "bold", "italic", "bold.italic") and the
 #'  color (e.g.: "red") of point labels. For example \emph{font.label = c(14,
 #'  "bold", "red")}.
-#'@param label.rectangle logical value. If TRUE, add rectangle underneath the
+#' @param label.rectangle logical value. If TRUE, add rectangle underneath the
 #'  text, making it easier to read.
-#'@param top the number of top genes to be shown on the plot. Use top = 0 to
+#' @param top the number of top genes to be shown on the plot. Use top = 0 to
 #'  hide to gene labels.
-#'@param select.top.method methods to be used for selecting top genes. Allowed
+#' @param select.top.method methods to be used for selecting top genes. Allowed
 #'  values include "padj" and "fc" for selecting by adjusted p values or fold
 #'  changes, respectively.
-#'@param label.select character vector specifying some labels to show.
-#'@param ... other arguments to be passed to \code{\link{ggpar}}.
-#'@return returns a ggplot.
+#' @param label.select character vector specifying some labels to show.
+#' @param facet.by character vector, of length 1 or 2, specifying grouping
+#'   variables for faceting the plot into multiple panels (one MA plot per group).
+#'   The variable(s) must be columns of \code{data} (supplied as a data frame). The
+#'   top genes are selected \emph{per panel}; point colors use the same
+#'   significance thresholds in every panel. Default is NULL (no faceting), in
+#'   which case the output is unchanged.
+#' @param line.color color of the horizontal threshold lines (the central line
+#'   at 0 and the two fold-change cutoff lines). Default is "black".
+#' @param ggtheme function, ggplot2 theme name. Default value is
+#'   \code{theme_classic()}. Set \code{ggtheme = NULL} to skip applying a ggpubr
+#'   theme, so the plot keeps ggplot2 default theme or the theme set globally via
+#'   \code{theme_set()}.
+#' @param ... other arguments to be passed to \code{\link{ggpar}}.
+#' @return a ggplot.
 #' @examples
 #' data(diff_express)
 #'
 #' # Default plot
-#'ggmaplot(diff_express, main = expression("Group 1" %->% "Group 2"),
-#'    fdr = 0.05, fc = 2, size = 0.4,
-#'    palette = c("#B31B21", "#1465AC", "darkgray"),
-#'    genenames = as.vector(diff_express$name),
-#'    legend = "top", top = 20,
-#'    font.label = c("bold", 11),
-#'    font.legend = "bold",
-#'    font.main = "bold",
-#'    ggtheme = ggplot2::theme_minimal())
+#' ggmaplot(diff_express,
+#'   main = expression("Group 1" %->% "Group 2"),
+#'   fdr = 0.05, fc = 2, size = 0.4,
+#'   palette = c("#B31B21", "#1465AC", "darkgray"),
+#'   genenames = as.vector(diff_express$name),
+#'   legend = "top", top = 20,
+#'   font.label = c("bold", 11),
+#'   font.legend = "bold",
+#'   font.main = "bold",
+#'   ggtheme = ggplot2::theme_minimal()
+#' )
 #'
 #' # Add rectangle around labels
-#'ggmaplot(diff_express, main = expression("Group 1" %->% "Group 2"),
-#'    fdr = 0.05, fc = 2, size = 0.4,
-#'    palette = c("#B31B21", "#1465AC", "darkgray"),
-#'    genenames = as.vector(diff_express$name),
-#'    legend = "top", top = 20,
-#'    font.label = c("bold", 11), label.rectangle = TRUE,
-#'    font.legend = "bold",
-#'    font.main = "bold",
-#'    ggtheme = ggplot2::theme_minimal())
+#' ggmaplot(diff_express,
+#'   main = expression("Group 1" %->% "Group 2"),
+#'   fdr = 0.05, fc = 2, size = 0.4,
+#'   palette = c("#B31B21", "#1465AC", "darkgray"),
+#'   genenames = as.vector(diff_express$name),
+#'   legend = "top", top = 20,
+#'   font.label = c("bold", 11), label.rectangle = TRUE,
+#'   font.legend = "bold",
+#'   font.main = "bold",
+#'   ggtheme = ggplot2::theme_minimal()
+#' )
 #'
 #' # Select specific genes to show
 #' # set top = 0, then specify genes using label.select argument
-#' ggmaplot(diff_express, main = expression("Group 1" %->% "Group 2"),
-#'          fdr = 0.05, fc = 2, size = 0.4,
-#'          genenames = as.vector(diff_express$name),
-#'          ggtheme = ggplot2::theme_minimal(),
-#'          top = 0, label.select = c("BUB1", "CD83")
+#' ggmaplot(diff_express,
+#'   main = expression("Group 1" %->% "Group 2"),
+#'   fdr = 0.05, fc = 2, size = 0.4,
+#'   genenames = as.vector(diff_express$name),
+#'   ggtheme = ggplot2::theme_minimal(),
+#'   top = 0, label.select = c("BUB1", "CD83")
 #' )
 #'
-#'@export
-ggmaplot <- function (data, fdr = 0.05, fc = 1.5, genenames = NULL,
+#' @export
+ggmaplot <- function(data, fdr = 0.05, fc = 1.5, genenames = NULL,
                      detection_call = NULL, size = NULL, alpha = 1,
                      seed = 42,
                      font.label = c(12, "plain", "black"), label.rectangle = FALSE,
                      palette = c("#B31B21", "#1465AC", "darkgray"),
                      top = 15, select.top.method = c("padj", "fc"),
-                     label.select = NULL,
-                     main = NULL, xlab = "Log2 mean expression",  ylab = "Log2 fold change",
-                     ggtheme = theme_classic(),...)
-{
-
-  if(!base::inherits(data, c("matrix", "data.frame", "DataFrame", "DE_Results", "DESeqResults")))
+                     label.select = NULL, facet.by = NULL,
+                     main = NULL, xlab = "Log2 mean expression", ylab = "Log2 fold change",
+                     line.color = "black",
+                     ggtheme = theme_classic(), ...) {
+  if (!base::inherits(data, c("matrix", "data.frame", "DataFrame", "DE_Results", "DESeqResults"))) {
     stop("data must be an object of class matrix, data.frame, DataFrame, DE_Results or DESeqResults")
-  if(!is.null(detection_call)){
-    if(nrow(data)!=length(detection_call))
+  }
+  if (!is.null(detection_call)) {
+    if (nrow(data) != length(detection_call)) {
       stop("detection_call must be a numeric vector of length = nrow(data)")
-  }
-  else if("detection_call" %in% colnames(data)){
+    }
+  } else if ("detection_call" %in% colnames(data)) {
     detection_call <- as.vector(data$detection_call)
+  } else {
+    detection_call <- rep(1, nrow(data))
   }
-  else detection_call = rep(1, nrow(data))
 
-  # Legend position
-  if(is.null(list(...)$legend)) legend <- c(0.12, 0.9)
   # If basemean logged, we'll leave it as is, otherwise log2 transform
   is.basemean.logged <- "baseMeanLog2" %in% colnames(data)
-  if(is.basemean.logged){
+  if (is.basemean.logged) {
     data$baseMean <- data$baseMeanLog2
-  }
-  else if("baseMean" %in% colnames(data)){
-    data$baseMean <- log2(data$baseMean +1)
+  } else if ("baseMean" %in% colnames(data)) {
+    data$baseMean <- log2(data$baseMean + 1)
   }
 
   # Check data format
   ss <- base::setdiff(c("baseMean", "log2FoldChange", "padj"), colnames(data))
-  if(length(ss)>0) stop("The colnames of data must contain: ",
-                        paste(ss, collapse = ", "))
+  if (length(ss) > 0) {
+    stop(
+      "The colnames of data must contain: ",
+      paste(ss, collapse = ", ")
+    )
+  }
 
-  if(is.null(genenames)) genenames <- rownames(data)
-  else if(length(genenames)!=nrow(data))
-  stop("genenames should be of length nrow(data).")
+  if (is.null(genenames)) {
+    genenames <- rownames(data)
+  } else if (length(genenames) != nrow(data)) {
+    stop("genenames should be of length nrow(data).")
+  }
+
+  # #498: an optional facet.by builds a faceted MA plot. Capture the faceting
+  # column(s) now - before the data frame is rebuilt below - so they can be
+  # carried into the plotted layers; the top genes are then selected per facet.
+  if (!is.null(facet.by)) {
+    facet.by <- as.character(facet.by)
+    miss <- base::setdiff(facet.by, colnames(data))
+    if (length(miss) > 0) {
+      stop("facet.by column(s) not found in data: ", paste(miss, collapse = ", "),
+           ". Provide 'data' as a data frame containing the faceting variable(s).")
+    }
+    facet_data <- as.data.frame(data)[, facet.by, drop = FALSE]
+  } else {
+    facet_data <- NULL
+  }
 
   sig <- rep(3, nrow(data))
-  sig[which(data$padj <= fdr & data$log2FoldChange < 0 & abs(data$log2FoldChange) >= log2(fc) & detection_call ==1)] = 2
-  sig[which(data$padj <= fdr & data$log2FoldChange > 0 & abs(data$log2FoldChange) >= log2(fc) & detection_call ==1)] = 1
-  data <- data.frame(name = genenames, mean = data$baseMean, lfc = data$log2FoldChange,
-                  padj = data$padj, sig = sig)
+  sig[which(data$padj <= fdr & data$log2FoldChange < 0 & abs(data$log2FoldChange) >= log2(fc) & detection_call == 1)] <- 2
+  sig[which(data$padj <= fdr & data$log2FoldChange > 0 & abs(data$log2FoldChange) >= log2(fc) & detection_call == 1)] <- 1
+  data <- data.frame(
+    name = genenames, mean = data$baseMean, lfc = data$log2FoldChange,
+    padj = data$padj, sig = sig
+  )
+  # #498: carry the faceting column(s) into the plotted data (only when faceting,
+  # so an external facet() without facet.by still errors honestly instead of
+  # silently using globally-selected top genes). Row order is preserved above.
+  if (!is.null(facet_data)) data <- cbind(data, facet_data)
 
   # Change level labels
   . <- NULL
   data$sig <- as.factor(data$sig)
   .lev <- .levels(data$sig) %>% as.numeric()
-   palette <- palette[.lev]
-  new.levels <- c(
-    paste0("Up: ", sum(sig == 1)),
-    paste0("Down: ", sum(sig == 2)),
-    "NS"
-  ) %>% .[.lev]
+  palette <- palette[.lev]
+  if (is.null(facet.by)) {
+    new.levels <- c(
+      paste0("Up: ", sum(sig == 1)),
+      paste0("Down: ", sum(sig == 2)),
+      "NS"
+    ) %>% .[.lev]
+  } else {
+    # #498: the Up/Down counts are global and cannot be shown per-panel in one
+    # shared legend, so use plain labels when faceting to avoid misleading counts.
+    new.levels <- c("Up", "Down", "NS") %>% .[.lev]
+  }
 
   data$sig <- factor(data$sig, labels = new.levels)
 
 
   # Ordering for selecting top gene
   select.top.method <- match.arg(select.top.method)
-  if(select.top.method == "padj") data <- data[order(data$padj), ]
-  else if(select.top.method == "fc") data <- data[order(abs(data$lfc), decreasing = TRUE), ]
+  if (select.top.method == "padj") {
+    data <- data[order(data$padj), ]
+  } else if (select.top.method == "fc") data <- data[order(abs(data$lfc), decreasing = TRUE), ]
   # select data for top genes
   complete_data <- stats::na.omit(data)
-  labs_data <- subset(complete_data, padj <= fdr & name!="" & abs(lfc) >= log2(fc))
-  labs_data <- utils::head(labs_data, top)
+  labs_data <- subset(complete_data, padj <= fdr & name != "" & abs(lfc) >= log2(fc))
+  if (is.null(facet.by)) {
+    labs_data <- utils::head(labs_data, top)
+  } else {
+    # #498: select the top genes PER facet. `data` is already ordered by the
+    # select.top.method key, so taking the first `top` rows within each facet
+    # group keeps that ordering.
+    labs_data <- labs_data %>%
+      dplyr::group_by(dplyr::across(dplyr::all_of(facet.by))) %>%
+      dplyr::slice_head(n = top) %>%
+      dplyr::ungroup() %>%
+      as.data.frame()
+  }
   # Select some specific labels to show
-  if(!is.null(label.select)){
-    selected_labels  <- complete_data %>%
-      subset(complete_data$name  %in% label.select, drop = FALSE)
+  if (!is.null(label.select)) {
+    selected_labels <- complete_data %>%
+      subset(complete_data$name %in% label.select, drop = FALSE)
     labs_data <- dplyr::bind_rows(labs_data, selected_labels) %>%
       dplyr::distinct(.data$name, .keep_all = TRUE)
   }
@@ -173,35 +233,65 @@ ggmaplot <- function (data, fdr = 0.05, fc = 1.5, genenames = NULL,
   font.label$color <- ifelse(is.null(font.label$color), "black", font.label$color)
   font.label$face <- ifelse(is.null(font.label$face), "plain", font.label$face)
 
+  # Draw the non-significant ("NS") points first (behind) so the significant
+  # Up/Down points are plotted on top and remain visible; the data was ordered
+  # by padj, which otherwise put the NS points last and hid the significant hits
+  # (#365). Stable ordering keeps the factor levels (and thus the legend) intact.
+  is.ns <- as.character(data$sig) == "NS"
+  data <- data[order(!is.ns), ]
+
   # Plot
-  mean <- lfc <- sig <- name <- padj <-  NULL
-  p <- ggplot(data, aes(x = mean, y = lfc)) +
-    geom_point(aes(color = sig), size = size, alpha = alpha)
-
-  max.overlaps = getOption("ggrepel.max.overlaps", default = Inf)
-
-  if(label.rectangle){
-    p <- p + ggrepel::geom_label_repel(data = labs_data, mapping = aes(label = name),
-                                      box.padding = unit(0.35, "lines"),
-                                      point.padding = unit(0.3, "lines"),
-                                      force = 1, seed = seed, fontface = font.label$face,
-                                      size = font.label$size/3, color = font.label$color,
-                                      max.overlaps = max.overlaps)
-  }
-  else{
-     p <- p + ggrepel::geom_text_repel(data = labs_data, mapping = aes(label = name),
-                             box.padding = unit(0.35, "lines"),
-                             point.padding = unit(0.3, "lines"),
-                             force = 1, seed = seed, fontface = font.label$face,
-                             size = font.label$size/3, color = font.label$color,
-                             max.overlaps = max.overlaps)
+  mean <- lfc <- sig <- name <- padj <- NULL
+  # `size` defaults to NULL; passing it as an empty aesthetic warns, so only set
+  # it when the user supplied a value (NULL keeps ggplot2's default point size).
+  p <- ggplot(data, aes(x = mean, y = lfc))
+  if (is.null(size)) {
+    p <- p + geom_point(aes(color = sig), alpha = alpha)
+  } else {
+    p <- p + geom_point(aes(color = sig), size = size, alpha = alpha)
   }
 
-  p <- p + scale_x_continuous(breaks=seq(0, max(data$mean), 2))+
-    labs(x = xlab, y = ylab, title = main, color = "")+ # to remove legend title use color = ""
-    geom_hline(yintercept = c(0, -log2(fc), log2(fc)), linetype = c(1, 2, 2),
-               color = c("black", "black", "black"))
+  max.overlaps <- getOption("ggrepel.max.overlaps", default = Inf)
+
+  if (label.rectangle) {
+    p <- p + ggrepel::geom_label_repel(
+      data = labs_data, mapping = aes(label = name),
+      box.padding = unit(0.35, "lines"),
+      point.padding = unit(0.3, "lines"),
+      force = 1, seed = seed, fontface = font.label$face,
+      size = font.label$size / 3, color = font.label$color,
+      max.overlaps = max.overlaps
+    )
+  } else {
+    p <- p + ggrepel::geom_text_repel(
+      data = labs_data, mapping = aes(label = name),
+      box.padding = unit(0.35, "lines"),
+      point.padding = unit(0.3, "lines"),
+      force = 1, seed = seed, fontface = font.label$face,
+      size = font.label$size / 3, color = font.label$color,
+      max.overlaps = max.overlaps
+    )
+  }
+
+  p <- p + scale_x_continuous(breaks = seq(0, max(data$mean), 2)) +
+    labs(x = xlab, y = ylab, title = main, color = "") # to remove legend title use color = ""
+  if (is.null(facet.by)) {
+    p <- p + geom_hline(
+      yintercept = c(0, -log2(fc), log2(fc)), linetype = c(1, 2, 2),
+      color = line.color
+    )
+  } else {
+    # #498: a single geom_hline with a vectorised linetype breaks under faceting
+    # (the yintercept recycles per panel but the linetype does not), so draw the
+    # solid zero line and the two dashed threshold lines as separate facet-safe
+    # layers. The rendered result is the same three lines.
+    p <- p +
+      geom_hline(yintercept = 0, linetype = 1, color = line.color) +
+      geom_hline(yintercept = c(-log2(fc), log2(fc)), linetype = 2, color = line.color)
+  }
 
   p <- ggpar(p, palette = palette, ggtheme = ggtheme, ...)
+  # #498: split into one panel per facet.by group
+  if (!is.null(facet.by)) p <- facet(p, facet.by = facet.by)
   p
 }

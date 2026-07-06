@@ -136,7 +136,7 @@ probability.}
  "euclid")} for plotting concentration ellipses.
 
  \itemize{ \item \code{"convex"}: plot convex hull of a set o points. \item
- \code{"confidence"}: plot confidence ellipses arround group mean points as
+ \code{"confidence"}: plot confidence ellipses around group mean points as
  \code{FactoMineR::coord.ellipse()}. \item \code{"t"}:
  assumes a multivariate t-distribution. \item \code{"norm"}: assumes a
  multivariate normal distribution. \item \code{"euclid"}: draws a circle with
@@ -203,7 +203,7 @@ coordinates of the correlation coefficient. Default values are NULL.}
 the default, includes if any aesthetics are mapped. FALSE never includes,
 and TRUE always includes.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
+\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr(). Set ggtheme = NULL to skip applying a ggpubr theme, so the plot keeps ggplot2 default theme or the theme set globally via theme_set().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
 
@@ -231,52 +231,60 @@ head(df[, c("wt", "mpg", "cyl")], 3)
 
 # Basic plot
 # +++++++++++++++++++++++++++
-ggscatter(df, x = "wt", y = "mpg",
-   color = "black", shape = 21, size = 3, # Points color, shape and size
-   add = "reg.line",  # Add regressin line
-   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
-   conf.int = TRUE, # Add confidence interval
-   cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
-   cor.coeff.args = list(method = "pearson", label.x = 3, label.sep = "\n")
-   )
+ggscatter(df,
+  x = "wt", y = "mpg",
+  color = "black", shape = 21, size = 3, # Points color, shape and size
+  add = "reg.line", # Add regressin line
+  add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+  conf.int = TRUE, # Add confidence interval
+  cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+  cor.coeff.args = list(method = "pearson", label.x = 3, label.sep = "\n")
+)
 
 # loess method: local regression fitting
-ggscatter(df, x = "wt", y = "mpg",
-   add = "loess", conf.int = TRUE)
+ggscatter(df,
+  x = "wt", y = "mpg",
+  add = "loess", conf.int = TRUE
+)
 
 
 # Control point size by continuous variable values ("qsec")
-ggscatter(df, x = "wt", y = "mpg",
-   color = "#00AFBB", size = "qsec")
+ggscatter(df,
+  x = "wt", y = "mpg",
+  color = "#00AFBB", size = "qsec"
+)
 
 
 # Change colors
 # +++++++++++++++++++++++++++
 # Use custom color palette
 # Add marginal rug
-ggscatter(df, x = "wt", y = "mpg", color = "cyl",
-   palette = c("#00AFBB", "#E7B800", "#FC4E07") )
-
-
+ggscatter(df,
+  x = "wt", y = "mpg", color = "cyl",
+  palette = c("#00AFBB", "#E7B800", "#FC4E07")
+)
 
 
 # Add group ellipses and mean points
 # Add stars
 # +++++++++++++++++++
-ggscatter(df, x = "wt", y = "mpg",
-   color = "cyl", shape = "cyl",
-   palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-   ellipse = TRUE, mean.point = TRUE,
-   star.plot = TRUE)
+ggscatter(df,
+  x = "wt", y = "mpg",
+  color = "cyl", shape = "cyl",
+  palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  ellipse = TRUE, mean.point = TRUE,
+  star.plot = TRUE
+)
 
 
 # Textual annotation
 # +++++++++++++++++
 df$name <- rownames(df)
-ggscatter(df, x = "wt", y = "mpg",
-   color = "cyl", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-   label = "name", repel = TRUE)
-
+ggscatter(df,
+  x = "wt", y = "mpg",
+  color = "cyl", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  label = "name", repel = TRUE
+)
 
 }
 \seealso{

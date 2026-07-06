@@ -1,21 +1,28 @@
 #' @include utilities.R
 #' @import ggplot2
 NULL
-#'Publication ready theme
+#' Publication ready theme
 #'
-#'@description \itemize{ \item \strong{theme_pubr()}: Create a publication ready
+#' @description \itemize{ \item \strong{theme_pubr()}: Create a publication ready
 #'  theme \item \strong{theme_pubclean()}: a clean theme without axis lines, to
 #'  direct more attention to the data.  \item \strong{labs_pubr()}: Format only
 #'  plot labels to a publication ready style \item \strong{theme_classic2()}:
 #'  Create a classic theme with axis lines. \item \strong{clean_theme()}: Remove
 #'  axis lines, ticks, texts and titles. \item \strong{clean_table_theme()}:
-#'  Clean the the theme of a table, such as those created by
+#'  Clean the theme of a table, such as those created by
 #'  \code{\link{ggsummarytable}()}}.
-#'@param base_size base font size
-#'@param base_family base font family
-#'@param border logical value. Default is FALSE. If TRUE, add panel border.
-#'@param margin logical value. Default is TRUE. If FALSE, reduce plot margin.
-#'@param legend character specifying legend position. Allowed values are one of
+#' @details \code{theme_pubr()} sets \code{strip.clip = "off"} so that the facet
+#'  strip background border is drawn at its full width (with the ggplot2 default
+#'  \code{strip.clip = "on"} the border is clipped to the strip area and renders
+#'  thinner than requested). As a side effect, a facet label that is wider than
+#'  its panel will overflow the strip instead of being truncated; if that is a
+#'  problem for very long labels, restore clipping with
+#'  \code{+ theme(strip.clip = "on")}.
+#' @param base_size base font size
+#' @param base_family base font family
+#' @param border logical value. Default is FALSE. If TRUE, add panel border.
+#' @param margin logical value. Default is TRUE. If FALSE, reduce plot margin.
+#' @param legend character specifying legend position. Allowed values are one of
 #'  c("top", "bottom", "left", "right", "none"). Default is "top" side position.
 #'  to remove the legend use legend = "none". Legend position can be also
 #'  specified using a numeric vector c(x, y).  In this case it is possible to
@@ -23,13 +30,13 @@ NULL
 #'  the legend box. Their values should be between 0 and 1. c(0,0) corresponds
 #'  to the "bottom left" and c(1,1) corresponds to the "top right" position. For
 #'  instance use legend = c(0.8, 0.2).
-#'@param x.text.angle Rotation angle of x axis tick labels. Default value is 0.
+#' @param x.text.angle Rotation angle of x axis tick labels. Default value is 0.
 #'  Use 90 for vertical text.
-#'@param flip logical. If TRUE, grid lines are added to y axis instead of x
+#' @param flip logical. If TRUE, grid lines are added to y axis instead of x
 #'  axis.
 #' @examples
 #' p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
-#'    geom_point(aes(color = gear))
+#'   geom_point(aes(color = gear))
 #'
 #' # Default plot
 #' p
@@ -40,68 +47,80 @@ NULL
 #' # Format labels
 #' p + labs_pubr()
 #'
-#'@name theme_pubr
-#'@rdname theme_pubr
-#'@export
-theme_pubr <- function (base_size = 12, base_family = "",
-                        border = FALSE, margin = TRUE,
-                        legend = c("top", "bottom", "left", "right", "none"),
-                        x.text.angle = 0)
-{
-  half_line <- base_size/2
-  if(!is.numeric(legend)) legend <- match.arg(legend)
-  if(x.text.angle > 5) xhjust <- 1 else xhjust <- NULL
+#' @name theme_pubr
+#' @rdname theme_pubr
+#' @export
+theme_pubr <- function(base_size = 12, base_family = "",
+                       border = FALSE, margin = TRUE,
+                       legend = c("top", "bottom", "left", "right", "none"),
+                       x.text.angle = 0) {
+  half_line <- base_size / 2
+  if (!is.numeric(legend)) legend <- match.arg(legend)
+  if (x.text.angle > 5) xhjust <- 1 else xhjust <- NULL
 
-  if(border){
+  if (border) {
     panel.border <- element_rect(fill = NA, colour = "black", linewidth = 0.7)
     axis.line <- element_blank()
-  }
-  else{
+  } else {
     panel.border <- element_blank()
-    axis.line = element_line(colour = "black", linewidth = 0.5)
+    axis.line <- element_line(colour = "black", linewidth = 0.5)
   }
 
 
-  if(margin)
-    plot.margin <- margin(half_line, half_line, half_line,
-                          half_line)
-  else plot.margin <- unit(c(0.5,0.3,0.3,0.3),"mm")
+  if (margin) {
+    plot.margin <- margin(
+      half_line, half_line, half_line,
+      half_line
+    )
+  } else {
+    plot.margin <- unit(c(0.5, 0.3, 0.3, 0.3), "mm")
+  }
 
   .theme <- theme_bw(base_size = base_size, base_family = base_family) %+replace%
-    theme(panel.border = panel.border,
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          axis.line = axis.line, axis.text = element_text(color = "black"),
-          legend.key = element_blank(),
-          strip.background = element_rect(fill = "#F2F2F2", colour = "black", linewidth = 0.7),
-          plot.margin = plot.margin,
-          legend.position = legend,
-          complete = TRUE)
+    theme(
+      panel.border = panel.border,
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = axis.line, axis.text = element_text(color = "black"),
+      # Match the tick marks to the axis lines (black, 0.5); by default they
+      # inherited a lighter grey/thinner style, visibly inconsistent when zoomed
+      # (#668).
+      axis.ticks = element_line(colour = "black", linewidth = 0.5),
+      legend.key = element_blank(),
+      strip.background = element_rect(fill = "#F2F2F2", colour = "black", linewidth = 0.7),
+      # Don't clip the facet strip background to the strip area: by default
+      # ggplot2 (>= 3.5.0) clips it, which cuts the outer half of the strip's
+      # border stroke so it renders thinner than the requested linewidth and
+      # looks misaligned with the panel/axis lines when zoomed (follow-up to
+      # the tick-consistency fix in #668).
+      strip.clip = "off",
+      plot.margin = plot.margin,
+      legend.position = legend,
+      complete = TRUE
+    )
 
-  if(x.text.angle!=0)
+  if (x.text.angle != 0) {
     .theme <- .theme + theme(axis.text.x = element_text(angle = x.text.angle, hjust = xhjust))
+  }
 
   .theme
 }
 
 #' @rdname theme_pubr
 #' @export
-theme_pubclean <- function (base_size = 12, base_family = "", flip = FALSE)
-{
+theme_pubclean <- function(base_size = 12, base_family = "", flip = FALSE) {
   res <- theme_grey(base_size = base_size, base_family = base_family) +
     theme(
       panel.background = element_rect(fill = "white"),
       legend.background = element_rect(fill = "white"),
       legend.position = "top"
-
     )
-  if(flip){
+  if (flip) {
     res <- res + theme(
       panel.grid.major.x = element_line(linetype = "dotted", color = "grey"),
       axis.line.y = element_line(color = "black")
     )
-  }
-  else{
+  } else {
     res <- res + theme(
       panel.grid.major.y = element_line(linetype = "dotted", color = "grey")
     )
@@ -112,12 +131,14 @@ theme_pubclean <- function (base_size = 12, base_family = "", flip = FALSE)
 
 #' @rdname theme_pubr
 #' @export
-labs_pubr <- function(base_size = 14, base_family = ""){
+labs_pubr <- function(base_size = 14, base_family = "") {
   theme(
-    text = element_text(family = base_family,
-                        face = "plain", colour = "black", size = base_size, lineheight = 0.9,
-                        hjust = 0.5, vjust = 0.5, angle = 0, margin = margin(),
-                        debug = FALSE),
+    text = element_text(
+      family = base_family,
+      face = "plain", colour = "black", size = base_size, lineheight = 0.9,
+      hjust = 0.5, vjust = 0.5, angle = 0, margin = margin(),
+      debug = FALSE
+    ),
     # Tick labels
     axis.text.x = element_text(size = rel(0.86), colour = "black", face = "bold"),
     axis.text.y = element_text(size = rel(0.86), colour = "black", face = "bold"),
@@ -126,8 +147,10 @@ labs_pubr <- function(base_size = 14, base_family = ""){
     axis.title = element_text(size = rel(1), colour = "black", face = "bold"),
 
     # Main title
-    plot.title = element_text(size = rel(1), colour = "black" ,
-                              lineheight=1.0, face = "bold"),
+    plot.title = element_text(
+      size = rel(1), colour = "black",
+      lineheight = 1.0, face = "bold"
+    ),
     legend.title = element_text(size = rel(0.7), face = "bold", colour = "black"),
     legend.text = element_text(size = rel(0.7), face = "plain", colour = "black")
   )
@@ -136,8 +159,7 @@ labs_pubr <- function(base_size = 14, base_family = ""){
 #' @rdname theme_pubr
 #' @export
 theme_classic2 <-
-  function (base_size = 12, base_family = "")
-  {
+  function(base_size = 12, base_family = "") {
     theme_classic(base_size = base_size, base_family = base_family) %+replace%
       theme(
         axis.line.x = element_line(),
@@ -148,8 +170,7 @@ theme_classic2 <-
 
 #' @export
 #' @rdname theme_pubr
-clean_theme <- function()
-{
+clean_theme <- function() {
   theme(
     axis.line.x = element_blank(),
     axis.line.y = element_blank(),
@@ -164,11 +185,11 @@ clean_theme <- function()
 
 #' @export
 #' @rdname theme_pubr
-clean_table_theme <- function ()
-{
-  theme(axis.line.x = element_blank(), axis.line.y = element_blank(),
-        axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-        axis.ticks.y = element_blank(), axis.title.x = element_blank(),
-        axis.title.y = element_blank())
+clean_table_theme <- function() {
+  theme(
+    axis.line.x = element_blank(), axis.line.y = element_blank(),
+    axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+    axis.ticks.y = element_blank(), axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  )
 }
-

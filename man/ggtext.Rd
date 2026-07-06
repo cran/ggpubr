@@ -58,7 +58,7 @@ specifying some labels to show. \item a list containing one or the
 combination of the following components: \itemize{ \item \code{top.up} and
 \code{top.down}: to display the labels  of the top up/down points. For
 example, \code{label.select = list(top.up = 10, top.down = 4)}. \item
-\code{criteria}: to filter, for example, by x and y variabes values, use
+\code{criteria}: to filter, for example, by x and y variables values, use
 this: \code{label.select = list(criteria = "`y` > 2 & `y` < 5 & `x` \%in\%
 c('A', 'B')")}. } }}
 
@@ -79,7 +79,7 @@ call to a position adjustment function.}
 
 \item{ggp}{a ggplot. If not NULL, points are added to an existing plot.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
+\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr(). Set ggtheme = NULL to skip applying a ggpubr theme, so the plot keeps ggplot2 default theme or the theme set globally via theme_set().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
 
@@ -106,15 +106,18 @@ head(df[, c("wt", "mpg", "cyl")], 3)
 
 # Textual annotation
 # +++++++++++++++++
-ggtext(df, x = "wt", y = "mpg",
-   color = "cyl", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-   label = "name", repel = TRUE)
+ggtext(df,
+  x = "wt", y = "mpg",
+  color = "cyl", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  label = "name", repel = TRUE
+)
 
 # Add rectangle around label
-ggtext(df, x = "wt", y = "mpg",
-   color = "cyl", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-   label = "name", repel = TRUE,  label.rectangle = TRUE)
-
+ggtext(df,
+  x = "wt", y = "mpg",
+  color = "cyl", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  label = "name", repel = TRUE, label.rectangle = TRUE
+)
 
 }
 \seealso{

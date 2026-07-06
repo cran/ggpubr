@@ -41,6 +41,10 @@ NULL
 #'   c("top", "bottom", "left", "right", "none"). To remove the legend use
 #'   legend = "none". Legend position can be also specified using a numeric
 #'   vector c(x, y); see details section.
+#' @param legend.direction character specifying the layout of legend items.
+#'   Allowed values are "horizontal" or "vertical". Useful to override the
+#'   default direction, e.g. to stack items vertically with
+#'   \code{legend = "bottom"}.
 #' @param legend.title legend title, e.g.: \code{legend.title = "Species"}. Can
 #'   be also a list, \code{legend.title = list(color = "Species", linetype = "Species",
 #'   shape = "Species")}.
@@ -63,7 +67,11 @@ NULL
 #'   orientation to horizontal.
 #' @param orientation change the orientation of the plot. Allowed values are one
 #'   of c( "vertical", "horizontal", "reverse"). Partial match is allowed.
-#' @param ggtheme function, ggplot2 theme name. Default value is theme_pubr().
+#' @param ggtheme function, ggplot2 theme name. The default is set by each
+#'   function's \code{ggtheme} argument; see the function usage for the actual
+#'   default. Set \code{ggtheme = NULL} to skip applying a ggpubr theme, so the
+#'   plot keeps ggplot2 default theme or the theme set globally via
+#'   \code{theme_set()}.
 #'   Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 #'   theme_minimal(), theme_classic(), theme_void(), ....
 #' @param ... not used
@@ -81,36 +89,38 @@ NULL
 #' ggpar(p, orientation = "horiz")
 #'
 #'
-#'  # Change main title and axis labels
-#'  # ++++++++++++++++++++++++++++
+#' # Change main title and axis labels
+#' # ++++++++++++++++++++++++++++
 #'
-#'  ggpar(p,
-#'    main = "Plot of length \n by dose",
-#'    xlab = "Dose (mg)", ylab = "Length")
+#' ggpar(p,
+#'   main = "Plot of length \n by dose",
+#'   xlab = "Dose (mg)", ylab = "Length"
+#' )
 #'
-#'  # Title font styles: 'plain', 'italic', 'bold', 'bold.italic'
-#'  ggpar(p,
-#'    main = "Length by dose",
-#'    font.main = c(14,"bold.italic", "red"),
-#'    font.x = c(14, "bold", "#2E9FDF"),
-#'    font.y = c(14, "bold", "#E7B800"))
+#' # Title font styles: 'plain', 'italic', 'bold', 'bold.italic'
+#' ggpar(p,
+#'   main = "Length by dose",
+#'   font.main = c(14, "bold.italic", "red"),
+#'   font.x = c(14, "bold", "#2E9FDF"),
+#'   font.y = c(14, "bold", "#E7B800")
+#' )
 #'
-#'  # Hide axis labels
-#'  ggpar(p, xlab = FALSE, ylab = FALSE)
+#' # Hide axis labels
+#' ggpar(p, xlab = FALSE, ylab = FALSE)
 #'
 #'
 #' # Change colors
 #' # ++++++++++++++++++++++
 #'
 #' # Change outline colors by groups: dose
-#'  p2 <- ggboxplot(df, "dose", "len", color = "dose")
-#'  p2
+#' p2 <- ggboxplot(df, "dose", "len", color = "dose")
+#' p2
 #'
 #' # Use custom color palette
 #' ggpar(p2, palette = c("#00AFBB", "#E7B800", "#FC4E07"))
 #'
 #' # Use brewer palette
-#' ggpar(p2, palette = "Dark2" )
+#' ggpar(p2, palette = "Dark2")
 #'
 #' # Use grey palette
 #' ggpar(p2, palette = "grey")
@@ -123,8 +133,9 @@ NULL
 #'
 #' # Axis ticks labels and rotation
 #' ggpar(p,
-#'  font.tickslab = c(14,"bold", "#993333"),
-#'  xtickslab.rt = 45, ytickslab.rt = 45)
+#'   font.tickslab = c(14, "bold", "#993333"),
+#'   xtickslab.rt = 45, ytickslab.rt = 45
+#' )
 #' # Hide axis ticks and tick labels
 #' ggpar(p, ticks = FALSE, tickslab = FALSE)
 #'
@@ -141,8 +152,9 @@ NULL
 #' # ++++++++++++++++++
 #' # Change legend position and title
 #' ggpar(p2,
-#'  legend = "right", legend.title = "Dose (mg)",
-#'  font.legend = c(10, "bold", "red"))
+#'   legend = "right", legend.title = "Dose (mg)",
+#'   font.legend = c(10, "bold", "red")
+#' )
 #'
 #' @export
 ggpar <- function(p, palette = NULL, gradient.cols = NULL,
@@ -154,7 +166,7 @@ ggpar <- function(p, palette = NULL, gradient.cols = NULL,
                   xscale = c("none", "log2", "log10", "sqrt"),
                   yscale = c("none", "log2", "log10", "sqrt"),
                   format.scale = FALSE,
-                  legend = NULL,
+                  legend = NULL, legend.direction = NULL,
                   legend.title = NULL, font.legend = NULL,
                   ticks = TRUE, tickslab = TRUE, font.tickslab = NULL,
                   font.xtickslab = font.tickslab, font.ytickslab = font.tickslab,
@@ -164,49 +176,58 @@ ggpar <- function(p, palette = NULL, gradient.cols = NULL,
                   rotate = FALSE,
                   orientation = c("vertical", "horizontal", "reverse"),
                   ggtheme = NULL,
-                  ...)
-  {
-
+                  ...) {
   original.p <- p
-  if(rotate) orientation <- "horizontal"
+  if (rotate) orientation <- "horizontal"
+  orientation <- match.arg(orientation, c("vertical", "horizontal", "reverse"))
 
-  if(is_ggplot(original.p)) list.plots <- list(original.p)
-  else if(is.list(original.p)) list.plots <- original.p
-  else stop("Can't handle an object of class ", class (original.p))
-  if(!is.null(title)) main <- title
-  if(!is.null(subtitle)) submain <- subtitle
-  if(!is.null(font.title)) font.main <- font.title
-  if(!is.null(font.subtitle)) font.submain <- font.subtitle
-  if(is.numeric(palette)) palette <- grDevices::palette()[palette]
+  if (is_ggplot(original.p)) {
+    list.plots <- list(original.p)
+  } else if (is.list(original.p)) {
+    list.plots <- original.p
+  } else {
+    stop("Can't handle an object of class ", class(original.p))
+  }
+  if (!is.null(title)) main <- title
+  if (!is.null(subtitle)) submain <- subtitle
+  if (!is.null(font.title)) font.main <- font.title
+  if (!is.null(font.subtitle)) font.submain <- font.subtitle
+  if (is.numeric(palette)) palette <- grDevices::palette()[palette]
 
 
-  for(i in 1:length(list.plots)){
+  for (i in seq_along(list.plots)) {
     p <- list.plots[[i]]
-    if(is_ggplot(p)){
-        p <- p + .ggcolor(palette)+
-          .ggfill(palette)
-        if(!is.null(ggtheme)) p <- p + ggtheme # labs_pubr() +
-        if(!is.null(gradient.cols)) p <- p + .gradient_col(gradient.cols)
+    if (is_ggplot(p)) {
+      p <- .apply_palette(p, palette)
+      if (!is.null(ggtheme)) p <- p + ggtheme # labs_pubr() +
+      if (!is.null(gradient.cols)) p <- p + .gradient_col(gradient.cols)
 
-        p <- p +.set_ticks(ticks, tickslab, font.tickslab,
-                     xtickslab.rt, ytickslab.rt,
-                     font.xtickslab = font.xtickslab, font.ytickslab = font.ytickslab)
-        p <- .set_ticksby(p, xticks.by, yticks.by)
-        p <- p + .set_axis_limits(xlim, ylim)
-        p <-.set_legend(p, legend, legend.title, font.legend)
-        p <- .set_scale(p, xscale = xscale, yscale = yscale, format.scale = format.scale)
-        p <- .labs(p, main, xlab, ylab,
-                     font.main, font.x, font.y,
-                   submain = submain, caption = caption, font.submain = font.submain, font.caption = font.caption)
-        p <- .set_orientation(p, orientation)
-        if(font.family != "")
-          p <- p + theme(text = element_text(family = font.family))
-        list.plots[[i]] <- p
+      p <- .set_ticks(p, ticks, tickslab, font.tickslab,
+        xtickslab.rt, ytickslab.rt,
+        font.xtickslab = font.xtickslab, font.ytickslab = font.ytickslab
+      )
+      p <- .set_ticksby(p, xticks.by, yticks.by)
+      # For horizontal orientation the limits are passed to coord_flip() below;
+      # adding coord_cartesian() here would be replaced by coord_flip(), dropping
+      # the limits and warning about two coordinate systems (#646).
+      if (orientation != "horizontal") p <- p + .set_axis_limits(xlim, ylim)
+      p <- .set_legend(p, legend, legend.title, font.legend, legend.direction)
+      p <- .set_scale(p, xscale = xscale, yscale = yscale, format.scale = format.scale)
+      p <- .labs(p, main, xlab, ylab,
+        font.main, font.x, font.y,
+        submain = submain, caption = caption, font.submain = font.submain, font.caption = font.caption
+      )
+      p <- .set_orientation(p, orientation, xlim = xlim, ylim = ylim)
+      if (font.family != "") {
+        p <- p + theme(text = element_text(family = font.family))
+      }
+      list.plots[[i]] <- p
     }
-
   }
 
-  if(is_ggplot(original.p)) list.plots[[1]]
-  else list.plots
+  if (is_ggplot(original.p)) {
+    list.plots[[1]]
+  } else {
+    list.plots
+  }
 }
-

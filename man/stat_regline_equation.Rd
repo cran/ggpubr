@@ -2,7 +2,7 @@
 % Please edit documentation in R/stat_regline_equation.R
 \name{stat_regline_equation}
 \alias{stat_regline_equation}
-\title{Add Regression Line Equation and R-Square to a GGPLOT.}
+\title{Add Regression Line Equation and R-Square to a GGPlot.}
 \usage{
 stat_regline_equation(
   mapping = NULL,
@@ -12,8 +12,12 @@ stat_regline_equation(
   label.y.npc = "top",
   label.x = NULL,
   label.y = NULL,
+  label.y.step = 1.4,
+  label.anchor = c("data", "panel"),
   output.type = "expression",
   decreasing = TRUE,
+  coef.digits = 2,
+  rr.digits = 2,
   geom = "text",
   position = "identity",
   na.rm = FALSE,
@@ -59,12 +63,31 @@ from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 \item{label.x, label.y}{\code{numeric} Coordinates (in data units) to be used
 for absolute positioning of the label. If too short they will be recycled.}
 
+\item{label.y.step}{numeric value giving the vertical spacing (in text-line
+units) between the labels of successive groups. Default is 1.4 (unchanged
+behavior). Set \code{label.y.step = 0} to stop the per-group vertical shift so
+labels align across facet panels.}
+
+\item{label.anchor}{character. How \code{label.x.npc}/\code{label.y.npc} are
+interpreted. \code{"data"} (default) converts them to data coordinates (the
+previous behavior). \code{"panel"} places the label at the true panel-relative
+position (npc), so labels stay aligned across panels/facets with different
+axis ranges (e.g. \code{scales = "free_y"} or \code{geom_smooth()} extending
+each panel). An explicit \code{label.x}/\code{label.y} always stays in data
+units. Requires ggplot2 >= 3.5.0 (already a dependency).}
+
 \item{output.type}{character One of "expression", "latex" or "text".}
 
-\item{decreasing}{logical. If \code{TRUE} (the default), the equation is 
-formatted in standard mathematical convention with terms in decreasing 
-order of powers (e.g., "y = 2*x + 1"). If \code{FALSE}, terms are in 
+\item{decreasing}{logical. If \code{TRUE} (the default), the equation is
+formatted in standard mathematical convention with terms in decreasing
+order of powers (e.g., "y = 2*x + 1"). If \code{FALSE}, terms are in
 increasing order (e.g., "y = 1 + 2*x").}
+
+\item{coef.digits}{integer indicating the number of significant digits to use
+for the regression equation coefficients. Default is 2.}
+
+\item{rr.digits}{integer indicating the number of significant digits to use
+for R2 and adjusted R2. Default is 2.}
 
 \item{geom}{The geometric object to use to display the data for this layer.
 When using a \verb{stat_*()} function to construct a layer, the \code{geom} argument
@@ -103,10 +126,10 @@ display. To include legend keys for all levels, even
 when no data exists, use \code{TRUE}.  If \code{NA}, all levels are shown in legend,
 but unobserved levels are omitted.}
 
-\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions), 
-overrides the default aesthetics, rather than combining with them. This is 
-most useful for helper functions that define both data and aesthetics and 
-shouldn't inherit behaviour from the default plot specification. Set to 
+\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions),
+overrides the default aesthetics, rather than combining with them. This is
+most useful for helper functions that define both data and aesthetics and
+shouldn't inherit behaviour from the default plot specification. Set to
 \code{TRUE} to inherit aesthetics from the parent ggplot layer.}
 
 \item{...}{other arguments to pass to \code{\link[ggplot2]{geom_text}} or
@@ -134,32 +157,35 @@ Add regression line equation and R^2 to a ggplot. Regression
 
 # Simple scatter plot with correlation coefficient and
 # regression line
-#::::::::::::::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::::::::::::::
 ggscatter(mtcars, x = "wt", y = "mpg", add = "reg.line") +
   stat_cor(label.x = 3, label.y = 34) +
   stat_regline_equation(label.x = 3, label.y = 32)
 
 
 # Groupped scatter plot
-#::::::::::::::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::::::::::::::
 ggscatter(
-  iris, x = "Sepal.Length", y = "Sepal.Width",
+  iris,
+  x = "Sepal.Length", y = "Sepal.Width",
   color = "Species", palette = "jco",
   add = "reg.line"
-  ) +
+) +
   facet_wrap(~Species) +
   stat_cor(label.y = 4.4) +
   stat_regline_equation(label.y = 4.2)
 
 # Polynomial equation
-#::::::::::::::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 # Demo data
 set.seed(4321)
 x <- 1:100
 y <- (x + x^2 + x^3) + rnorm(length(x), mean = 0, sd = mean(x^3) / 4)
-my.data <- data.frame(x, y, group = c("A", "B"),
-                      y2 = y * c(0.5,2), block = c("a", "a", "b", "b"))
+my.data <- data.frame(x, y,
+  group = c("A", "B"),
+  y2 = y * c(0.5, 2), block = c("a", "a", "b", "b")
+)
 
 # Fit polynomial regression line and add labels
 formula <- y ~ poly(x, 3, raw = TRUE)
@@ -167,7 +193,7 @@ p <- ggplot(my.data, aes(x, y2, color = group)) +
   geom_point() +
   stat_smooth(aes(fill = group, color = group), method = "lm", formula = formula) +
   stat_regline_equation(
-    aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
     formula = formula
   ) +
   theme_bw()
@@ -175,9 +201,9 @@ ggpar(p, palette = "jco")
 
 }
 \references{
-the source code of the function \code{stat_regline_equation()} is
- inspired from the code of the function \code{stat_poly_eq()} (in ggpmisc
- package).
+\code{stat_regline_equation()} was adapted from the source code of
+ \code{stat_poly_eq()} in the 'ggpmisc' package by Pedro J. Aphalo. See
+ \code{ggpmisc::stat_poly_eq()} as an alternative with additional features.
 }
 \seealso{
 \code{\link{ggscatter}}

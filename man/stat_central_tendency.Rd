@@ -2,7 +2,7 @@
 % Please edit documentation in R/stat_central_tendency.R
 \name{stat_central_tendency}
 \alias{stat_central_tendency}
-\title{Add Central Tendency Measures to a GGPLot}
+\title{Add Central Tendency Measures to a GGPlot}
 \usage{
 stat_central_tendency(
   mapping = NULL,
@@ -74,10 +74,10 @@ display. To include legend keys for all levels, even
 when no data exists, use \code{TRUE}.  If \code{NA}, all levels are shown in legend,
 but unobserved levels are omitted.}
 
-\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions), 
-overrides the default aesthetics, rather than combining with them. This is 
-most useful for helper functions that define both data and aesthetics and 
-shouldn't inherit behaviour from the default plot specification. Set to 
+\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions),
+overrides the default aesthetics, rather than combining with them. This is
+most useful for helper functions that define both data and aesthetics and
+shouldn't inherit behaviour from the default plot specification. Set to
 \code{TRUE} to inherit aesthetics from the parent ggplot layer.}
 
 \item{type}{the type of central tendency measure to be used. Possible values
@@ -90,11 +90,11 @@ Add central tendency measures (mean, median, mode) to density
   and histogram plots created using ggplots.
 
   Note that, normally, the mode is used for categorical data where we wish to
-  know which is the most common category. Therefore, we can have have two or
+  know which is the most common category. Therefore, we can have two or
   more values that share the highest frequency. This might be problematic for
-  continuous variable.
+  a continuous variable.
 
-  For continuous variable, we can consider using mean or median as the
+  For a continuous variable, we can consider using mean or median as the
   measures of the central tendency.
 }
 \examples{
@@ -113,9 +113,10 @@ ggdensity(iris, "Sepal.Length", color = "Species") +
 data(iris)
 ggdensity(iris, "Sepal.Length", color = "Species") +
   stat_central_tendency(
-     aes(color = Species), type = "median",
-     geom = "point", size = 4
-     )
+    aes(color = Species),
+    type = "median",
+    geom = "point", size = 4
+  )
 
 # Facet
 ggdensity(iris, "Sepal.Length", facet.by = "Species") +

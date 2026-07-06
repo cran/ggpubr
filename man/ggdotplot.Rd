@@ -127,7 +127,7 @@ specifying some labels to show. \item a list containing one or the
 combination of the following components: \itemize{ \item \code{top.up} and
 \code{top.down}: to display the labels  of the top up/down points. For
 example, \code{label.select = list(top.up = 10, top.down = 4)}. \item
-\code{criteria}: to filter, for example, by x and y variabes values, use
+\code{criteria}: to filter, for example, by x and y variables values, use
 this: \code{label.select = list(criteria = "`y` > 2 & `y` < 5 & `x` \%in\%
 c('A', 'B')")}. } }}
 
@@ -137,7 +137,7 @@ text labels or not.}
 \item{label.rectangle}{logical value. If TRUE, add rectangle underneath the
 text, making it easier to read.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
+\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr(). Set ggtheme = NULL to skip applying a ggpubr theme, so the plot keeps ggplot2 default theme or the theme set globally via theme_set().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
 
@@ -164,40 +164,50 @@ df <- ToothGrowth
 
 # Basic plot with summary statistics : mean_sd
 # +++++++++++++++++++++++++++
-ggdotplot(df, x = "dose", y = "len",
-   add = "mean_sd")
+ggdotplot(df,
+  x = "dose", y = "len",
+  add = "mean_sd"
+)
 
 # Change error.plot to "crossbar"
-ggdotplot(df, x = "dose", y = "len",
- add = "mean_sd", add.params = list(width = 0.5),
- error.plot = "crossbar")
+ggdotplot(df,
+  x = "dose", y = "len",
+  add = "mean_sd", add.params = list(width = 0.5),
+  error.plot = "crossbar"
+)
 
 
 # Add box plot
-ggdotplot(df, x = "dose", y = "len",
- add = "boxplot")
+ggdotplot(df,
+  x = "dose", y = "len",
+  add = "boxplot"
+)
 
 # Add violin + mean_sd
-ggdotplot(df, x = "dose", y = "len",
- add = c("violin", "mean_sd"))
+ggdotplot(df,
+  x = "dose", y = "len",
+  add = c("violin", "mean_sd")
+)
 
 
 # Change colors
 # +++++++++++++++++++++++++++
 # Change fill and outline colors by groups: dose
 # Use custom color palette
- ggdotplot(df, "dose", "len",
-     add = "boxplot",
-      color = "dose", fill = "dose",
-      palette = c("#00AFBB", "#E7B800", "#FC4E07"))
+ggdotplot(df, "dose", "len",
+  add = "boxplot",
+  color = "dose", fill = "dose",
+  palette = c("#00AFBB", "#E7B800", "#FC4E07")
+)
 
 
 # Plot with multiple groups
 # +++++++++++++++++++++
 # Change color by a second group : "supp"
-ggdotplot(df, "dose", "len", fill = "supp", color = "supp",
-    palette = c("#00AFBB", "#E7B800"))
-
+ggdotplot(df, "dose", "len",
+  fill = "supp", color = "supp",
+  palette = c("#00AFBB", "#E7B800")
+)
 
 }
 \seealso{

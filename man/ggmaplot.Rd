@@ -19,9 +19,11 @@ ggmaplot(
   top = 15,
   select.top.method = c("padj", "fc"),
   label.select = NULL,
+  facet.by = NULL,
   main = NULL,
   xlab = "Log2 mean expression",
   ylab = "Log2 fold change",
+  line.color = "black",
   ggtheme = theme_classic(),
   ...
 )
@@ -44,7 +46,7 @@ ggmaplot(
 
  \itemize{ \item baseMean: the mean expression of genes in the two groups.
  \item log2FoldChange: the log2 fold changes of group 2 compared to group 1
- \item padj: the adjusted p-value of the used statiscal test. }}
+ \item padj: the adjusted p-value of the used statistical test. }}
 
 \item{fdr}{Accepted false discovery rate for considering genes as
 differentially expressed.}
@@ -62,7 +64,7 @@ column is available in data, it will be used.}
 
 \item{size}{points size.}
 
-\item{alpha}{numeric value betwenn 0 an 1 specifying point alpha for
+\item{alpha}{numeric value between 0 and 1 specifying point alpha for
 controlling transparency. For example, use alpha = 0.5.}
 
 \item{seed}{Random seed passed to \code{set.seed}. if
@@ -91,6 +93,13 @@ changes, respectively.}
 
 \item{label.select}{character vector specifying some labels to show.}
 
+\item{facet.by}{character vector, of length 1 or 2, specifying grouping
+variables for faceting the plot into multiple panels (one MA plot per group).
+The variable(s) must be columns of \code{data} (supplied as a data frame). The
+top genes are selected \emph{per panel}; point colors use the same
+significance thresholds in every panel. Default is NULL (no faceting), in
+which case the output is unchanged.}
+
 \item{main}{plot main title.}
 
 \item{xlab}{character vector specifying x axis labels. Use xlab = FALSE to
@@ -99,14 +108,18 @@ hide xlab.}
 \item{ylab}{character vector specifying y axis labels. Use ylab = FALSE to
 hide ylab.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
-Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
-theme_minimal(), theme_classic(), theme_void(), ....}
+\item{line.color}{color of the horizontal threshold lines (the central line
+at 0 and the two fold-change cutoff lines). Default is "black".}
+
+\item{ggtheme}{function, ggplot2 theme name. Default value is
+\code{theme_classic()}. Set \code{ggtheme = NULL} to skip applying a ggpubr
+theme, so the plot keeps ggplot2 default theme or the theme set globally via
+\code{theme_set()}.}
 
 \item{...}{other arguments to be passed to \code{\link{ggpar}}.}
 }
 \value{
-returns a ggplot.
+a ggplot.
 }
 \description{
 Make MA-plot which is a scatter plot of log2 fold changes (M, on
@@ -118,34 +131,39 @@ Make MA-plot which is a scatter plot of log2 fold changes (M, on
 data(diff_express)
 
 # Default plot
-ggmaplot(diff_express, main = expression("Group 1" \%->\% "Group 2"),
-   fdr = 0.05, fc = 2, size = 0.4,
-   palette = c("#B31B21", "#1465AC", "darkgray"),
-   genenames = as.vector(diff_express$name),
-   legend = "top", top = 20,
-   font.label = c("bold", 11),
-   font.legend = "bold",
-   font.main = "bold",
-   ggtheme = ggplot2::theme_minimal())
+ggmaplot(diff_express,
+  main = expression("Group 1" \%->\% "Group 2"),
+  fdr = 0.05, fc = 2, size = 0.4,
+  palette = c("#B31B21", "#1465AC", "darkgray"),
+  genenames = as.vector(diff_express$name),
+  legend = "top", top = 20,
+  font.label = c("bold", 11),
+  font.legend = "bold",
+  font.main = "bold",
+  ggtheme = ggplot2::theme_minimal()
+)
 
 # Add rectangle around labels
-ggmaplot(diff_express, main = expression("Group 1" \%->\% "Group 2"),
-   fdr = 0.05, fc = 2, size = 0.4,
-   palette = c("#B31B21", "#1465AC", "darkgray"),
-   genenames = as.vector(diff_express$name),
-   legend = "top", top = 20,
-   font.label = c("bold", 11), label.rectangle = TRUE,
-   font.legend = "bold",
-   font.main = "bold",
-   ggtheme = ggplot2::theme_minimal())
+ggmaplot(diff_express,
+  main = expression("Group 1" \%->\% "Group 2"),
+  fdr = 0.05, fc = 2, size = 0.4,
+  palette = c("#B31B21", "#1465AC", "darkgray"),
+  genenames = as.vector(diff_express$name),
+  legend = "top", top = 20,
+  font.label = c("bold", 11), label.rectangle = TRUE,
+  font.legend = "bold",
+  font.main = "bold",
+  ggtheme = ggplot2::theme_minimal()
+)
 
 # Select specific genes to show
 # set top = 0, then specify genes using label.select argument
-ggmaplot(diff_express, main = expression("Group 1" \%->\% "Group 2"),
-         fdr = 0.05, fc = 2, size = 0.4,
-         genenames = as.vector(diff_express$name),
-         ggtheme = ggplot2::theme_minimal(),
-         top = 0, label.select = c("BUB1", "CD83")
+ggmaplot(diff_express,
+  main = expression("Group 1" \%->\% "Group 2"),
+  fdr = 0.05, fc = 2, size = 0.4,
+  genenames = as.vector(diff_express$name),
+  ggtheme = ggplot2::theme_minimal(),
+  top = 0, label.select = c("BUB1", "CD83")
 )
 
 }

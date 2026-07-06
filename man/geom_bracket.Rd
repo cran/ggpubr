@@ -20,6 +20,7 @@ stat_bracket(
   step.increase = 0,
   step.group.by = NULL,
   tip.length = 0.03,
+  tip.length.ref = c("data", "axis"),
   bracket.nudge.y = 0,
   bracket.shorten = 0,
   size = 0.3,
@@ -46,6 +47,7 @@ geom_bracket(
   step.increase = 0,
   step.group.by = NULL,
   tip.length = 0.03,
+  tip.length.ref = c("data", "axis"),
   bracket.nudge.y = 0,
   bracket.shorten = 0,
   size = 0.3,
@@ -54,6 +56,10 @@ geom_bracket(
   family = "",
   vjust = 0,
   coord.flip = FALSE,
+  orientation = c("horizontal", "vertical"),
+  ymin = NULL,
+  ymax = NULL,
+  x.position = NULL,
   ...
 )
 }
@@ -102,10 +108,10 @@ display. To include legend keys for all levels, even
 when no data exists, use \code{TRUE}.  If \code{NA}, all levels are shown in legend,
 but unobserved levels are omitted.}
 
-\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions), 
-overrides the default aesthetics, rather than combining with them. This is 
-most useful for helper functions that define both data and aesthetics and 
-shouldn't inherit behaviour from the default plot specification. Set to 
+\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions),
+overrides the default aesthetics, rather than combining with them. This is
+most useful for helper functions that define both data and aesthetics and
+shouldn't inherit behaviour from the default plot specification. Set to
 \code{TRUE} to inherit aesthetics from the parent ggplot layer.}
 
 \item{label}{character vector with alternative label, if not null test is
@@ -128,8 +134,22 @@ height for every additional comparison to minimize overlap.}
 \item{step.group.by}{a variable name for grouping brackets before adding
 step.increase. Useful to group bracket by facet panel.}
 
-\item{tip.length}{numeric vector with the fraction of total height that the
-bar goes down to indicate the precise column}
+\item{tip.length}{numeric vector with the fraction that the bracket tips go
+down to indicate the precise column. Interpreted relative to the reference
+set by \code{tip.length.ref}. Default is 0.03. Can be of the same length as
+the number of brackets to adjust each tip specifically, e.g.
+\code{tip.length = c(0.01, 0.03)}. If too short it is recycled.}
+
+\item{tip.length.ref}{character string specifying what \code{tip.length} is a
+fraction of. Allowed values are: \itemize{ \item \code{"data"} (default):
+fraction of the trained data range. Tips scale with the data, so plots with
+different data ranges get different absolute tip lengths (historical
+behavior; keeps existing plots unchanged). \item \code{"axis"}: fraction of
+the y-axis range (the limits set via \code{ylim}/\code{scale_y_*}). This
+renders at the same physical fraction across plots and therefore gives
+visually constant tip lengths regardless of the data - useful to keep tips
+consistent across facets or across separate plots with different scales
+(#362).}}
 
 \item{bracket.nudge.y}{Vertical adjustment to nudge brackets by. Useful to
 move up or move down the bracket. If positive value, brackets will be moved
@@ -171,6 +191,25 @@ horizontal becomes vertical, and vertical, horizontal. When adding the
 p-values to a horizontal ggplot (generated using
 \code{\link[ggplot2]{coord_flip}()}), you need to specify the option
 \code{coord.flip = TRUE}.}
+
+\item{orientation}{the bracket orientation. Either \code{"horizontal"} (the
+default, a bracket spanning the x axis with the bar at \code{y.position}) or
+\code{"vertical"} (a bracket spanning the y axis with the bar at
+\code{x.position}, tips pointing left and the label rotated to the side).
+Vertical brackets are useful to annotate plots where the comparison runs
+along the y axis, e.g. Kaplan-Meier curves. They are designed for a
+continuous x axis; specify the span with \code{ymin}/\code{ymax} and the
+position with \code{x.position}. Cannot be combined with
+\code{coord.flip = TRUE}.}
+
+\item{ymin, ymax}{numeric vectors with the positions, along the y axis, of the
+two ends of each vertical bracket. Used only when
+\code{orientation = "vertical"} (the vertical-bracket analogue of
+\code{xmin}/\code{xmax}).}
+
+\item{x.position}{numeric vector with the x positions of the vertical
+brackets. Used only when \code{orientation = "vertical"} (the
+vertical-bracket analogue of \code{y.position}).}
 }
 \description{
 add brackets with label annotation to a ggplot. Helpers for
@@ -194,13 +233,13 @@ ggboxplot(df, x = "dose", y = "len") +
     label = "t-test, p < 0.05", tip.length = c(0.2, 0.02)
   )
 
-#Using plotmath expression
+# Using plotmath expression
 ggboxplot(df, x = "dose", y = "len") +
- geom_bracket(
-   xmin = "0.5", xmax = "1", y.position = 30,
-   label = "list(~italic(p)<=0.001)", type = "expression",
-   tip.length = c(0.2, 0.02)
- )
+  geom_bracket(
+    xmin = "0.5", xmax = "1", y.position = 30,
+    label = "list(~italic(p)<=0.001)", type = "expression",
+    tip.length = c(0.2, 0.02)
+  )
 
 # Specify multiple brackets manually
 ggboxplot(df, x = "dose", y = "len") +
@@ -230,5 +269,13 @@ ggboxplot(df, x = "dose", y = "len") +
   geom_bracket(
     aes(xmin = group1, xmax = group2, label = signif(p, 2)),
     data = stat.test, y.position = c(32, 35, 38)
-   )
+  )
+
+# Vertical bracket (e.g. to annotate a plot with a continuous x axis)
+ggscatter(df, x = "len", y = "len") +
+  geom_bracket(
+    orientation = "vertical",
+    ymin = 10, ymax = 25, x.position = 34,
+    label = "p < 0.05"
+  )
 }

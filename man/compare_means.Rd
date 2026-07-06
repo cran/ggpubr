@@ -9,10 +9,20 @@ compare_means(
   data,
   method = "wilcox.test",
   paired = FALSE,
+  id = NULL,
   group.by = NULL,
   ref.group = NULL,
   symnum.args = list(),
   p.adjust.method = "holm",
+  p.format.style = "default",
+  p.digits = NULL,
+  p.leading.zero = NULL,
+  p.min.threshold = NULL,
+  p.decimal.mark = NULL,
+  signif.cutoffs = NULL,
+  signif.symbols = NULL,
+  ns.symbol = "ns",
+  use.four.stars = FALSE,
   ...
 )
 }
@@ -39,6 +49,17 @@ test comparing multiple groups. }}
 \item{paired}{a logical indicating whether you want a paired test. Used only
 in \code{\link[stats]{t.test}} and in \link[stats]{wilcox.test}.}
 
+\item{id}{optional character string naming a column that identifies matched
+subjects for a \strong{paired} comparison (\code{method = "t.test"} or
+\code{"wilcox.test"}). By default (\code{id = NULL}) a paired test pairs
+observations by \emph{row order}, so a p-value can be wrong if the data are
+not sorted so that the compared groups align. Providing \code{id} pairs the
+observations by subject id instead (row-order independent), using only the
+complete pairs (per-comparison pairwise deletion, via \pkg{rstatix}). It
+works for a two-group, a pairwise (more than two groups) and a
+\code{ref.group} comparison; it is an error to combine \code{id} with
+\code{anova}/\code{kruskal.test} or with \code{ref.group = ".all."}.}
+
 \item{group.by}{a character vector containing the name of grouping variables.}
 
 \item{ref.group}{a character string specifying the reference group. If
@@ -55,7 +76,10 @@ in \code{\link[stats]{t.test}} and in \link[stats]{wilcox.test}.}
 
  In other words, we use the following convention for symbols indicating
  statistical significance: \itemize{ \item \code{ns}: p > 0.05 \item
- \code{*}: p <= 0.05 \item \code{**}: p <= 0.01 \item \code{***}: p <= 0.001 \item \code{****}:  p <= 0.0001 }}
+ \code{*}: p <= 0.05 \item \code{**}: p <= 0.01 \item \code{***}: p <= 0.001 \item \code{****}:  p <= 0.0001 }
+
+ Note: If \code{signif.cutoffs} is provided, it takes precedence over
+ \code{symnum.args}.}
 
 \item{p.adjust.method}{method for adjusting p values (see
  \code{\link[stats]{p.adjust}}). Has impact only in a situation, where
@@ -67,10 +91,50 @@ in \code{\link[stats]{t.test}} and in \link[stats]{wilcox.test}.}
  Note that, when the \code{formula} contains multiple variables, the p-value
  adjustment is done independently for each variable.}
 
+\item{p.format.style}{character string specifying the p-value formatting style.
+One of: \code{"default"} (backward compatible, uses scientific notation),
+\code{"apa"} (APA style, no leading zero), \code{"nejm"} (NEJM style),
+\code{"lancet"} (Lancet style), \code{"ama"} (AMA style), \code{"graphpad"}
+(GraphPad style), or \code{"scientific"} (scientific notation for GWAS).
+See \code{\link{list_p_format_styles}} for details.}
+
+\item{p.digits}{integer specifying the number of decimal places for p-values.
+If provided, overrides the style default.}
+
+\item{p.leading.zero}{logical indicating whether to include leading zero before
+decimal point (e.g., "0.05" vs ".05"). If provided, overrides the style default.}
+
+\item{p.min.threshold}{numeric specifying the minimum p-value to display exactly.
+Values below this threshold are shown as "< threshold". If NULL, the selected
+style's default threshold is used; styles without a threshold show exact
+values. If provided, overrides the style default.}
+
+\item{p.decimal.mark}{character string to use as the decimal mark. If NULL,
+uses \code{getOption("OutDec")}.}
+
+\item{signif.cutoffs}{numeric vector of p-value cutoffs in descending order
+for assigning significance symbols. For example, \code{c(0.10, 0.05, 0.01)}
+means p < 0.10 gets "*", p < 0.05 gets "**", p < 0.01 gets "***".
+If \code{use.four.stars = TRUE}, can include a fourth level (e.g.,
+\code{c(0.10, 0.05, 0.01, 0.001)} for "****" at p < 0.001).
+Default is NULL, which uses the package defaults (backward compatible).}
+
+\item{signif.symbols}{character vector of symbols corresponding to
+\code{signif.cutoffs}. If NULL, auto-generated as "*", "**", "***"
+(and "****" if \code{use.four.stars = TRUE}). Must have the same length
+as \code{signif.cutoffs}.}
+
+\item{ns.symbol}{character string for non-significant results. Default is "ns".
+Use "" (empty string) to show nothing for non-significant results.}
+
+\item{use.four.stars}{logical. If TRUE and \code{signif.symbols} is NULL,
+allows four stars (****) for the most significant level when
+\code{signif.cutoffs} has 4 levels. Default is FALSE.}
+
 \item{...}{Other arguments to be passed to the test function.}
 }
 \value{
-return a data frame with the following columns:
+a data frame with the following columns:
 \itemize{
 \item \code{.y.}: the y variable used in the test.
 \item \code{group1,group2}: the compared groups in the pairwise tests.
@@ -78,6 +142,7 @@ Available only when \code{method = "t.test"} or \code{method = "wilcox.test"}.
 \item \code{p}: the p-value.
 \item \code{p.adj}: the adjusted p-value. Default for \code{p.adjust.method = "holm"}.
 \item \code{p.format}: the formatted p-value.
+\item \code{p.format.signif}: the formatted p-value with significance symbols.
 \item \code{p.signif}: the significance level.
 \item \code{method}: the statistical test used to compare groups.
 
@@ -87,44 +152,97 @@ Available only when \code{method = "t.test"} or \code{method = "wilcox.test"}.
 \description{
 Performs one or multiple mean comparisons.
 }
+\section{Significance letters (compact letter display)}{
+
+To label groups with letters instead of p-values or stars - groups that share a
+letter are not significantly different - compute the pairwise comparisons and
+derive the letters with \code{rstatix::add_cld()} (available without any extra
+package, as \code{rstatix} is already a dependency), then place them with
+\code{geom_text()}:
+
+\preformatted{
+library(ggpubr)
+library(rstatix)
+library(dplyr)
+df <- ToothGrowth
+df$dose <- factor(df$dose)
+
+# all-pairwise comparisons, then compact letters (columns: group, cld)
+cld <- df \%>\% tukey_hsd(len ~ dose) \%>\% add_cld()
+
+# one letter per group, placed above each box
+ypos <- df \%>\% group_by(dose) \%>\%
+  summarise(y.position = max(len) + 2, .groups = "drop")
+cld$y.position <- ypos$y.position[match(cld$group, as.character(ypos$dose))]
+
+ggboxplot(df, "dose", "len") +
+  geom_text(data = cld, aes(x = group, y = y.position, label = cld))
+}
+
+\code{add_cld()} expects an all-pairwise result (\code{tukey_hsd()},
+\code{dunn_test()}, \code{games_howell_test()}, pairwise
+\code{wilcox_test()}/\code{t_test()}, or \code{compare_means()}); it is not
+defined for a single \code{ref.group} comparison.
+
+To instead flag each treatment by which of several controls it differs from
+(e.g. \code{"a"} for a negative control and \code{"b"} for a positive control),
+run one comparison per control and assemble the letters:
+
+\preformatted{
+trts <- c("trtA", "trtB", "trtC")
+cn <- compare_means(value ~ group, df, ref.group = "neg.ctrl")
+cp <- compare_means(value ~ group, df, ref.group = "pos.ctrl")
+pv <- function(cc, g) dplyr::filter(cc, group1 == g | group2 == g)$p[1]
+lab <- sapply(trts, function(g)
+  paste0(if (pv(cn, g) < .05) "a" else "",
+         if (pv(cp, g) < .05) "b" else ""))
+# then place `lab` above each treatment with geom_text()
+}
+}
+
 \examples{
 # Load data
-#:::::::::::::::::::::::::::::::::::::::
+# :::::::::::::::::::::::::::::::::::::::
 data("ToothGrowth")
 df <- ToothGrowth
 
 # One-sample test
-#:::::::::::::::::::::::::::::::::::::::::
+# :::::::::::::::::::::::::::::::::::::::::
 compare_means(len ~ 1, df, mu = 0)
 
 # Two-samples unpaired test
-#:::::::::::::::::::::::::::::::::::::::::
+# :::::::::::::::::::::::::::::::::::::::::
 compare_means(len ~ supp, df)
 
 # Two-samples paired test
-#:::::::::::::::::::::::::::::::::::::::::
+# :::::::::::::::::::::::::::::::::::::::::
 compare_means(len ~ supp, df, paired = TRUE)
 
+# Paired test pairing by a subject id column (row-order independent)
+# :::::::::::::::::::::::::::::::::::::::::
+df$id <- rep(1:30, 2) # pairs the two supp levels by subject
+compare_means(len ~ supp, df, paired = TRUE, id = "id")
+
 # Compare supp levels after grouping the data by "dose"
-#::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::
 compare_means(len ~ supp, df, group.by = "dose")
 
 # pairwise comparisons
-#::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::
 # As dose contains more thant two levels ==>
 # pairwise test is automatically performed.
 compare_means(len ~ dose, df)
 
 # Comparison against reference group
-#::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::
 compare_means(len ~ dose, df, ref.group = "0.5")
 
 # Comparison against all
-#::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::
 compare_means(len ~ dose, df, ref.group = ".all.")
 
 # Anova and kruskal.test
-#::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::
 compare_means(len ~ dose, df, method = "anova")
 compare_means(len ~ dose, df, method = "kruskal.test")
 }

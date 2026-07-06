@@ -39,7 +39,9 @@ ggboxplot(
   label.select = NULL,
   repel = FALSE,
   label.rectangle = FALSE,
+  position = position_dodge(0.8),
   ggtheme = theme_pubr(),
+  show.n = FALSE,
   ...
 )
 }
@@ -103,7 +105,7 @@ outlines.}
 
 \item{linewidth}{constant value specifying the line width.}
 
-\item{width}{numeric value between 0 and 1 specifying box width.}
+\item{width}{numeric value between 0 and 1 specifying the width of the plot elements.}
 
 \item{notch}{If \code{FALSE} (default) make a standard box plot. If
 \code{TRUE}, make a notched box plot. Notches are used to compare groups;
@@ -158,7 +160,7 @@ specifying some labels to show. \item a list containing one or the
 combination of the following components: \itemize{ \item \code{top.up} and
 \code{top.down}: to display the labels  of the top up/down points. For
 example, \code{label.select = list(top.up = 10, top.down = 4)}. \item
-\code{criteria}: to filter, for example, by x and y variabes values, use
+\code{criteria}: to filter, for example, by x and y variables values, use
 this: \code{label.select = list(criteria = "`y` > 2 & `y` < 5 & `x` \%in\%
 c('A', 'B')")}. } }}
 
@@ -168,9 +170,20 @@ text labels or not.}
 \item{label.rectangle}{logical value. If TRUE, add rectangle underneath the
 text, making it easier to read.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
+\item{position}{position adjustment, either as a string, or the result of a
+call to a position adjustment function (e.g. \code{position_dodge(0.8)}).
+Used to control the spacing between grouped elements.}
+
+\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr(). Set ggtheme = NULL to skip applying a ggpubr theme, so the plot keeps ggplot2 default theme or the theme set globally via theme_set().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
+
+\item{show.n}{logical. If TRUE, displays the number of observations
+(\code{"n = <count>"}) at the top of each group. Off by default. When the
+groups are dodged (a \code{color}/\code{fill} grouping with a dodging
+\code{position}), one count is shown per group; otherwise a single count is
+shown per x-axis tick. Counts respect \code{select}/\code{remove} and are
+computed per facet.}
 
 \item{...}{other arguments to be passed to
 \code{\link[ggplot2]{geom_boxplot}}, \code{\link{ggpar}} and
@@ -208,17 +221,23 @@ ggboxplot(df, x = "dose", y = "len", width = 0.8)
 ggboxplot(df, "dose", "len", orientation = "horizontal")
 
 # Notched box plot
-ggboxplot(df, x = "dose", y = "len",
-   notch = TRUE)
+ggboxplot(df,
+  x = "dose", y = "len",
+  notch = TRUE
+)
 
 # Add dots
 # ++++++++++++++++++++++++++
-ggboxplot(df, x = "dose", y = "len",
-   add = "dotplot")
+ggboxplot(df,
+  x = "dose", y = "len",
+  add = "dotplot"
+)
 
 # Add jitter points and change the shape by groups
-ggboxplot(df, x = "dose", y = "len",
-   add = "jitter", shape = "dose")
+ggboxplot(df,
+  x = "dose", y = "len",
+  add = "jitter", shape = "dose"
+)
 
 
 # Select and order items
@@ -226,36 +245,43 @@ ggboxplot(df, x = "dose", y = "len",
 
 # Select which items to display: "0.5" and "2"
 ggboxplot(df, "dose", "len",
-   select = c("0.5", "2"))
+  select = c("0.5", "2")
+)
 
 # Change the default order of items
 ggboxplot(df, "dose", "len",
-   order = c("2", "1", "0.5"))
+  order = c("2", "1", "0.5")
+)
 
 
 # Change colors
 # +++++++++++++++++++++++++++
 # Change outline and fill colors
- ggboxplot(df, "dose", "len",
-   color = "black", fill = "gray")
+ggboxplot(df, "dose", "len",
+  color = "black", fill = "gray"
+)
 
 # Change outline colors by groups: dose
 # Use custom color palette
 # Add jitter points and change the shape by groups
- ggboxplot(df, "dose", "len",
-    color = "dose", palette =c("#00AFBB", "#E7B800", "#FC4E07"),
-    add = "jitter", shape = "dose")
+ggboxplot(df, "dose", "len",
+  color = "dose", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  add = "jitter", shape = "dose"
+)
 
 # Change fill color by groups: dose
- ggboxplot(df, "dose", "len",
-     fill = "dose", palette = c("#00AFBB", "#E7B800", "#FC4E07"))
+ggboxplot(df, "dose", "len",
+  fill = "dose", palette = c("#00AFBB", "#E7B800", "#FC4E07")
+)
 
 
 # Box plot with multiple groups
 # +++++++++++++++++++++
 # fill or color box plot by a second group : "supp"
-ggboxplot(df, "dose", "len", color = "supp",
- palette = c("#00AFBB", "#E7B800"))
+ggboxplot(df, "dose", "len",
+  color = "supp",
+  palette = c("#00AFBB", "#E7B800")
+)
 
 }
 \seealso{

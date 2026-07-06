@@ -5,7 +5,7 @@
 \alias{ggsummarystats}
 \alias{print.ggsummarystats}
 \alias{print.ggsummarystats_list}
-\title{GGPLOT with Summary Stats Table Under the Plot}
+\title{GGPlot with Summary Stats Table Under the Plot}
 \usage{
 ggsummarytable(
   data,
@@ -18,6 +18,7 @@ ggsummarytable(
   facet.by = NULL,
   labeller = "label_value",
   position = "identity",
+  angle = 0,
   ggtheme = theme_pubr(),
   ...
 )
@@ -77,7 +78,10 @@ labelled by both grouping variable names and levels) and "label_value"
 \item{position}{Position adjustment, either as a string, or the result of a
 call to a position adjustment function.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
+\item{angle}{numeric value specifying the rotation angle (in degrees) of the
+summary table text. Default is 0.}
+
+\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr(). Set ggtheme = NULL to skip applying a ggpubr theme, so the plot keeps ggplot2 default theme or the theme set globally via theme_set().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
 
@@ -121,7 +125,7 @@ Create a ggplot with summary stats (n, median, mean, iqr) table
 }}
 \examples{
 # Data preparation
-#::::::::::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::::::::::
 data("ToothGrowth")
 df <- ToothGrowth
 df$dose <- as.factor(df$dose)
@@ -134,7 +138,7 @@ head(df)
 
 
 # Basic summary stats
-#::::::::::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::::::::::
 # Compute summary statistics
 summary.stats <- df \%>\%
   group_by(dose) \%>\%
@@ -143,38 +147,43 @@ summary.stats
 
 # Visualize summary table
 ggsummarytable(
-  summary.stats, x = "dose", y = c("n", "median", "iqr"),
+  summary.stats,
+  x = "dose", y = c("n", "median", "iqr"),
   ggtheme = theme_bw()
 )
 
 
 # Create plots with summary table under the plot
-#::::::::::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::::::::::
 # Basic plot
 ggsummarystats(
-  df, x = "dose", y = "len",
+  df,
+  x = "dose", y = "len",
   ggfunc = ggboxplot, add = "jitter"
 )
 
 # Color by groups
 ggsummarystats(
-  df, x = "dose", y = "len",
+  df,
+  x = "dose", y = "len",
   ggfunc = ggboxplot, add = "jitter",
   color = "dose", palette = "npg"
 )
 
 # Create a barplot
 ggsummarystats(
-  df, x = "dose", y = "len",
+  df,
+  x = "dose", y = "len",
   ggfunc = ggbarplot, add = c("jitter", "median_iqr"),
   color = "dose", palette = "npg"
 )
 
 # Facet
-#::::::::::::::::::::::::::::::::::::::::::::::::
+# ::::::::::::::::::::::::::::::::::::::::::::::::
 # Specify free.panels = TRUE for free panels
 ggsummarystats(
-  df, x = "dose", y = "len",
+  df,
+  x = "dose", y = "len",
   ggfunc = ggboxplot, add = "jitter",
   color = "dose", palette = "npg",
   facet.by = c("supp", "qc"),

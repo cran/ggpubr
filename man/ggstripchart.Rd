@@ -35,6 +35,7 @@ ggstripchart(
   jitter = 0.2,
   position = position_jitter(jitter, seed = 123),
   ggtheme = theme_pubr(),
+  show.n = FALSE,
   ...
 )
 }
@@ -128,7 +129,7 @@ specifying some labels to show. \item a list containing one or the
 combination of the following components: \itemize{ \item \code{top.up} and
 \code{top.down}: to display the labels  of the top up/down points. For
 example, \code{label.select = list(top.up = 10, top.down = 4)}. \item
-\code{criteria}: to filter, for example, by x and y variabes values, use
+\code{criteria}: to filter, for example, by x and y variables values, use
 this: \code{label.select = list(criteria = "`y` > 2 & `y` < 5 & `x` \%in\%
 c('A', 'B')")}. } }}
 
@@ -144,9 +145,16 @@ text, making it easier to read.}
 call to a position adjustment function. Used to adjust position for
 multiple groups.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
+\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr(). Set ggtheme = NULL to skip applying a ggpubr theme, so the plot keeps ggplot2 default theme or the theme set globally via theme_set().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
+
+\item{show.n}{logical. If TRUE, displays the number of observations
+(\code{"n = <count>"}) at the top of each group. Off by default. When the
+groups are dodged (a \code{color}/\code{fill} grouping with a dodging
+\code{position}), one count is shown per group; otherwise a single count is
+shown per x-axis tick. Counts respect \code{select}/\code{remove} and are
+computed per facet.}
 
 \item{...}{other arguments to be passed to
 \code{\link[ggplot2]{geom_jitter}}, \code{\link{ggpar}} and
@@ -174,62 +182,78 @@ df <- ToothGrowth
 # Basic plot with summary statistics: mean_se
 # +++++++++++++++++++++++++++
 # Change point shapes by groups: "dose"
-ggstripchart(df, x = "dose", y = "len",
-   shape = "dose", size = 3,
-   add = "mean_se")
+ggstripchart(df,
+  x = "dose", y = "len",
+  shape = "dose", size = 3,
+  add = "mean_se"
+)
 
 # Use mean_sd
 # Change error.plot to "crossbar"
-ggstripchart(df, x = "dose", y = "len",
-   shape = "dose", size = 3,
-   add = "mean_sd", add.params = list(width = 0.5),
-   error.plot = "crossbar")
-
+ggstripchart(df,
+  x = "dose", y = "len",
+  shape = "dose", size = 3,
+  add = "mean_sd", add.params = list(width = 0.5),
+  error.plot = "crossbar"
+)
 
 
 # Add summary statistics
 # ++++++++++++++++++++++++++
 
 # Add box plot
-ggstripchart(df, x = "dose", y = "len",
- shape = "dose", add = "boxplot")
+ggstripchart(df,
+  x = "dose", y = "len",
+  shape = "dose", add = "boxplot"
+)
 
 # Add violin + mean_sd
-ggstripchart(df, x = "dose", y = "len",
- shape = "dose", add = c("violin", "mean_sd"))
+ggstripchart(df,
+  x = "dose", y = "len",
+  shape = "dose", add = c("violin", "mean_sd")
+)
 
 
 # Change colors
 # +++++++++++++++++++++++++++
 # Change colors by groups: dose
 # Use custom color palette
- ggstripchart(df, "dose", "len",  shape = "dose",
-   color = "dose", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-   add = "mean_sd")
-
+ggstripchart(df, "dose", "len",
+  shape = "dose",
+  color = "dose", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  add = "mean_sd"
+)
 
 
 # Plot with multiple groups
 # +++++++++++++++++++++
 # Change shape and color by a second group : "supp"
-ggstripchart(df, "dose", "len", shape = "supp",
-  color = "supp", palette = c("#00AFBB", "#E7B800"))
+ggstripchart(df, "dose", "len",
+  shape = "supp",
+  color = "supp", palette = c("#00AFBB", "#E7B800")
+)
 
 # Adjust point position
-ggstripchart(df, "dose", "len", shape = "supp",
+ggstripchart(df, "dose", "len",
+  shape = "supp",
   color = "supp", palette = c("#00AFBB", "#E7B800"),
-  position = position_dodge(0.8) )
+  position = position_dodge(0.8)
+)
 
 # You can also use position_jitterdodge()
 # but fill aesthetic is required
-ggstripchart(df, "dose", "len",  shape = "supp",
-   color = "supp", palette = c("#00AFBB", "#E7B800"),
-   position = position_jitterdodge() )
+ggstripchart(df, "dose", "len",
+  shape = "supp",
+  color = "supp", palette = c("#00AFBB", "#E7B800"),
+  position = position_jitterdodge()
+)
 
 # Add boxplot
-ggstripchart(df, "dose", "len", shape = "supp",
- color = "supp", palette = c("#00AFBB", "#E7B800"),
- add = "boxplot", add.params = list(color = "black") )
+ggstripchart(df, "dose", "len",
+  shape = "supp",
+  color = "supp", palette = c("#00AFBB", "#E7B800"),
+  add = "boxplot", add.params = list(color = "black")
+)
 
 }
 \seealso{

@@ -16,6 +16,11 @@ stat_kruskal_test(
   step.increase = 0.1,
   p.adjust.method = "holm",
   significance = list(),
+  p.format.style = "default",
+  p.digits = NULL,
+  p.leading.zero = NULL,
+  p.min.threshold = NULL,
+  p.decimal.mark = NULL,
   geom = "text",
   position = "identity",
   na.rm = FALSE,
@@ -58,7 +63,11 @@ test is performed between the x-groups for each legend level. }}
 "p.adj"), where \code{p} is the p-value. Can be also an expression that can
 be formatted by the \code{\link[glue]{glue}()} package. For example, when
 specifying label = "t-test, p = \{p\}", the expression \{p\} will be
-replaced by its value.}
+replaced by its value. Values inserted through a glue expression are taken
+from the raw data column and are \strong{not} rounded by \code{p.digits}; to
+round within a glue expression, wrap the value, e.g.
+\code{label = "p = \{signif(p, 3)\}"} (or \code{\{format_p_value(p)\}} for the
+p-value house style).}
 
 \item{label.x.npc, label.y.npc}{can be \code{numeric} or \code{character}
 vector of the same length as the number of groups and/or panels. If too
@@ -82,7 +91,7 @@ variables. Allowed values include "holm", "hochberg", "hommel",
 "bonferroni", "BH", "BY", "fdr", "none". If you don't want to adjust the p
 value (not recommended), use p.adjust.method = "none".}
 
-\item{significance}{a list of arguments specifying the signifcance cutpoints
+\item{significance}{a list of arguments specifying the significance cutpoints
  and symbols. For example, \code{significance <- list(cutpoints = c(0,
  0.0001, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*",
  "ns"))}.
@@ -90,7 +99,48 @@ value (not recommended), use p.adjust.method = "none".}
  In other words, we use the following convention for symbols indicating
  statistical significance: \itemize{ \item \code{ns}: p > 0.05 \item
  \code{*}: p <= 0.05 \item \code{**}: p <= 0.01 \item \code{***}: p <= 0.001
- \item \code{****}:  p <= 0.0001 }}
+ \item \code{****}:  p <= 0.0001 }
+
+ Note: \code{significance} is kept for backward compatibility. For functions
+ that also expose \code{signif.cutoffs} and related parameters,
+ \code{significance} takes precedence when provided.}
+
+\item{p.format.style}{character string specifying the p-value formatting style
+applied to recognized numeric p-value label columns (see \code{p.digits}).
+One of: \code{"default"} (backward compatible, uses scientific notation),
+\code{"apa"} (APA style, no leading zero), \code{"nejm"} (NEJM style),
+\code{"lancet"} (Lancet style), \code{"ama"} (AMA style), \code{"graphpad"}
+(GraphPad style), or \code{"scientific"} (scientific notation for GWAS). See
+\code{\link{list_p_format_styles}} for details. Default is \code{"default"},
+which leaves the rendered p-value labels unchanged.}
+
+\item{p.digits}{integer indicating the number of digits used to
+format recognized \strong{numeric} p-value label columns (\code{label} is one
+of \code{"p"}, \code{"p.adj"}, \code{"p.value"}, \code{"p.val"},
+\code{"pval"}, \code{"padj"}). Default is 3. Set to \code{NULL} to print the
+raw value without rounding (this also disables \code{p.format.style} and the
+related formatting arguments). All other labels are left unchanged: other
+numeric columns (e.g. \code{"statistic"}, \code{"n"}, effect sizes),
+significance symbols (\code{"p.signif"}, \code{"p.adj.signif"}),
+already-formatted strings, and \code{\link[glue]{glue}} expressions. A
+p-named column whose values fall outside \code{[0, 1]} is also left as-is.
+Uses the same formatting engine (\code{\link{format_p_value}()}) as
+\code{\link{stat_anova_test}()} for consistency across layers. The style of
+this formatting is further controlled by \code{p.format.style},
+\code{p.leading.zero}, \code{p.min.threshold} and \code{p.decimal.mark}
+(same arguments as \code{\link{stat_compare_means}()}).}
+
+\item{p.leading.zero}{logical indicating whether to include the leading zero
+before the decimal point (e.g., "0.05" vs ".05"). If provided, overrides the
+style default.}
+
+\item{p.min.threshold}{numeric specifying the minimum p-value to display
+exactly. Values below this threshold are shown as "< threshold" (e.g.
+\code{p.min.threshold = 0.001} renders very small p-values as "< 0.001"). If
+provided, overrides the style default.}
+
+\item{p.decimal.mark}{character string to use as the decimal mark. If
+\code{NULL}, uses \code{getOption("OutDec")}.}
 
 \item{geom}{The geometric object to use to display the data for this layer.
 When using a \verb{stat_*()} function to construct a layer, the \code{geom} argument
@@ -129,10 +179,10 @@ display. To include legend keys for all levels, even
 when no data exists, use \code{TRUE}.  If \code{NA}, all levels are shown in legend,
 but unobserved levels are omitted.}
 
-\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions), 
-overrides the default aesthetics, rather than combining with them. This is 
-most useful for helper functions that define both data and aesthetics and 
-shouldn't inherit behaviour from the default plot specification. Set to 
+\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions),
+overrides the default aesthetics, rather than combining with them. This is
+most useful for helper functions that define both data and aesthetics and
+shouldn't inherit behaviour from the default plot specification. Set to
 \code{TRUE} to inherit aesthetics from the parent ggplot layer.}
 
 \item{parse}{If TRUE, the labels will be parsed into expressions and displayed
@@ -143,7 +193,7 @@ as described in \code{?plotmath}.}
 }
 \description{
 Add Kruskal-Wallis test p-values to a ggplot, such as
- box blots, dot plots and stripcharts.
+ box plots, dot plots and stripcharts.
 }
 \section{Computed variables}{
  \itemize{
@@ -152,28 +202,29 @@ Add Kruskal-Wallis test p-values to a ggplot, such as
  \item{p.adj}: Adjusted p-values.
  \item{p.signif}: P-value significance.
  \item{p.adj.signif}: Adjusted p-value significance.
- \item{p.format}: Formated p-value.
- \item{p.adj.format}: Formated adjusted p-value.
+ \item{p.format}: Formatted p-value.
+ \item{p.format.signif}: Formatted p-value with significance symbols.
+ \item{p.adj.format}: Formatted adjusted p-value.
  \item{n}: number of samples.
   }
 }
 
 \examples{
 # Data preparation
-#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%
+# \%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%
 # Transform `dose` into factor variable
 df <- ToothGrowth
 df$dose <- as.factor(df$dose)
 # Add a random grouping variable
 set.seed(123)
 df$group <- sample(factor(rep(c("grp1", "grp2", "grp3"), 20)))
-df$len <- ifelse(df$group == "grp2", df$len+2, df$len)
-df$len <- ifelse(df$group == "grp3", df$len+7, df$len)
+df$len <- ifelse(df$group == "grp2", df$len + 2, df$len)
+df$len <- ifelse(df$group == "grp3", df$len + 7, df$len)
 head(df, 3)
 
 
 # Basic boxplot
-#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%
+# \%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%
 # Create a basic boxplot
 # Add 5\% and 10\% space to the plot bottom and the top, respectively
 bxp <- ggboxplot(df, x = "dose", y = "len") +
@@ -199,16 +250,16 @@ bxp + stat_kruskal_test(label = "as_detailed_italic")
 
 
 # Faceted plots
-#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%
+# \%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%
 # Create a ggplot facet
 bxp <- ggboxplot(df, x = "dose", y = "len", facet.by = "supp") +
- scale_y_continuous(expand = expansion(mult = c(0.05, 0.1)))
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.1)))
 # Add p-values
 bxp + stat_kruskal_test()
 
 
 # Grouped plots
-#\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%
+# \%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%
 bxp2 <- ggboxplot(df, x = "group", y = "len", color = "dose", palette = "npg")
 
 # For each x-position, computes tests between legend groups

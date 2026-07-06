@@ -15,12 +15,20 @@ stat_cor(
   label.y.npc = "top",
   label.x = NULL,
   label.y = NULL,
+  label.y.step = 1.4,
+  label.anchor = c("data", "panel"),
   output.type = "expression",
   digits = 2,
   r.digits = digits,
   p.digits = digits,
   r.accuracy = NULL,
   p.accuracy = NULL,
+  r.leading.zero = NULL,
+  p.format.style = "default",
+  p.leading.zero = NULL,
+  p.decimal.mark = NULL,
+  p.coef.name = "p",
+  conf.level = 0.95,
   geom = "text",
   position = "identity",
   na.rm = FALSE,
@@ -79,11 +87,33 @@ separate the correlation coefficient and the p.value.}
 \item{label.x, label.y}{\code{numeric} Coordinates (in data units) to be used
 for absolute positioning of the label. If too short they will be recycled.}
 
+\item{label.y.step}{numeric value giving the vertical spacing (in text-line
+units) between the labels of successive groups when several groups are present.
+Default is 1.4 (unchanged behavior). Set \code{label.y.step = 0} to stop the
+per-group vertical shift, so that labels align across facet panels when a
+factor is mapped to an aesthetic that also defines the facets. This places the
+labels flush with the top of each panel; it is similar in spirit to the
+\code{aes(group = 1)} workaround, which instead leaves them one text line lower.}
+
+\item{label.anchor}{character. How \code{label.x.npc}/\code{label.y.npc} are
+interpreted. \code{"data"} (default) converts them to data coordinates using
+the data range, so the label follows the data; the output is unchanged from
+previous versions. \code{"panel"} places the label at the true panel-relative
+position (npc), so the labels stay aligned across panels/facets whose axis
+ranges differ - e.g. with \code{facet_wrap(scales = "free_y")}, with
+\code{geom_smooth()} extending each panel by a different amount, or across
+separate plots combined with \code{\link{ggarrange}()}. An explicit
+\code{label.x}/\code{label.y} always stays in data units regardless of
+\code{label.anchor}. Requires ggplot2 >= 3.5.0 (already a dependency).}
+
 \item{output.type}{character One of "expression", "latex", "tex" or "text".}
 
 \item{digits, r.digits, p.digits}{integer indicating the number of decimal
 places (round) or significant digits (signif) to be used for the correlation
-coefficient and the p-value, respectively..}
+coefficient and the p-value, respectively. In the default p-value label style,
+the displayed p-value keeps the legacy raw value unless \code{p.accuracy} is
+set; \code{p.digits} is used by non-default \code{p.format.style} outputs and
+the computed \code{p} variable.}
 
 \item{r.accuracy}{a real value specifying the number of decimal places of
 precision for the correlation coefficient. Default is NULL. Use (e.g.) 0.01
@@ -93,6 +123,34 @@ ignored.}
 \item{p.accuracy}{a real value specifying the number of decimal places of
 precision for the p-value. Default is NULL. Use (e.g.) 0.0001 to show 4
 decimal places of precision. If specified, then \code{p.digits} is ignored.}
+
+\item{r.leading.zero}{logical. Whether to include the leading zero before the
+decimal point in the correlation coefficient (e.g., \code{"0.73"} vs
+\code{".73"}). Default (NULL) keeps the leading zero; set to \code{FALSE}
+for APA-style reporting.}
+
+\item{p.format.style}{character specifying the p-value formatting style.
+One of "default", "apa", "nejm", "lancet", "ama", "graphpad", "scientific".
+Default is "default" for backward compatibility.}
+
+\item{p.leading.zero}{logical. Whether to include leading zero before decimal
+point (e.g., "0.05" vs ".05"). If NULL, uses the style's default setting.}
+
+\item{p.decimal.mark}{character string to use as the decimal mark. If NULL,
+uses \code{getOption("OutDec")}.}
+
+\item{p.coef.name}{character. Symbol used for the p-value label. Default is
+\code{"p"}; use \code{"P"} for an uppercase p-value label. For
+\code{output.type = "expression"} this should be a single valid plotmath
+symbol (e.g. \code{"P"}), since it is parsed as an expression.}
+
+\item{conf.level}{confidence level for the confidence interval of the
+correlation coefficient, used to compute the \code{conf.int.low},
+\code{conf.int.high} and \code{conf.int.label} computed variables (see the
+\strong{Computed variables} section). Default is 0.95. A confidence interval
+is only available for \code{method = "pearson"} (with at least 4 complete
+observations); for \code{"spearman"}/\code{"kendall"} the confidence-interval
+variables are \code{NA}.}
 
 \item{geom}{The geometric object to use to display the data for this layer.
 When using a \verb{stat_*()} function to construct a layer, the \code{geom} argument
@@ -131,10 +189,10 @@ display. To include legend keys for all levels, even
 when no data exists, use \code{TRUE}.  If \code{NA}, all levels are shown in legend,
 but unobserved levels are omitted.}
 
-\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions), 
-overrides the default aesthetics, rather than combining with them. This is 
-most useful for helper functions that define both data and aesthetics and 
-shouldn't inherit behaviour from the default plot specification. Set to 
+\item{inherit.aes}{If \code{FALSE} (the default for most ggpubr functions),
+overrides the default aesthetics, rather than combining with them. This is
+most useful for helper functions that define both data and aesthetics and
+shouldn't inherit behaviour from the default plot specification. Set to
 \code{TRUE} to inherit aesthetics from the parent ggplot layer.}
 
 \item{...}{other arguments to pass to \code{\link[ggplot2]{geom_text}} or
@@ -146,10 +204,20 @@ Add correlation coefficients with p-values to a scatter plot. Can
 }
 \section{Computed variables}{
  \describe{ \item{r}{correlation coefficient}
- \item{rr}{correlation coefficient squared} \item{r.label}{formatted label
- for the correlation coefficient} \item{rr.label}{formatted label for the
- squared correlation coefficient} \item{p.label}{label for the p-value}
- \item{label}{default labeldisplayed by \code{stat_cor()}} }
+ \item{rr}{correlation coefficient squared} \item{rmse}{root mean square
+ deviation (RMSE/RMSD) between \code{x} and \code{y}, computed on the complete
+ pairs; meaningful when \code{x} and \code{y} are on the same scale (e.g.
+ predicted vs. reference values). Rounded and formatted with the coefficient
+ settings (\code{r.digits} / \code{r.accuracy}).} \item{r.label}{formatted
+ label for the correlation coefficient} \item{rr.label}{formatted label for
+ the squared correlation coefficient} \item{p.label}{label for the p-value}
+ \item{rmse.label}{formatted label for the RMSE/RMSD}
+ \item{conf.int.low, conf.int.high}{lower and upper bounds of the confidence
+ interval of the correlation coefficient (Pearson only; \code{NA} for
+ Spearman/Kendall), at the level given by \code{conf.level}}
+ \item{conf.int.label}{formatted label for the confidence interval, e.g.
+ \code{"95\% CI [0.21, 0.75]"} (\code{NA} when the interval is unavailable)}
+ \item{label}{default label displayed by \code{stat_cor()}} }
 }
 
 \examples{
@@ -159,12 +227,13 @@ df <- mtcars
 df$cyl <- as.factor(df$cyl)
 
 # Scatter plot with correlation coefficient
-#:::::::::::::::::::::::::::::::::::::::::::::::::
-sp <- ggscatter(df, x = "wt", y = "mpg",
-   add = "reg.line",  # Add regressin line
-   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
-   conf.int = TRUE # Add confidence interval
-   )
+# :::::::::::::::::::::::::::::::::::::::::::::::::
+sp <- ggscatter(df,
+  x = "wt", y = "mpg",
+  add = "reg.line", # Add regressin line
+  add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+  conf.int = TRUE # Add confidence interval
+)
 # Add correlation coefficient
 sp + stat_cor(method = "pearson", label.x = 3, label.y = 30)
 
@@ -178,19 +247,42 @@ sp + stat_cor(aes(label = after_stat(r.label)), label.x = 3)
 
 # Use R2 instead of R
 ggscatter(df, x = "wt", y = "mpg", add = "reg.line") +
- stat_cor(
-   aes(label = paste(after_stat(rr.label), after_stat(p.label), sep = "~`,`~")),
+  stat_cor(
+    aes(label = paste(after_stat(rr.label), after_stat(p.label), sep = "~`,`~")),
+    label.x = 3
+  )
+
+# Show the RMSE/RMSD (root mean square deviation) between x and y
+# (useful for agreement between paired measurements on the same scale)
+sp + stat_cor(aes(label = after_stat(rmse.label)), label.x = 3)
+
+# Combine the correlation coefficient and the RMSE (comma-separated)
+sp + stat_cor(
+  aes(label = paste(after_stat(r.label), after_stat(rmse.label), sep = "~`,`~")),
   label.x = 3
 )
 
+# Show the confidence interval of the correlation coefficient (Pearson)
+sp + stat_cor(aes(label = after_stat(conf.int.label)), label.x = 3)
+
+# Correlation coefficient with its confidence interval
+sp + stat_cor(
+  aes(label = paste(after_stat(r.label), after_stat(conf.int.label), sep = "~`,`~")),
+  label.x = 1.5
+)
+
 # Color by groups and facet
-#::::::::::::::::::::::::::::::::::::::::::::::::::::
-sp <- ggscatter(df, x = "wt", y = "mpg",
-   color = "cyl", palette = "jco",
-   add = "reg.line", conf.int = TRUE)
+# ::::::::::::::::::::::::::::::::::::::::::::::::::::
+sp <- ggscatter(df,
+  x = "wt", y = "mpg",
+  color = "cyl", palette = "jco",
+  add = "reg.line", conf.int = TRUE
+)
 sp + stat_cor(aes(color = cyl), label.x = 3)
 
 }
 \seealso{
-\code{\link{ggscatter}}
+\code{\link{ggscatter}}. For an alternative implementation with more
+ control over label positioning (native NPC coordinates, per-group vertical and
+ horizontal steps), see \code{ggpmisc::stat_correlation()}.
 }

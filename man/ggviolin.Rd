@@ -22,9 +22,18 @@ ggviolin(
   short.panel.labs = TRUE,
   linetype = "solid",
   trim = FALSE,
+  drop = TRUE,
   size = NULL,
   linewidth = NULL,
   width = 1,
+  quantiles = NULL,
+  quantile.linetype = NULL,
+  quantile.type = NULL,
+  quantile.alpha = NULL,
+  quantile.colour = NULL,
+  quantile.color = NULL,
+  quantile.linewidth = NULL,
+  quantile.size = NULL,
   draw_quantiles = NULL,
   select = NULL,
   remove = NULL,
@@ -39,6 +48,7 @@ ggviolin(
   label.rectangle = FALSE,
   position = position_dodge(0.8),
   ggtheme = theme_pubr(),
+  show.n = FALSE,
   ...
 )
 }
@@ -97,12 +107,33 @@ labelled only by variable grouping levels.}
 \item{trim}{If \code{TRUE} (default), trim the tails of the violins
 to the range of the data. If \code{FALSE}, don't trim the tails.}
 
+\item{drop}{logical, passed to \code{\link[ggplot2]{geom_violin}()}, controlling
+whether grouped sub-samples with fewer than two data points (for which no
+density can be computed) are dropped from the plot and the dodge position. By
+default \code{ggviolin()} keeps grouped violins aligned with their other layers
+(e.g. added boxplots or dot plots) automatically: when you do not set \code{drop}
+or \code{position} and a grouped sub-group has a single data point, the empty
+dodge lane is reserved (equivalent to \code{drop = FALSE} together with
+\code{position = position_dodge(0.8, preserve = "single")}) so the violins stay
+aligned. Balanced, ungrouped, and faceted plots are unaffected. Setting
+\code{drop} or \code{position} explicitly turns off this automatic handling and
+uses exactly what you supply (#381).}
+
 \item{size}{Numeric value (e.g.: size = 1). change the size of points and
 outlines.}
 
 \item{linewidth}{constant value specifying the line width.}
 
 \item{width}{violin width.}
+
+\item{quantiles}{numeric vector of quantiles to draw on the violin.}
+
+\item{quantile.linetype}{linetype for quantile lines; set to draw quantiles
+with ggplot2 >= 4.0.0.}
+
+\item{quantile.type}{quantile algorithm passed to ggplot2.}
+
+\item{quantile.alpha, quantile.colour, quantile.color, quantile.linewidth, quantile.size}{aesthetics for quantile lines.}
 
 \item{draw_quantiles}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Previous
 specification of drawing quantiles.}
@@ -144,7 +175,7 @@ specifying some labels to show. \item a list containing one or the
 combination of the following components: \itemize{ \item \code{top.up} and
 \code{top.down}: to display the labels  of the top up/down points. For
 example, \code{label.select = list(top.up = 10, top.down = 4)}. \item
-\code{criteria}: to filter, for example, by x and y variabes values, use
+\code{criteria}: to filter, for example, by x and y variables values, use
 this: \code{label.select = list(criteria = "`y` > 2 & `y` < 5 & `x` \%in\%
 c('A', 'B')")}. } }}
 
@@ -154,22 +185,20 @@ text labels or not.}
 \item{label.rectangle}{logical value. If TRUE, add rectangle underneath the
 text, making it easier to read.}
 
-\item{position}{A position adjustment to use on the data for this layer. This
-can be used in various ways, including to prevent overplotting and
-improving the display. The \code{position} argument accepts the following:
-\itemize{
-\item The result of calling a position function, such as \code{position_jitter()}.
-This method allows for passing extra arguments to the position.
-\item A string naming the position adjustment. To give the position as a
-string, strip the function name of the \code{position_} prefix. For example,
-to use \code{position_jitter()}, give the position as \code{"jitter"}.
-\item For more information and other ways to specify the position, see the
-\link[ggplot2:layer_positions]{layer position} documentation.
-}}
+\item{position}{position adjustment, either as a string, or the result of a
+call to a position adjustment function (e.g. \code{position_dodge(0.8)}).
+Used to control the spacing between grouped elements.}
 
-\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr().
+\item{ggtheme}{function, ggplot2 theme name. Default value is theme_pubr(). Set ggtheme = NULL to skip applying a ggpubr theme, so the plot keeps ggplot2 default theme or the theme set globally via theme_set().
 Allowed values include ggplot2 official themes: theme_gray(), theme_bw(),
 theme_minimal(), theme_classic(), theme_void(), ....}
+
+\item{show.n}{logical. If TRUE, displays the number of observations
+(\code{"n = <count>"}) at the top of each group. Off by default. When the
+groups are dodged (a \code{color}/\code{fill} grouping with a dodging
+\code{position}), one count is shown per group; otherwise a single count is
+shown per x-axis tick. Counts respect \code{select}/\code{remove} and are
+computed per facet.}
 
 \item{...}{other arguments to be passed to
 \code{\link[ggplot2]{geom_violin}}, \code{\link{ggpar}} and
@@ -203,55 +232,74 @@ ggviolin(df, "dose", "len", orientation = "horiz")
 # Add summary statistics
 # ++++++++++++++++++++++++++
 # Draw quantiles
-ggviolin(df, "dose", "len", add = "none",
-   draw_quantiles = 0.5)
+ggviolin(df, "dose", "len",
+  add = "none",
+  quantiles = 0.5, quantile.linetype = "dashed"
+)
 
 # Add box plot
-ggviolin(df, x = "dose", y = "len",
- add = "boxplot")
+ggviolin(df,
+  x = "dose", y = "len",
+  add = "boxplot"
+)
 
-ggviolin(df, x = "dose", y = "len",
- add = "dotplot")
+ggviolin(df,
+  x = "dose", y = "len",
+  add = "dotplot"
+)
 
 # Add jitter points and
 # change point shape by groups ("dose")
-ggviolin(df, x = "dose", y = "len",
-add = "jitter", shape = "dose")
+ggviolin(df,
+  x = "dose", y = "len",
+  add = "jitter", shape = "dose"
+)
 
 
 # Add mean_sd + jittered points
-ggviolin(df, x = "dose", y = "len",
- add = c("jitter", "mean_sd"))
+ggviolin(df,
+  x = "dose", y = "len",
+  add = c("jitter", "mean_sd")
+)
 
 # Change error.plot to "crossbar"
-ggviolin(df, x = "dose", y = "len",
- add = "mean_sd", error.plot = "crossbar")
+ggviolin(df,
+  x = "dose", y = "len",
+  add = "mean_sd", error.plot = "crossbar"
+)
 
 
 # Change colors
 # +++++++++++++++++++++++++++
 # Change outline and fill colors
 ggviolin(df, "dose", "len",
-   color = "black", fill = "gray")
+  color = "black", fill = "gray"
+)
 
 # Change outline colors by groups: dose
 # Use custom color palette and add boxplot
-ggviolin(df, "dose", "len",  color = "dose",
-   palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-   add = "boxplot")
+ggviolin(df, "dose", "len",
+  color = "dose",
+  palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  add = "boxplot"
+)
 
 # Change fill color by groups: dose
 # add boxplot with white fill color
-ggviolin(df, "dose", "len", fill = "dose",
-   palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-   add = "boxplot", add.params = list(fill = "white"))
+ggviolin(df, "dose", "len",
+  fill = "dose",
+  palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  add = "boxplot", add.params = list(fill = "white")
+)
 
 
 # Plot with multiple groups
 # +++++++++++++++++++++
 # fill or color box plot by a second group : "supp"
-ggviolin(df, "dose", "len", color = "supp",
- palette = c("#00AFBB", "#E7B800"), add = "boxplot")
+ggviolin(df, "dose", "len",
+  color = "supp",
+  palette = c("#00AFBB", "#E7B800"), add = "boxplot"
+)
 
 }
 \seealso{
